@@ -1,8 +1,6 @@
-import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import Signup from "./pages/auth/Signup";
+import WhatsAppLogin from "./pages/auth/WhatsAppLogin";
 
 export default function Router() {
   return (
@@ -11,9 +9,10 @@ export default function Router() {
         <Route path="/" element={<Login />} />
 
         <Route path="auth/">
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="login/">
+            <Route index element={<Login />} />
+            <Route path="whatsapp/" element={<WhatsAppLogin />} />
+          </Route>
         </Route>
 
         {/* <Route path="/" element={<Layout />}>

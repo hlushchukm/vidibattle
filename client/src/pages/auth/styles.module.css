@@ -1,0 +1,18 @@
+.gradiant-bg {
+  background: var(--gradient-bg);
+}
+
+.social-media-icons {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberInput {
+  -moz-appearance: textfield;
+}

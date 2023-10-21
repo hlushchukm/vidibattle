@@ -15802,7 +15802,7 @@ ul.list-check {
 .social-box {
   text-align: center;
   margin: 25px auto;
-  width: 100px;
+  width: fit-content;
   height: 70px; }
   .social-box span {
     margin-bottom: 10px;
