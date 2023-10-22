@@ -1,10 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-router.get('/', (req, res, next) => {
-    res.send("test works")
+const authRoutes = require("./authRoutes");
+
+router.use("/auth", authRoutes);
+
+// TODO: Delete me later
+router.get("/", (req, res, next) => {
+  res.send("works");
 });
 
-router.get('/test/:id', (req, res, next) => {
-    res.send("test/id works")
-});
 module.exports = router;
