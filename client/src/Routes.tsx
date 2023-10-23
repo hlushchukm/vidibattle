@@ -6,6 +6,11 @@ import WhatsAppLogin from "./pages/auth/WhatsAppLogin";
 import Welcome from "./pages/auth/Welcome";
 import Home from "./pages/home/Home";
 import NotFound from "./pages/NotFound";
+import Timeline from "./pages/timeline/Timeline";
+import { MainLayout } from "./layouts/Layouts";
+import Chat from "./pages/chat/Chat";
+import Profile from "./pages/profile/Profile";
+import CreatePost from "./pages/create-post/CreatePost";
 
 export default function Router() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -32,18 +37,51 @@ export default function Router() {
               <Route path="whatsapp/" element={<WhatsAppLogin />} />
             </Route>
           </Route>
+          <Route path="/" element={<Navigate to="/home" />}></Route>
+          {/* Private Routes */}
           {loggedIn ? (
             <>
-              <Route path="/" element={<Navigate to="/home" />}></Route>
-              <Route path="/home" element={<Home />} />
+              <Route
+                path="/home"
+                element={
+                  <MainLayout>
+                    <Home />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/timeline"
+                element={
+                  <MainLayout>
+                    <Timeline />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <MainLayout>
+                    <Chat />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <MainLayout>
+                    <Profile />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/create-post"
+                element={
+                  <MainLayout>
+                    <CreatePost />
+                  </MainLayout>
+                }
+              />
               <Route path="*" element={<NotFound />} />
-
-              {/* <Route path="/" element={<Layout />}>
-                    <Route index element={<Home />} />
-                    <Route path="blogs" element={<Blogs />} />
-                    <Route path="contact" element={<Contact />} />
-                    <Route path="*" element={<NoPage />} />
-                  </Route> */}
             </>
           ) : (
             <Route path="*" element={<Navigate to="/auth" replace />} />
