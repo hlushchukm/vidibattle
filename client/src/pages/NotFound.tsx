@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import TopNavBarWrapper from "../components/TopNavBarWrapper";
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -6,20 +7,16 @@ export default function NotFound() {
   return (
     <>
       {/* Header */}
-      <header className="header">
-        <div className="container">
-          <div className="main-bar">
-            <div className="left-content">
-              <a onClick={() => navigate(-1)} className="back-btn">
-                <i className="fa-solid fa-arrow-left"></i>
-              </a>
-              <h4 className="title mb-0">Not Found</h4>
-            </div>
-            <div className="mid-content"></div>
-            <div className="right-content"></div>
-          </div>
+      <TopNavBarWrapper>
+        <div className="left-content">
+          <a onClick={() => navigate(-1)} className="back-btn">
+            <i className="fa-solid fa-arrow-left"></i>
+          </a>
+          <h4 className="title mb-0">Not Found</h4>
         </div>
-      </header>
+        <div className="mid-content"></div>
+        <div className="right-content"></div>
+      </TopNavBarWrapper>
       {/* Header End */}
 
       {/* Error Start */}
