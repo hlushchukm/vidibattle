@@ -1,6 +1,6 @@
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
-export default function ChatHeader() {
+export default function ChatListHeader() {
   return (
     <>
       <TopNavBarWrapper>
