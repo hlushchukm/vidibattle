@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import SplashScreen from "../../components/SplashScreen";
 
 export default function Welcome() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -8,61 +9,12 @@ export default function Welcome() {
     setTimeout(() => setPageLoading(false), 600);
   }, []);
 
+  if (pageLoading) {
+    return <SplashScreen />;
+  }
+
   return (
     <>
-      {/* splash */}
-      {pageLoading && (
-        <div className="loader-screen" id="">
-          <div className="main-screen">
-            <div className="circle-2"></div>
-            <div className="circle-3"></div>
-            <div className="circle-4"></div>
-            <div className="circle-5"></div>
-            <div className="circle-6"></div>
-            <div className="brand-logo">
-              <div className="logo">
-                <img
-                  src="/assets/images/vector.svg"
-                  alt="spoon-1"
-                  className="wow bounceInDown"
-                />
-              </div>
-              <div id="loading-area" className="loading-page-4">
-                <div className="loading-inner">
-                  <div className="load-text">
-                    <span data-text="S" className="text-load">
-                      S
-                    </span>
-                    <span data-text="O" className="text-load">
-                      O
-                    </span>
-                    <span data-text="Z" className="text-load">
-                      Z
-                    </span>
-                    <span data-text="I" className="text-load">
-                      I
-                    </span>
-                    <span data-text="E" className="text-load">
-                      E
-                    </span>
-                    <span data-text="T" className="text-load">
-                      T
-                    </span>
-                    <span data-text="Y" className="text-load">
-                      Y
-                    </span>
-                    <span data-text="." className="text-load text-primary">
-                      .
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* splash */}
-
       {/* Welcome Start  */}
       <div className="content-body">
         <div className="container vh-100">
