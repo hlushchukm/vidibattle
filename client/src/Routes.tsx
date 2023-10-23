@@ -75,14 +75,7 @@ export default function Router() {
                   </MainLayout>
                 }
               />
-              <Route
-                path="/create-post"
-                element={
-                  <MainLayout>
-                    <CreatePost />
-                  </MainLayout>
-                }
-              />
+              <Route path="/create-post" element={<CreatePost />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
