@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import PageLoading from "../../components/PageLoading";
 import HomeHeader from "./components/HomeHeader";
-import HomeFooterNav from "../../components/HomeFooterNav";
 import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 
@@ -36,10 +35,6 @@ export default function Home() {
         </div>
       </div>
       {/* Page Content End */}
-
-      {/* Menubar  */}
-      <HomeFooterNav />
-      {/* Menubar  */}
     </>
   );
 }
