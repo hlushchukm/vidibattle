@@ -8,9 +8,10 @@ import Home from "./pages/home/Home";
 import NotFound from "./pages/NotFound";
 import Timeline from "./pages/timeline/Timeline";
 import { MainLayout } from "./layouts/Layouts";
-import Chat from "./pages/chat/Chat";
+import ChatList from "./pages/chat/ChatList";
 import Profile from "./pages/profile/Profile";
 import CreatePost from "./pages/create-post/CreatePost";
+import Messages from "./pages/chat/Messages";
 
 export default function Router() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -61,10 +62,11 @@ export default function Router() {
                 path="/chat"
                 element={
                   <MainLayout>
-                    <Chat />
+                    <ChatList />
                   </MainLayout>
                 }
-              />
+              ></Route>
+              <Route path="chat/:id" element={<Messages />} />
               <Route
                 path="/profile"
                 element={
