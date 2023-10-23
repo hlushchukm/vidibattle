@@ -36,12 +36,6 @@ export default function Login() {
     <>
       <div className={styles["gradiant-bg"]}>
         <div className="page-wraper">
-          {/* Preloader */}
-          {/* <div id="preloader">
-            <div className="spinner"></div>
-          </div> */}
-          {/* Preloader end */}
-
           {/* Welcome Start */}
           <div className="content-body">
             <div className="container vh-100">

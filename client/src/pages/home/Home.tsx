@@ -1,12 +1,18 @@
+import { useEffect, useState } from "react";
+import PageLoading from "../../components/PageLoading";
+
 export default function Home() {
+  const [pageLoading, setPageLoading] = useState(true);
+
+  useEffect(() => {
+    setPageLoading(false);
+  }, []);
+
+  if (pageLoading) {
+    return <PageLoading />;
+  }
   return (
     <>
-      {/* Preloader */}
-      <div id="preloader">
-        <div className="spinner"></div>
-      </div>
-      {/* Preloader end */}
-
       {/* Header */}
       <header className="header">
         <div className="container">
