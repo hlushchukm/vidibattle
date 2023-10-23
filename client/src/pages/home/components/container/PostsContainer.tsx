@@ -8,7 +8,7 @@ export default function PostsContainer() {
               <a href="user-profile.html" className="media media-40">
                 <img
                   className="rounded"
-                  src="assets/images/stories/small/pic4.jpg"
+                  src="/assets/images/stories/small/pic4.jpg"
                   alt="/"
                 />
               </a>
@@ -72,7 +72,7 @@ export default function PostsContainer() {
             sit emat 😎😎
           </p>
           <div className="dz-media">
-            <img src="assets/images/post/pic1.png" alt="/" />
+            <img src="/assets/images/post/pic1.png" alt="/" />
             <div className="post-meta-btn">
               <ul>
                 <li>
@@ -103,7 +103,7 @@ export default function PostsContainer() {
               <a href="user-profile.html" className="media media-40">
                 <img
                   className="rounded"
-                  src="assets/images/stories/small/pic6.jpg"
+                  src="/assets/images/stories/small/pic6.jpg"
                   alt="/"
                 />
               </a>
@@ -167,7 +167,7 @@ export default function PostsContainer() {
             sit emat 😎😎
           </p>
           <div className="dz-media">
-            <img src="assets/images/post/pic2.png" alt="/" />
+            <img src="/assets/images/post/pic2.png" alt="/" />
             <div className="post-meta-btn">
               <ul>
                 <li>
@@ -198,7 +198,7 @@ export default function PostsContainer() {
               <a href="user-profile.html" className="media media-40">
                 <img
                   className="rounded"
-                  src="assets/images/stories/small/pic2.jpg"
+                  src="/assets/images/stories/small/pic2.jpg"
                   alt="/"
                 />
               </a>
@@ -262,7 +262,7 @@ export default function PostsContainer() {
             sit emat 😎😎
           </p>
           <div className="dz-media">
-            <img src="assets/images/post/pic8.png" alt="/" />
+            <img src="/assets/images/post/pic8.png" alt="/" />
             <div className="post-meta-btn">
               <ul>
                 <li>

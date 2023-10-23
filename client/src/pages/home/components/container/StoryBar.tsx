@@ -8,7 +8,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box style-1">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic8.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic8.jpg" alt="/" />
                     <div className="add-box">
                       <i className="fa-solid fa-plus"></i>
                     </div>
@@ -19,7 +19,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="live-story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic1.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic1.jpg" alt="/" />
                     <div className="live-text">Live</div>
                   </div>
                   <span className="detail">Emilia</span>
@@ -28,7 +28,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic2.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic2.jpg" alt="/" />
                   </div>
                   <span className="detail">Richard</span>
                 </a>
@@ -36,7 +36,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic3.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic3.jpg" alt="/" />
                   </div>
                   <span className="detail">Jasmine</span>
                 </a>
@@ -44,7 +44,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic4.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic4.jpg" alt="/" />
                   </div>
                   <span className="detail">Lucas</span>
                 </a>
@@ -52,7 +52,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic5.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic5.jpg" alt="/" />
                   </div>
                   <span className="detail">Hendri</span>
                 </a>
@@ -60,7 +60,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic6.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic6.jpg" alt="/" />
                   </div>
                   <span className="detail">Carla</span>
                 </a>
@@ -68,7 +68,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="live-story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic7.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic7.jpg" alt="/" />
                     <div className="live-text">Live</div>
                   </div>
                   <span className="detail">Jermy</span>
@@ -77,7 +77,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic5.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic5.jpg" alt="/" />
                   </div>
                   <span className="detail">Kerry</span>
                 </a>
@@ -85,7 +85,7 @@ export default function StoryBar() {
               <div className="swiper-slide">
                 <a href="story.html" className="categore-box">
                   <div className="story-bx">
-                    <img src="assets/images/stories/small/pic6.jpg" alt="/" />
+                    <img src="/assets/images/stories/small/pic6.jpg" alt="/" />
                   </div>
                   <span className="detail">Perry</span>
                 </a>
