@@ -9,9 +9,9 @@ export default function NotFound() {
       {/* Header */}
       <TopNavBarWrapper>
         <div className="left-content">
-          <a onClick={() => navigate(-1)} className="back-btn">
+          <button onClick={() => navigate(-1)} className="back-btn btn">
             <i className="fa-solid fa-arrow-left"></i>
-          </a>
+          </button>
           <h4 className="title mb-0">Not Found</h4>
         </div>
         <div className="mid-content"></div>
