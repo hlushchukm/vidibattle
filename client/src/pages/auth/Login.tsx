@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles.module.css";
 const env = import.meta.env;
 
 export default function Login() {
   const navigate = useNavigate();
   const [forgotPassword, setForgotPassword] = useState(false);
+  const [isCreate, setIsCreate] = useState(false);
 
   // TODO: handle forgotPassword
 
   useEffect(() => {
     const queryParameters = new URLSearchParams(window.location.search);
     setForgotPassword(queryParameters.get("forgotPassword") === "true");
+    setIsCreate(queryParameters.get("create") === "true");
   }, []);
 
   const googleAuth = () => {
@@ -47,16 +49,21 @@ export default function Login() {
                 <div
                   className="bg-image bg-image-overlay"
                   style={{
-                    backgroundImage: 'url("/assets/images/login/pic4.jpg")',
+                    backgroundImage: `url("/assets/images/login/${
+                      isCreate ? "pic3.jpg" : "pic4.jpg"
+                    }")`,
                   }}
                 ></div>
                 <div className="join-area">
                   <div className="started">
-                    <h1 className="title">Sign in</h1>
-                    {/* <p>
+                    <h1 className="title">
+                      {isCreate}
+                      {!isCreate ? "Sign in" : "Create Account"}
+                    </h1>
+                    <p>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                       sed do eiusmod tempor
-                    </p> */}
+                    </p>
                   </div>
                   <div className="social-box">
                     {/* <span>Or sign in with</span> */}
@@ -88,7 +95,7 @@ export default function Login() {
                           alt="instagram"
                         />
                       </div>
-                      {!forgotPassword && (
+                      {!forgotPassword && !isCreate && (
                         <div
                           onClick={gotoWhatsappLogin}
                           className={styles["social-media-icons"]}
@@ -100,6 +107,34 @@ export default function Login() {
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div className="d-flex align-items-center justify-content-center">
+                    {!isCreate && (
+                      <>
+                        <div className="text-light text-center d-block">
+                          Don't have an account?
+                        </div>
+                        <Link
+                          to="../"
+                          className="btn-link d-block ms-3 text-underline"
+                        >
+                          Register Here
+                        </Link>
+                      </>
+                    )}
+                    {isCreate && (
+                      <>
+                        <div className="text-light text-center d-block">
+                          Have an account?
+                        </div>
+                        <Link
+                          to="../"
+                          className="btn-link d-block ms-3 text-underline"
+                        >
+                          Sign In Here
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
