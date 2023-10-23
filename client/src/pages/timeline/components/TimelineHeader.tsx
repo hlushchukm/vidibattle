@@ -1,7 +1,7 @@
 import SearchBar from "../../../components/SearchBar";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
-export default function SearchHeader() {
+export default function TimelineHeader() {
   return (
     <>
       <TopNavBarWrapper>

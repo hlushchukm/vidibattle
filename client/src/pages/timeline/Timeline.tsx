@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import PageLoading from "../../components/PageLoading";
-import HomeFooterNav from "../../components/HomeFooterNav";
-import TopNavBarWrapper from "../../components/TopNavBarWrapper";
-import SearchHeader from "./components/SearchHeader";
+import TimelineHeader from "./components/TimelineHeader";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -16,7 +14,7 @@ export default function Timeline() {
   }
   return (
     <>
-      <SearchHeader />
+      <TimelineHeader />
 
       <div className="page-content">
         <div className="content-inner pt-0">
