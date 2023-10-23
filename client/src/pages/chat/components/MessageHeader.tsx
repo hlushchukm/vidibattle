@@ -8,9 +8,9 @@ export default function MessageHeader() {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <a onClick={() => navigate(-1)} className="back-btn">
+          <button onClick={() => navigate(-1)} className="back-btn btn">
             <i className="fa-solid fa-arrow-left"></i>
-          </a>
+          </button>
           <div className="media me-3 media-35 rounded-circle">
             <img src="/assets/images/stories/small/pic1.jpg" alt="/" />
           </div>
