@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const authRoutes = require("./authRoutes");
+const authRouter = require("./auth.route");
+const postRouter = require("./posts.route")
 
-router.use("/auth", authRoutes);
+router.use("/auth", authRouter);
+router.use("/post", postRouter);
 
 // TODO: Delete me later
 router.get("/", (req, res, next) => {
