@@ -5,7 +5,6 @@ const Schema = mongoose.Schema;
 
 const userSchema = Schema(
   {
-    id: { type: String },
     profile_id: { type: String, required: true },
     first_name: { type: String },
     last_name: { type: String },
@@ -37,7 +36,7 @@ const userSchema = Schema(
 );
 
 userSchema.pre("find", function () {
-  this.where({ deleted: false });
+  this.where({ is_deleted: false });
 });
 
 module.exports.userSchema = userSchema;
