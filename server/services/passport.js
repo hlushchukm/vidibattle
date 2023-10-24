@@ -2,7 +2,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const InstagramStrategy = require("passport-instagram").Strategy;
 const passport = require("passport");
-const User = require("../models/User");
+const { User } = require("../models/user.model");
 
 passport.use(
   new GoogleStrategy(
@@ -15,16 +15,16 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       console.log(profile);
       const user = {
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
+        first_name: profile.name.givenName,
+        last_name: profile.name.familyName,
         email: profile.emails?.[0]?.value,
-        profileImg: profile.photos[0]?.value,
+        profile_img: profile.photos[0]?.value,
         provider: "google",
-        profileId: profile.id,
+        profile_id: profile.id,
       };
 
       const existingUser = await User.findOne({
-        profileId: user.profileId,
+        profile_id: user.profile_id,
         provider: "google",
       });
 
@@ -48,23 +48,23 @@ passport.use(
 passport.use(
   new FacebookStrategy(
     {
-      clientID: process.env.FB_CLIENT_ID,
-      clientSecret: process.env.FB_CLIENT_SECRET,
+      clientID: process.env.FB_CLIENT_ID ?? "",
+      clientSecret: process.env.FB_CLIENT_SECRET ?? "",
       callbackURL: "/api/auth/facebook/callback",
       profileFields: ["id", "name", "photos", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
       const user = {
-        firstName: profile.name.givenName,
-        lastName: profile.name.familyName,
+        first_name: profile.name.givenName,
+        last_name: profile.name.familyName,
         email: profile.emails?.[0]?.value,
-        profileImg: profile.photos[0]?.value,
+        profile_img: profile.photos[0]?.value,
         provider: "facebook",
-        profileId: profile.id,
+        profile_id: profile.id,
       };
 
       const existingUser = await User.findOne({
-        prodileId: user.profileId,
+        prodile_id: user.profile_id,
         provider: "google",
       });
 
@@ -88,8 +88,8 @@ passport.use(
 passport.use(
   new InstagramStrategy(
     {
-      clientID: process.env.IG_CLIENT_ID,
-      clientSecret: process.env.IG_CLIENT_SECRET,
+      clientID: process.env.IG_CLIENT_ID ?? "",
+      clientSecret: process.env.IG_CLIENT_SECRET ?? "",
       callbackURL: "/api/auth/instagram/callback",
     },
     (accessToken, refreshToken, profile, done) => {
