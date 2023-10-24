@@ -29,7 +29,7 @@ router.get(
     // Successful login, redirect or send a response
     console.log("Successfull Login");
     // res.send("Successfull Login")
-    res.redirect(process.env.CLIENT_URL);
+    res.redirect(process.env.CLIENT_URL ?? "");
   }
 );
 
@@ -40,7 +40,7 @@ router.get(
     // Successful login, redirect or send a response
     console.log("Successfull Facebook Login");
     // res.send("Successfull Login")
-    res.redirect(process.env.CLIENT_URL);
+    res.redirect(process.env.CLIENT_URL ?? "");
   }
 );
 
@@ -51,7 +51,7 @@ router.get(
     // Successful login, redirect or send a response
     console.log("Successfull Instagram Login");
     // res.send("Successfull Login")
-    res.redirect(process.env.CLIENT_URL);
+    res.redirect(process.env.CLIENT_URL ?? "");
   }
 );
 

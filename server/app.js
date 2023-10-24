@@ -11,7 +11,7 @@ const passportStrategy = require("./services/passport");
 // const fs = require("fs");
 
 const connect = mongoose
-  .connect(process.env.ATLAS_URI, {
+  .connect(process.env.ATLAS_URI ?? "", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -27,7 +27,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET || "twinphy",
     resave: false,
-    store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI }),
+    store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
     saveUninitialized: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
