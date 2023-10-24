@@ -2,25 +2,10 @@ const { Post } = require("../models/post.model");
 const { default: mongoose } = require("mongoose");
 
 module.exports.getFeed = async (req, res, next) => {
-  const { author, pageSize, lastDate, lastPostId } = req.query;
+  const { userId, pageSize, lastDate, lastPostId } = req.query;
 
   try {
-    let query = {};
-    if (lastDate) {
-      query.$or = [
-        { createdAt: { $lt: new Date(lastDate) } },
-        {
-          $and: [
-            { createdAt: new Date(lastDate) },
-            { _id: { $lt: new mongoose.Types.ObjectId(lastPostId) } },
-          ],
-        },
-      ];
-    }
-
-    const posts = await Post.find(query)
-      .sort({ createdAt: -1, _id: -1 })
-      .limit(parseInt(pageSize));
+    const posts = await Post.feed({ lastDate, lastPostId, pageSize });
 
     let updatedLastDate = lastDate;
     let updatedLastPostId = lastPostId;
@@ -47,22 +32,12 @@ module.exports.getTimeline = async (req, res, next) => {
   const { pageSize, lastDate, lastPostId } = req.query;
 
   try {
-    let query = { author: userId };
-    if (lastDate) {
-      query.$or = [
-        { createdAt: { $lt: new Date(lastDate) } },
-        {
-          $and: [
-            { createdAt: new Date(lastDate) },
-            { _id: { $lt: new mongoose.Types.ObjectId(lastPostId) } },
-          ],
-        },
-      ];
-    }
-
-    const posts = await Post.find(query)
-      .sort({ createdAt: -1, _id: -1 })
-      .limit(parseInt(pageSize));
+    const posts = await Post.timeline({
+      author: userId,
+      lastDate,
+      lastPostId,
+      pageSize,
+    });
 
     let updatedLastDate = lastDate;
     let updatedLastPostId = lastPostId;

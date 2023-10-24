@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { feed, timeline } = require("./post.method");
 
 const Schema = mongoose.Schema;
 
@@ -18,5 +19,9 @@ const postSchema = new Schema(
   },
   { timestamps: true }
 );
+
+// Methods
+postSchema.statics.feed = feed; // feed generation
+postSchema.statics.timeline = timeline; // timeline generation
 
 module.exports.postSchema = postSchema;
