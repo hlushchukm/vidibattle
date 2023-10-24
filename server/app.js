@@ -8,6 +8,7 @@ require("dotenv").config({ path: "./config.env" });
 const routes = require("./routes/api");
 const passport = require("passport");
 const passportStrategy = require("./services/passport");
+const { logger } = require("./services/logger");
 // const https = require("https");
 // const fs = require("fs");
 
@@ -20,6 +21,11 @@ const connect = mongoose
     console.log("MongoDB Connected...");
 
     const app = express();
+
+    // Middleware to log requests in development mode
+    if (process.env.NODE_ENV === 'development') {
+      app.use(logger);
+    }
 
     // middlewares
     app.use(
