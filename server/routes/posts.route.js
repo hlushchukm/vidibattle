@@ -4,7 +4,7 @@ const postsController = require("../controllers/posts.controller");
 
 //read
 router.get("/feed", postsController.getFeed);
-router.get("/timeline/:id", postsController.getTimeline);
+router.get("/timeline/:userId", postsController.getTimeline);
 
 //create
 router.post("/", postsController.create);
