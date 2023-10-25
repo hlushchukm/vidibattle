@@ -3,12 +3,34 @@ import PageLoading from "../../components/PageLoading";
 import HomeHeader from "./components/HomeHeader";
 import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
+import { get } from "../../services/crud";
 
 export default function Home() {
   const [pageLoading, setPageLoading] = useState(true);
+  const [feed, setFeed] = useState([]);
+  const [lastDate, setLastDate] = useState(null);
+  const [lastPostId, setLastPostId] = useState([]);
 
   useEffect(() => {
-    setPageLoading(false);
+    get("post/feed", {
+      // TODO: use authenticated user's ID
+      // TODO: fetch more feed on scroll
+      userId: "6535242d5968d6f6c3cc491f",
+      pageSize: 4,
+      lastDate,
+      lastPostId,
+    })
+      .then((res) => {
+        console.log(res);
+        setFeed(res.data);
+        setLastDate(res.lastDate);
+        setLastPostId(res.lastPostId);
+        setPageLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setPageLoading(false);
+      });
   }, []);
 
   if (pageLoading) {
@@ -30,7 +52,7 @@ export default function Home() {
             <StoryBar />
 
             {/* POSTS */}
-            <PostsContainer />
+            <PostsContainer feed={feed} />
           </div>
         </div>
       </div>
