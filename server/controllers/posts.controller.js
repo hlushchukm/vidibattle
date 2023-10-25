@@ -1,5 +1,5 @@
 const { Post } = require("../models/post.model");
-const { default: mongoose } = require("mongoose");
+const { Media } = require("../models/media.model");
 
 module.exports.getFeed = async (req, res, next) => {
   const { userId, pageSize, lastDate, lastPostId } = req.query;
@@ -61,12 +61,24 @@ module.exports.getTimeline = async (req, res, next) => {
 
 module.exports.create = async (req, res, next) => {
   // TODO: match author with the person making the request
-  const { caption, media, author } = req.body;
+  const { caption, author } = req.body;
+  const { filename, contentType } = req.file;
 
   try {
+    // create the media document
+    const media = new Media({
+      filename,
+      contentType,
+      type: "video",
+      owner: author,
+    });
+    // TODO: store thumbnail
+
+    await media.save();
+
     const post = new Post({
       caption,
-      // media,
+      media: [media._id],
       author,
     });
 

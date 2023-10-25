@@ -4,11 +4,19 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const createError = require("http-errors");
 const cors = require("cors");
+const multer = require("multer");
+const Grid = require("gridfs-stream");
+// TODO: remove and uninstall unused imports
+const GridFsStorage = require("multer-gridfs-storage");
+const path = require("path");
+const crypto = require("crypto");
+// const mongodb = require("mongodb");
 require("dotenv").config({ path: "./config.env" });
 const routes = require("./routes/api");
 const passport = require("passport");
 const passportStrategy = require("./services/passport");
 const { logger } = require("./services/logger");
+const { GridFSBucket } = require("mongodb");
 // const https = require("https");
 // const fs = require("fs");
 
@@ -23,7 +31,7 @@ const connect = mongoose
     const app = express();
 
     // Middleware to log requests in development mode
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       app.use(logger);
     }
 
@@ -51,6 +59,16 @@ const connect = mongoose
       // })
     );
     app.use(express.json());
+
+    // // Init stream
+    // const conn = mongoose.connection;
+
+    // // Init stream
+    // const gfs = Grid(conn.db, mongoose.mongo);
+    // gfs.collection("media");
+
+    // const db = connect.db("test");
+
     app.use("/api", routes);
 
     // catch 404 and forward to error handler

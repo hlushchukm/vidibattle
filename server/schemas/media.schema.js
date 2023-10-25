@@ -4,19 +4,19 @@ const Schema = mongoose.Schema;
 
 const mediaSchema = new Schema(
   {
-    // TODO: change type of file field
-    file: { type: String, required: true },
+    filename: { type: String, required: true },
+    contentType: { type: String, required: true },
     type: {
       type: String,
       enum: ["image", "video", "sticker", "thumbnail"],
       required: true,
     },
+    thumbnail: [{ type: Schema.Types.ObjectId, ref: "media" }],
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    file_name: { type: String },
   },
   { timestamps: true }
 );
