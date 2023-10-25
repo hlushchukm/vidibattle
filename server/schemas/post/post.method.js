@@ -2,7 +2,7 @@ const { default: mongoose } = require("mongoose");
 
 // generate feed for a user
 module.exports.feed = function ({ lastDate, lastPostId, pageSize }) {
-  let query = {};
+  let query = { hidden: false };
 
   if (lastDate) {
     query.$or = [
