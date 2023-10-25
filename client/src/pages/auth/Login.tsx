@@ -17,15 +17,15 @@ export default function Login() {
   }, []);
 
   const googleAuth = () => {
-    window.open(`${env.VITE_API_URL}/api/auth/google`, "_self");
+    window.open(`${env.VITE_API_URL}/auth/google`, "_self");
   };
 
   const facebookAuth = () => {
-    window.open(`${env.VITE_API_URL}/api/auth/facebook`, "_self");
+    window.open(`${env.VITE_API_URL}/auth/facebook`, "_self");
   };
 
   const instagramAuth = () => {
-    window.open(`${env.VITE_API_URL}/api/auth/instagram`, "_self");
+    window.open(`${env.VITE_API_URL}/auth/instagram`, "_self");
   };
 
   const gotoWhatsappLogin = () => {
