@@ -15,7 +15,7 @@ module.exports.getFeed = async (req, res, next) => {
       updatedLastPostId = posts[posts.length - 1]._id.toString();
     }
 
-    // TODO: remove unneccessary fields, determine if current user has liked a media
+    // TODO: determine if current user has liked a media
     res.status(200).json({
       data: posts,
       pageSize,

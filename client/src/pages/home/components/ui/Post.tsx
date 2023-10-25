@@ -7,15 +7,14 @@ export default function Post({ post }: { post: any }) {
         <div className="top-meta">
           <div className="d-flex justify-content-between align-items-start">
             <a href="user-profile.html" className="media media-40">
-              <img
-                className="rounded"
-                src="/assets/images/stories/small/pic4.jpg"
-                alt="/"
-              />
+              {/* TODO: add default profile image incase profile image doesn't exist */}
+              <img className="rounded" src={post.author?.profile_img} alt="/" />
             </a>
             <div className="meta-content ms-3">
               <h6 className="title mb-0">
-                <a href="user-profile.html">Lucas Mokmana</a>
+                <a href="user-profile.html">
+                  {post.author?.first_name + " " + post.author?.last_name}
+                </a>
               </h6>
               <ul className="meta-list">
                 {/* <li>
