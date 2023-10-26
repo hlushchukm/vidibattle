@@ -1,8 +1,50 @@
+import { useState, useRef } from "react";
 import CreatePostHeader from "./components/CreatePostHeader";
+import { create } from "../../services/crud";
 
 export default function CreatePost() {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [caption, setCaption] = useState("");
+  const fileInputRef = useRef<any>(null);
+
+  const handleFileChange = (event: any) => {
+    setSelectedFile(event.target.files[0]);
+  };
+
+  const handleCaptionChange = (e: any) => {
+    setCaption(e.target.value);
+  };
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      formData.append("author", "653a5e9300ecfb67556b51aa"); //TODO: change id
+      formData.append("caption", caption);
+
+      // TODO: send type
+
+      create("/post", formData)
+        .then((response) => {
+          console.log("Upload successful:", response.data);
+          // Handle the response from the API
+        })
+        .catch((error) => {
+          console.error("Error uploading file:", error);
+          // Handle the error
+        });
+    }
+  };
+
+  const openUploadDialog = () => {
+    if (fileInputRef.current) fileInputRef.current.click();
+  };
+
   return (
     <>
+      {/* TODO: delete the following button */}
+      <button onClick={handleUpload}>Post</button>
+
       <CreatePostHeader />
 
       <div className="page-content">
@@ -63,6 +105,8 @@ export default function CreatePost() {
             <textarea
               className="form-control"
               placeholder="What's on your mind?"
+              value={caption}
+              onChange={handleCaptionChange}
             ></textarea>
           </div>
         </div>
@@ -72,7 +116,7 @@ export default function CreatePost() {
         <div className="container">
           <ul className="element-list">
             <li>
-              <a href="new-post.html">
+              <a onClick={openUploadDialog}>
                 <i className="fa-solid fa-file-image"></i>Photo/Video
               </a>
             </li>
@@ -89,6 +133,13 @@ export default function CreatePost() {
           </ul>
         </div>
       </footer>
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        style={{ display: "none" }}
+      />
     </>
   );
 }
