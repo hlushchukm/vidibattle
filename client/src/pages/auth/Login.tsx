@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles.module.css";
-const env = import.meta.env;
+import { env } from "../../env";
 
 export default function Login() {
   const navigate = useNavigate();

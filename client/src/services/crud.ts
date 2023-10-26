@@ -1,5 +1,6 @@
 import axios from "axios";
-const env = import.meta.env;
+import { env } from "../env";
+
 const BASE_URL = env.VITE_API_URL;
 
 export const create = async (url: string, data: any) => {
