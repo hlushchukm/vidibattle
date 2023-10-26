@@ -4,11 +4,45 @@ import { create } from "../../services/crud";
 
 export default function CreatePost() {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const [caption, setCaption] = useState("");
-  const fileInputRef = useRef<any>(null);
+  const [allowedType, setAllowedType] = useState<"video" | "image" | "both">(
+    "both"
+  );
+  const [fileType, setFileType] = useState<"video" | "image">("image");
+  const photoInputRef = useRef<any>(null);
+  const videoInputRef = useRef<any>(null);
+  const thumbnailInputRef = useRef<any>(null);
 
-  const handleFileChange = (event: any) => {
+  const openPhotoDialog = () => {
+    setSelectedFile(null);
+    setFileType("image");
+    if (photoInputRef.current) photoInputRef.current.click();
+  };
+
+  const openVideoDialog = () => {
+    setSelectedFile(null);
+    setThumbnail(null);
+    setFileType("video");
+    if (videoInputRef.current) videoInputRef.current.click();
+  };
+
+  const openThumbnailDialog = () => {
+    if (thumbnailInputRef.current) thumbnailInputRef.current.click();
+  };
+
+  const handlePhotoChange = (event: any) => {
     setSelectedFile(event.target.files[0]);
+    setThumbnail(null);
+  };
+
+  const handleVideoChange = (event: any) => {
+    setSelectedFile(event.target.files[0]);
+    setThumbnail(null);
+  };
+
+  const handleThumbnailChange = (event: any) => {
+    setThumbnail(event.target.files[0]);
   };
 
   const handleCaptionChange = (e: any) => {
@@ -21,6 +55,7 @@ export default function CreatePost() {
       formData.append("file", selectedFile);
       formData.append("author", "653a5e9300ecfb67556b51aa"); //TODO: change id
       formData.append("caption", caption);
+      formData.append("type", fileType)
 
       // TODO: send type
 
@@ -34,10 +69,6 @@ export default function CreatePost() {
           // Handle the error
         });
     }
-  };
-
-  const openUploadDialog = () => {
-    if (fileInputRef.current) fileInputRef.current.click();
   };
 
   return (
@@ -107,37 +138,62 @@ export default function CreatePost() {
               placeholder="What's on your mind?"
               value={caption}
               onChange={handleCaptionChange}
+              style={{ height: "200px" }}
             ></textarea>
           </div>
         </div>
       </div>
 
-      <footer className="footer border-0 fixed">
+      <footer className="footer border-0">
         <div className="container">
           <ul className="element-list">
-            <li>
-              <a onClick={openUploadDialog}>
-                <i className="fa-solid fa-file-image"></i>Photo/Video
-              </a>
-            </li>
-            <li>
-              <a href="new-post.html">
-                <i className="fa-solid fa-video"></i>Live Video
-              </a>
-            </li>
-            <li>
-              <a href="new-post.html">
-                <i className="fa-solid fa-camera"></i>Camera
-              </a>
-            </li>
+            {/* TODO: change icons */}
+            {/* TODO: display selected files */}
+            {(!selectedFile || fileType === "image") && (
+              <li style={{ cursor: "pointer" }}>
+                <a onClick={openPhotoDialog}>
+                  <i className="fa-solid fa-file-image"></i>Photo
+                </a>
+              </li>
+            )}
+            {(!selectedFile || fileType === "video") && (
+              <li style={{ cursor: "pointer" }}>
+                <a onClick={openVideoDialog}>
+                  <i className="fa-solid fa-camera"></i>Video
+                </a>
+              </li>
+            )}
+            {selectedFile && fileType === "video" && (
+              <li style={{ cursor: "pointer" }}>
+                <a onClick={openThumbnailDialog}>
+                  <i className="fa-solid fa-video"></i>Thumbnail (optional)
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </footer>
 
+      {/* Hidden Input Elements */}
       <input
         type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
+        accept="image/*"
+        ref={photoInputRef}
+        onChange={handlePhotoChange}
+        style={{ display: "none" }}
+      />
+      <input
+        type="file"
+        accept="video/*"
+        ref={videoInputRef}
+        onChange={handleVideoChange}
+        style={{ display: "none" }}
+      />
+      <input
+        type="file"
+        accept="image/*"
+        ref={thumbnailInputRef}
+        onChange={handleThumbnailChange}
         style={{ display: "none" }}
       />
     </>
