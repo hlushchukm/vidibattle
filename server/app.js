@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const createError = require("http-errors");
+const http = require("http");
+const socketio = require("socket.io");
 const cors = require("cors");
 const multer = require("multer");
 const Grid = require("gridfs-stream");
@@ -17,6 +19,7 @@ const passport = require("passport");
 const passportStrategy = require("./services/passport");
 const { logger } = require("./services/logger");
 const { GridFSBucket } = require("mongodb");
+// const websocket = require("./services/webSocket");
 // const https = require("https");
 // const fs = require("fs");
 
@@ -29,6 +32,15 @@ const connect = mongoose
     console.log("MongoDB Connected...");
 
     const app = express();
+    const server = http.createServer(app);
+    // websocket(server);
+    const io = socketio(server, {
+      cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ["GET", "POST"],
+        // credentials: true,
+      },
+    });
 
     // Middleware to log requests in development mode
     if (process.env.NODE_ENV === "development") {
@@ -101,8 +113,22 @@ const connect = mongoose
     //     console.log(`Server running on port ${port}`);
     //   });
 
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server running on port ${port}`);
+    });
+
+    // // Socket.IO
+    io.on("connection", (socket) => {
+      console.log(`Socket ${socket.id} connected`);
+
+      socket.on("newMessage", (message) => {
+        console.log("New Message received", message);
+        io.emit("message", message);
+      });
+
+      socket.on("disconnect", (m) => {
+        console.log(`Socket ${socket.id} disconnected`);
+      });
     });
   })
   .catch((err) => console.log("MongoDB Connection Error:", err));
