@@ -1,5 +1,6 @@
 const { Post } = require("../models/post.model");
 const { Media } = require("../models/media.model");
+const { User } = require("../models/user.model");
 
 module.exports.getFeed = async (req, res, next) => {
   const { userId, pageSize, lastDate, lastPostId } = req.query;
@@ -80,6 +81,9 @@ module.exports.create = async (req, res, next) => {
       media: [media._id],
       author,
     });
+
+    // update the user's post array
+    await User.addPost(author, post._id);
 
     await post.save();
 
