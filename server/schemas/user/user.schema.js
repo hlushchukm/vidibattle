@@ -1,4 +1,14 @@
 const mongoose = require("mongoose");
+const {
+  addPost,
+  removePost,
+  addFollower,
+  removeFollower,
+  addFollowing,
+  removeFollowing,
+  addChat,
+  removeChat,
+} = require("./user.method");
 
 //define schema
 const Schema = mongoose.Schema;
@@ -26,9 +36,9 @@ const userSchema = Schema(
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     following_count: { type: Number, default: 0 },
     follwing: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    posts_count: [{ type: Number, default: 0 }],
+    posts_count: { type: Number, default: 0 },
     posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
-    chats_count: [{ type: Number, default: 0 }],
+    chats_count: { type: Number, default: 0 },
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
     is_deleted: { type: Boolean, default: false },
   },
@@ -38,5 +48,15 @@ const userSchema = Schema(
 userSchema.pre("find", function () {
   this.where({ is_deleted: false });
 });
+
+// Methods
+userSchema.statics.addPost = addPost;
+userSchema.statics.removePost = removePost;
+userSchema.statics.addFollower = addFollower;
+userSchema.statics.removeFollower = removeFollower;
+userSchema.statics.addFollowing = addFollowing;
+userSchema.statics.removeFollowing = removeFollowing;
+userSchema.statics.addChat = addChat;
+userSchema.statics.removeChat = removeChat;
 
 module.exports.userSchema = userSchema;
