@@ -29,6 +29,10 @@ module.exports.getChatList = async (req, res, next) => {
       },
     });
 
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
     // TODO: sort the chats and make the last updated one appear on top
     res.json({ data: user.chats, count: user.chats_count });
   } catch (e) {
