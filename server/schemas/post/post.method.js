@@ -19,7 +19,13 @@ module.exports.feed = function ({ lastDate, lastPostId, pageSize }) {
   return this.find(query, "caption media likes_count createdAt updatedAt")
     .sort({ createdAt: -1, _id: -1 })
     .limit(parseInt(pageSize))
-    .populate("author", "first_name last_name profile_img");
+    .populate("author", "first_name last_name profile_img")
+    .populate({
+      path: "media",
+      populate: {
+        path: "thumbnail",
+      },
+    });
 };
 
 // generate a timeline for a user
@@ -44,5 +50,11 @@ module.exports.timeline = function ({
 
   return this.find(query)
     .sort({ createdAt: -1, _id: -1 })
-    .limit(parseInt(pageSize));
+    .limit(parseInt(pageSize))
+    .populate({
+      path: "media",
+      populate: {
+        path: "thumbnail",
+      },
+    });
 };
