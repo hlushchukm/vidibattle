@@ -13,7 +13,7 @@ export const create = async (url: string, data: any) => {
   }
 };
 
-export const get = async (url: string, params: any) => {
+export const get = async (url: string, params?: any) => {
   // TODO: add query params if any
   try {
     const response = await axios.get(
