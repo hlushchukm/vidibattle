@@ -61,18 +61,23 @@ module.exports.getTimeline = async (req, res, next) => {
 
 module.exports.create = async (req, res, next) => {
   // TODO: match author with the person making the request
-  const { caption, author } = req.body;
+  const { caption, author, type } = req.body;
   const { filename, contentType } = req.file;
+
+  if (type !== "image" && type !== "video") {
+    return res.status(400).json({ message: "invalid media type" });
+  }
 
   try {
     // create the media document
     const media = new Media({
       filename,
       contentType,
-      type: "video",
+      type,
       owner: author,
     });
     // TODO: store thumbnail
+    // TODO: if no thumbnail, make one
 
     await media.save();
 
