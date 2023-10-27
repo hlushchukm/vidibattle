@@ -12,16 +12,17 @@ import ChatList from "./pages/chat/ChatList";
 import Profile from "./pages/profile/Profile";
 import CreatePost from "./pages/create-post/CreatePost";
 import Messages from "./pages/chat/Messages";
+import SuccessCallback from "./pages/auth/SuccessCallback";
+import { getUser, getUserId } from "./services/auth";
 
 export default function Router() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  let loggedIn = getUserId() !== null && getUser() !== null;
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: check if user is logged in
+    loggedIn = getUserId() !== null && getUser() !== null;
     setLoading(false);
-    setLoggedIn(true);
-  });
+  }, []);
 
   if (loading) {
     return <SplashScreen />;
@@ -35,10 +36,12 @@ export default function Router() {
             <Route index element={<Welcome />} />
             <Route path="login/">
               <Route index element={<Login />} />
+              <Route path="successfull" element={<SuccessCallback />} />
               <Route path="whatsapp/" element={<WhatsAppLogin />} />
             </Route>
           </Route>
           <Route path="/" element={<Navigate to="/home" />}></Route>
+
           {/* Private Routes */}
           {loggedIn ? (
             <>
