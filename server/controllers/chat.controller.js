@@ -45,6 +45,10 @@ module.exports.getMessages = async (req, res, next) => {
     const { chatId } = req.params;
     const { pageSize, lastDate, lastMessageId } = req.query;
 
+    if (!chatId) {
+      return res.status(400).json({ message: "Chat ID is required" });
+    }
+
     // TODO: check if the person making the request is in the chat participants lists
     const messages = await Message.chatList({
       chatId,
@@ -52,7 +56,13 @@ module.exports.getMessages = async (req, res, next) => {
       lastMessageId,
       pageSize,
     });
-    res.json({ data: messages });
+
+    const chat = await Chat.findById(chatId, "participants").populate({
+      path: "participants",
+      select: "first_name last_name bio profile_img",
+    });
+
+    res.json({ data: { messages: messages.reverse(), chat } });
   } catch (e) {
     next(e);
   }
@@ -67,32 +77,50 @@ module.exports.sendMessage = async (req, res, next) => {
         message: "missing data! sender, receiver and content is needed",
       });
     }
-    let chat;
-    if (!chatId) {
-      // if chat doesn't exist, create one
-      chat = await createChat([sender, receiver]);
-    } else {
-      chat = await Chat.findById(chatId);
-    }
 
-    const message = new Message({
-      sender,
-      receiver,
-      content,
-      chat_id: chat._id,
+    const newMsg = await createMessage();
+    return res.status(201).json({
+      message: "Message Sent",
+      data: newMsg.message,
+      chat_id: newMsg.chat._id,
     });
-
-    await message.save();
-
-    chat.messages.push(message._id);
-    await chat.save();
-
-    return res
-      .status(201)
-      .json({ message: "Message Sent", data: message, chat_id: chat._id });
   } catch (e) {
     next(e);
   }
+};
+
+module.exports.createMessage = async ({
+  chatId,
+  sender,
+  receiver,
+  content,
+}) => {
+  let chat;
+  if (!chatId) {
+    // if chat doesn't exist, create one
+    chat = await createChat([sender, receiver]);
+  } else {
+    chat = await Chat.findById(chatId);
+  }
+
+  const message = new Message({
+    sender,
+    receiver,
+    content,
+    chat_id: chat._id,
+  });
+
+  await message.save();
+  await message.populate("sender", "first_name last_name profile_img");
+  await message.populate("receiver", "first_name last_name profile_img");
+
+  chat.messages.push(message._id);
+  await chat.save();
+
+  return {
+    message,
+    chat,
+  };
 };
 
 async function createChat(participants) {
