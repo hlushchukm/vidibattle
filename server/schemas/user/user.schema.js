@@ -49,6 +49,10 @@ userSchema.pre("find", function () {
   this.where({ is_deleted: false });
 });
 
+userSchema.pre("findById", function () {
+  this.where({ is_deleted: false });
+});
+
 // Methods
 userSchema.statics.addPost = addPost;
 userSchema.statics.removePost = removePost;
