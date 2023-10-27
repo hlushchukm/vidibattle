@@ -1,4 +1,4 @@
-import timeAgo from "../../../../services/timeAgo";
+import timeAgo from "../../../../services/timeAndDate";
 
 export default function Post({ post }: { post: any }) {
   return (
