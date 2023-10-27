@@ -1,4 +1,14 @@
-export default function MessageInput() {
+interface MessageInputProps {
+  text: any;
+  setText: (e: any) => void;
+  sendMessage: () => void;
+}
+
+export default function MessageInput({
+  text,
+  setText,
+  sendMessage,
+}: MessageInputProps) {
   return (
     <>
       <footer className="footer border-0 fixed">
@@ -12,9 +22,17 @@ export default function MessageInput() {
                     type="text"
                     className="form-control"
                     placeholder="Type message..."
+                    value={text}
+                    onChange={setText}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        sendMessage();
+                      }
+                    }}
                   />
                   <a
-                    href="javascript:void(0);"
+                    onClick={sendMessage}
                     className="btn btn-chat btn-icon btn-primary p-0 btn-rounded"
                   >
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

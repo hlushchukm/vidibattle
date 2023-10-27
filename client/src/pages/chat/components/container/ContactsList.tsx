@@ -1,21 +1,36 @@
-import { Link } from "react-router-dom";
-import timeAgo from "../../../../services/timeAgo";
+import { Link, useNavigate } from "react-router-dom";
+import timeAgo from "../../../../services/timeAndDate";
+import { useCurrentChatStore } from "../../../../store";
 
 export default function ContactsList({ list }: { list: any[] }) {
+  const setCurrentChat = useCurrentChatStore(
+    (state: any) => state.setCurrentChat
+  );
+  const navigate = useNavigate();
+
   // TODO: change current id with loggedin user id
   const currentUserId = "653a5e9300ecfb67556b51aa";
+
+  const gotoMsgPage = (chat: any) => {
+    setCurrentChat(chat);
+    navigate(chat._id);
+  };
 
   return (
     <>
       <ul className="dz-list message-list">
         <li>
-          {list.map((li: any) => {
+          {list.map((li: any, i: number) => {
             const secondUser =
               li.participants?.[0]?._id === currentUserId
                 ? li.participants?.[1]
                 : li.participants?.[0];
             return (
-              <Link to={li._id}>
+              <a
+                key={i}
+                style={{ cursor: "pointer" }}
+                onClick={() => gotoMsgPage(li)}
+              >
                 <div className="media media-50">
                   <img
                     className="rounded"
@@ -54,7 +69,7 @@ export default function ContactsList({ list }: { list: any[] }) {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </a>
             );
           })}
         </li>
