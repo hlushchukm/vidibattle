@@ -14,6 +14,10 @@ export default function Login() {
     const queryParameters = new URLSearchParams(window.location.search);
     setForgotPassword(queryParameters.get("forgotPassword") === "true");
     setIsCreate(queryParameters.get("create") === "true");
+
+    // remove a css class from the parent element that causes style problem
+    const parentElement = document.getElementById("root") as HTMLElement;
+    parentElement.classList.remove("header-fixed");
   }, []);
 
   const googleAuth = () => {
