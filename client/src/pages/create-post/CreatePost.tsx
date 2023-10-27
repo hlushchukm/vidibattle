@@ -1,8 +1,13 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import CreatePostHeader from "./components/CreatePostHeader";
 import { create } from "../../services/crud";
+import { useNavigate } from "react-router-dom";
+import PageLoading from "../../components/PageLoading";
+import { getUser, getUserId } from "../../services/auth";
 
 export default function CreatePost() {
+  const [postBtnDisabled, setPostBtnDisabled] = useState(true);
+  const [pageLoading, setpageLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [caption, setCaption] = useState("");
@@ -13,6 +18,13 @@ export default function CreatePost() {
   const photoInputRef = useRef<any>(null);
   const videoInputRef = useRef<any>(null);
   const thumbnailInputRef = useRef<any>(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (selectedFile) setPostBtnDisabled(false);
+    else setPostBtnDisabled(true);
+  }, [selectedFile]);
 
   const openPhotoDialog = () => {
     setSelectedFile(null);
@@ -53,41 +65,46 @@ export default function CreatePost() {
     if (selectedFile) {
       const formData = new FormData();
       formData.append("file", selectedFile);
-      formData.append("author", "653a5e9300ecfb67556b51aa"); //TODO: change id
+      formData.append("author", getUserId() ?? "");
       formData.append("caption", caption);
-      formData.append("type", fileType)
+      formData.append("type", fileType);
 
       // TODO: send type
 
+      setpageLoading(true);
       create("/post", formData)
         .then((response) => {
           console.log("Upload successful:", response.data);
-          // Handle the response from the API
+          setpageLoading(false);
+          navigate("/home");
         })
         .catch((error) => {
+          setpageLoading(false);
           console.error("Error uploading file:", error);
-          // Handle the error
         });
     }
   };
 
+  if (pageLoading) {
+    return <PageLoading />;
+  }
+
   return (
     <>
-      {/* TODO: delete the following button */}
-      <button onClick={handleUpload}>Post</button>
-
-      <CreatePostHeader />
+      <CreatePostHeader disabled={postBtnDisabled} uploadPost={handleUpload} />
 
       <div className="page-content">
         <div className="container">
           <div className="post-profile">
             <div className="left-content">
               <div className="media media-50 rounded-circle">
-                <img src="assets/images/stories/small/pic1.jpg" alt="/" />
+                <img src={getUser().profile_img} alt="/" />
               </div>
               <div className="ms-2">
-                <h6 className="mb-1">Emile Stork</h6>
-                <ul className="meta-list">
+                <h6 className="mb-1">
+                  {getUser()?.first_name + " " + getUser()?.last_name}
+                </h6>
+                {/* <ul className="meta-list">
                   <li className="me-2">
                     <a
                       href="javascript:void(0);"
@@ -128,7 +145,7 @@ export default function CreatePost() {
                       <i className="fa-solid fa-angle-down ms-2"></i>
                     </a>
                   </li>
-                </ul>
+                </ul> */}
               </div>
             </div>
           </div>
