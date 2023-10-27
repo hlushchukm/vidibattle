@@ -67,6 +67,7 @@ export default function Router() {
                 }
               ></Route>
               <Route path="chat/:id" element={<Messages />} />
+              <Route path="chat/new/:userId" element={<Messages />} />
               <Route
                 path="/profile"
                 element={
