@@ -1,3 +1,4 @@
+import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 
 export default function Post({ post }: { post: any }) {
@@ -69,7 +70,49 @@ export default function Post({ post }: { post: any }) {
         </div>
         <p className="text-black">{post.caption}</p>
         <div className="dz-media">
-          <img src="/assets/images/post/pic1.png" alt="/" />
+          {post.media?.[0]?.type === "image" && (
+            <img
+              style={{
+                maxHeight: "600px",
+                maxWidth: "100%",
+                width: "auto",
+                height: "auto",
+                minHeight: "200px",
+              }}
+              src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
+              alt="/"
+            />
+          )}
+          {post.media?.[0]?.type === "video" && (
+            // <img
+            //   style={{
+            //     maxHeight: "600px",
+            //     maxWidth: "100%",
+            //     width: "auto",
+            //     height: "auto",
+            //     minHeight: "200px"
+            //   }}
+            //   src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
+            //   alt="/"
+            // />
+            <video
+              id="videoPlayer"
+              style={{
+                maxHeight: "600px",
+                maxWidth: "100%",
+                width: "auto",
+                height: "auto",
+                minHeight: "200px",
+              }}
+              controls
+            >
+              <source
+                src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
+                type={post.media?.[0]?.contentType}
+              />
+            </video>
+          )}
+          {/* <img src="/assets/images/post/pic1.png" alt="/" /> */}
           <div className="post-meta-btn">
             <ul>
               <li>
