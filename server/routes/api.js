@@ -5,11 +5,12 @@ const postRouter = require("./post.route");
 const mediaRouter = require("./media.route");
 const chatRouter = require("./chat.route");
 const userRouter = require("./user.route");
+const { authGuard } = require("../services/authGuard");
 
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
 router.use("/media", mediaRouter);
-router.use("/chat", chatRouter);
+router.use("/chat", authGuard, chatRouter);
 router.use("/user", userRouter);
 
 module.exports = router;
