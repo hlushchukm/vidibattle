@@ -78,7 +78,7 @@ module.exports.sendMessage = async (req, res, next) => {
       });
     }
 
-    const newMsg = await createMessage();
+    const newMsg = await msgCreator({ sender, receiver, content, chatId });
     return res.status(201).json({
       message: "Message Sent",
       data: newMsg.message,
@@ -95,6 +95,15 @@ module.exports.createMessage = async ({
   receiver,
   content,
 }) => {
+  return await msgCreator({
+    chatId,
+    sender,
+    receiver,
+    content,
+  });
+};
+
+async function msgCreator({ chatId, sender, receiver, content }) {
   let chat;
   if (!chatId) {
     // if chat doesn't exist, create one
@@ -121,7 +130,7 @@ module.exports.createMessage = async ({
     message,
     chat,
   };
-};
+}
 
 async function createChat(participants) {
   try {
