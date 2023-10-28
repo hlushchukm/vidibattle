@@ -4,6 +4,7 @@ import HomeHeader from "./components/HomeHeader";
 import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";
+import { getUserId } from "../../services/auth";
 
 export default function Home() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -13,9 +14,8 @@ export default function Home() {
 
   useEffect(() => {
     get("post/feed", {
-      // TODO: use authenticated user's ID
       // TODO: fetch more feed on scroll
-      userId: "6535242d5968d6f6c3cc491f",
+      userId: getUserId(),
       pageSize: 4,
       lastDate,
       lastPostId,

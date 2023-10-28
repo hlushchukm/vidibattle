@@ -1,10 +1,12 @@
 import { create } from "zustand";
+import { getUserId } from "../services/auth";
 
 export const useCurrentUserStore = create((set) => ({
-  id: "653a5e9300ecfb67556b51aa",
+  id: getUserId(),
   currentUser: null,
   setCurrentUser: (user: any) =>
     set(() => ({ currentUser: user, id: user._id })),
+  setCurrentUserId: (id: any) => set(() => ({ id: id })),
 }));
 
 export const useChatsStore = create((set) => ({

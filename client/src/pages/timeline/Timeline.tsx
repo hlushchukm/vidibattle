@@ -4,6 +4,7 @@ import TimelineHeader from "./components/TimelineHeader";
 import { get } from "../../services/crud";
 import { env } from "../../env";
 import PhotoAlbum from "react-photo-album";
+import { getUserId } from "../../services/auth";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -12,15 +13,13 @@ export default function Timeline() {
   const [lastPostId, setLastPostId] = useState([]);
 
   // TODO:
-
   /**
    * 1. search by posts by their caption. current user posts or other posts
    * 2. on video thumbnails, add a play icon and on click, take them to the explore page
    */
 
   useEffect(() => {
-    // TODO: change id
-    get("post/timeline/653a5e9300ecfb67556b51aa", {
+    get("post/timeline/" + getUserId(), {
       pageSize: 21,
       lastDate,
       lastPostId,
@@ -31,15 +30,13 @@ export default function Timeline() {
           if (data.media.length > 0) {
             const media = data.media[0];
             if (media?.type === "video") {
-              data.src = `${env.VITE_API_URL}/file/${media?.thumbnail[0]?.filename}`;
+              data.src = `${env.VITE_API_URL}/media/${media?.thumbnail[0]?.filename}`;
             } else {
-              data.src = `${env.VITE_API_URL}/file/${media?.filename}`;
+              data.src = `${env.VITE_API_URL}/media/${media?.filename}`;
             }
-            data.width = 800;
-            data.height = 600;
+            data.width = 400;
+            data.height = 300;
             console.log(data);
-            // TODO: delete later
-            data.src = "/assets/images/post/pic5.png";
           }
           return data;
         });

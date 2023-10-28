@@ -1,6 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
 import { useCurrentChatStore } from "../../../../store";
+import { getUserId } from "../../../../services/auth";
 
 export default function ContactsList({ list }: { list: any[] }) {
   const setCurrentChat = useCurrentChatStore(
@@ -8,8 +9,7 @@ export default function ContactsList({ list }: { list: any[] }) {
   );
   const navigate = useNavigate();
 
-  // TODO: change current id with loggedin user id
-  const currentUserId = "653a5e9300ecfb67556b51aa";
+  const currentUserId = getUserId();
 
   const gotoMsgPage = (chat: any) => {
     setCurrentChat(chat);

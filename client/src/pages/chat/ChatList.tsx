@@ -4,6 +4,7 @@ import ContactsList from "./components/container/ContactsList";
 import { useEffect, useState } from "react";
 import PageLoading from "../../components/PageLoading";
 import { get } from "../../services/crud";
+import { getUserId } from "../../services/auth";
 
 export default function ChatList() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -11,8 +12,7 @@ export default function ChatList() {
   const [chatsCount, setChatsCount] = useState(0);
 
   useEffect(() => {
-    // TODO: change id
-    get("chat/list/" + "653a5e9300ecfb67556b51aa")
+    get("chat/list/" + getUserId())
       .then((res) => {
         console.log(res);
         setChatsCount(res.count);
