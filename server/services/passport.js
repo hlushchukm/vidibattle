@@ -64,8 +64,8 @@ passport.use(
       };
 
       const existingUser = await User.findOne({
-        prodile_id: user.profile_id,
-        provider: "google",
+        profile_id: user.profile_id,
+        provider: "facebook",
       });
 
       if (existingUser) {
