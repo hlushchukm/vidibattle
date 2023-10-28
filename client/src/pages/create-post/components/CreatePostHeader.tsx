@@ -1,7 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
-export default function CreatePostHeader() {
+export default function CreatePostHeader({
+  disabled,
+  uploadPost,
+}: {
+  disabled: boolean;
+  uploadPost: () => void;
+}) {
   const navigate = useNavigate();
 
   return (
@@ -15,7 +21,12 @@ export default function CreatePostHeader() {
         </div>
         <div className="mid-content"></div>
         <div className="right-content">
-          <a href="index.html" className="post-btn">
+          <a
+            onClick={uploadPost}
+            className={`btn post-btn cursor-pointer ${
+              disabled ? "disabled" : ""
+            }`}
+          >
             POST
           </a>
         </div>
