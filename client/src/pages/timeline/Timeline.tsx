@@ -42,7 +42,7 @@ export default function Timeline() {
           if (data.media.length > 0) {
             const media = data.media[0];
             if (media?.type === "video") {
-              data.src = `${env.VITE_API_URL}/media/${media?.thumbnail[0]?.filename}`;
+              data.src = `${env.VITE_API_URL}/media/${media?.thumbnail?.filename}`;
             } else {
               data.src = `${env.VITE_API_URL}/media/${media?.filename}`;
             }

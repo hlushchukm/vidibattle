@@ -3,9 +3,7 @@ export const setUserId = (id: string) => {
 };
 
 export const getUserId = () => {
-  return localStorage.getItem("userId")
-    ? JSON.parse(localStorage.getItem("userId") ?? "")
-    : null;
+  return localStorage.getItem("userId");
 };
 
 export const setUser = (user: any) => {
