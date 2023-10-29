@@ -73,36 +73,31 @@ export default function Post({ post }: { post: any }) {
           {post.media?.[0]?.type === "image" && (
             <img
               style={{
-                maxHeight: "600px",
-                maxWidth: "100%",
                 width: "auto",
+                maxWidth: "900px",
                 height: "auto",
-                minHeight: "200px",
+                minHeight: "400px",
+                maxHeight: "600px",
+                objectFit: "contain",
               }}
               src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
               alt="/"
             />
           )}
           {post.media?.[0]?.type === "video" && (
-            // <img
-            //   style={{
-            //     maxHeight: "600px",
-            //     maxWidth: "100%",
-            //     width: "auto",
-            //     height: "auto",
-            //     minHeight: "200px"
-            //   }}
-            //   src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
-            //   alt="/"
-            // />
             <video
+              poster={
+                post.media?.[0]?.thumbnail?.filename
+                  ? `${env.VITE_API_URL}/media/${post.media?.[0]?.thumbnail?.filename}`
+                  : undefined
+              }
               id="videoPlayer"
               style={{
-                maxHeight: "600px",
-                maxWidth: "100%",
                 width: "auto",
+                maxWidth: "900px",
                 height: "auto",
-                minHeight: "200px",
+                minHeight: "400px",
+                maxHeight: "600px",
               }}
               controls
             >
