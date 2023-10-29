@@ -7,7 +7,7 @@ export const get = async (url: string, params?: any) => {
   try {
     const response = await axios.get(
       `${BASE_URL}/${url}`,
-      params ? { withCredentials: true, ...params } : { withCredentials: true }
+      params ? { withCredentials: true, params } : { withCredentials: true }
     );
     return response.data;
   } catch (error: any) {
