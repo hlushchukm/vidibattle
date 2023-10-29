@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import CreatePostHeader from "./components/CreatePostHeader";
-import { create } from "../../services/crud";
+import { upload } from "../../services/crud";
 import { useNavigate } from "react-router-dom";
-import PageLoading from "../../components/PageLoading";
 import { getUser, getUserId } from "../../services/auth";
+import { ProgressBarStriped } from "../../components/ProgressBar";
+import PostPreview from "./components/PostPreview";
 
 export default function CreatePost() {
   const [postBtnDisabled, setPostBtnDisabled] = useState(true);
-  const [pageLoading, setpageLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [caption, setCaption] = useState("");
@@ -18,6 +18,8 @@ export default function CreatePost() {
   const photoInputRef = useRef<any>(null);
   const videoInputRef = useRef<any>(null);
   const thumbnailInputRef = useRef<any>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -27,14 +29,16 @@ export default function CreatePost() {
   }, [selectedFile]);
 
   const openPhotoDialog = () => {
-    setSelectedFile(null);
+    photoInputRef.current.value = null;
+    videoInputRef.current.value = null;
     setFileType("image");
     if (photoInputRef.current) photoInputRef.current.click();
   };
 
   const openVideoDialog = () => {
-    setSelectedFile(null);
-    setThumbnail(null);
+    photoInputRef.current.value = null;
+    videoInputRef.current.value = null;
+    thumbnailInputRef.current.value = null;
     setFileType("video");
     if (videoInputRef.current) videoInputRef.current.click();
   };
@@ -49,6 +53,7 @@ export default function CreatePost() {
   };
 
   const handleVideoChange = (event: any) => {
+    console.log("Here", event.target.files);
     setSelectedFile(event.target.files[0]);
     setThumbnail(null);
   };
@@ -69,29 +74,42 @@ export default function CreatePost() {
       formData.append("caption", caption);
       formData.append("type", fileType);
 
-      // TODO: send type
+      setUploading(true);
 
-      setpageLoading(true);
-      create("/post", formData)
+      upload("/post", formData, onUploadProgress)
         .then((response) => {
           console.log("Upload successful:", response.data);
-          setpageLoading(false);
+          setUploading(false);
           navigate("/home");
         })
         .catch((error) => {
-          setpageLoading(false);
+          setUploading(false);
           console.error("Error uploading file:", error);
         });
     }
   };
 
-  if (pageLoading) {
-    return <PageLoading />;
-  }
+  const onUploadProgress = (event: any) => {
+    setUploadProgress(Math.round(100 * event.loaded) / event.total);
+  };
+
+  const clearFileSelections = () => {
+    setSelectedFile(null);
+    setThumbnail(null);
+  };
 
   return (
     <>
-      <CreatePostHeader disabled={postBtnDisabled} uploadPost={handleUpload} />
+      <CreatePostHeader
+        disabled={postBtnDisabled || uploading}
+        uploadPost={handleUpload}
+      />
+
+      {uploading && (
+        <div className="container">
+          <ProgressBarStriped value={uploadProgress} />
+        </div>
+      )}
 
       <div className="page-content">
         <div className="container">
@@ -161,11 +179,20 @@ export default function CreatePost() {
         </div>
       </div>
 
+      {/* Display Post Preview */}
+      {selectedFile && (
+        <PostPreview
+          caption={caption}
+          type={fileType}
+          file={selectedFile}
+          thumbnail={thumbnail}
+          deleteFiles={clearFileSelections}
+        />
+      )}
+
       <footer className="footer border-0">
         <div className="container">
           <ul className="element-list">
-            {/* TODO: change icons */}
-            {/* TODO: display selected files */}
             {(!selectedFile || fileType === "image") && (
               <li style={{ cursor: "pointer" }}>
                 <a onClick={openPhotoDialog}>
@@ -176,14 +203,14 @@ export default function CreatePost() {
             {(!selectedFile || fileType === "video") && (
               <li style={{ cursor: "pointer" }}>
                 <a onClick={openVideoDialog}>
-                  <i className="fa-solid fa-camera"></i>Video
+                  <i className="fa-solid fa-video"></i>Video
                 </a>
               </li>
             )}
             {selectedFile && fileType === "video" && (
               <li style={{ cursor: "pointer" }}>
                 <a onClick={openThumbnailDialog}>
-                  <i className="fa-solid fa-video"></i>Thumbnail (optional)
+                  <i className="fa-solid fa-file-image"></i>Thumbnail (optional)
                 </a>
               </li>
             )}
