@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PageLoading from "../../components/PageLoading";
 import TimelineHeader from "./components/TimelineHeader";
 import { get } from "../../services/crud";
 import { env } from "../../env";
 import PhotoAlbum from "react-photo-album";
 import { getUserId } from "../../services/auth";
+import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
   const [photos, setPhotos] = useState<any[]>([]);
-  const [lastDate, setLastDate] = useState(null);
-  const [lastPostId, setLastPostId] = useState([]);
+  const lastDate = useRef<string | null>(null);
+  const lastPostId = useRef<string | null>(null);
+  const [loadingAdditionalPosts, setLoadingAdditionalPosts] = useState(false);
 
   // TODO:
   /**
@@ -19,13 +21,23 @@ export default function Timeline() {
    */
 
   useEffect(() => {
-    get("post/timeline/" + getUserId(), {
+    getTimeline();
+
+    // add event listener for scorll event to fetch additional posts on the bottom of the page
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const getTimeline = async () => {
+    return get("post/timeline/" + getUserId(), {
       pageSize: 21,
-      lastDate,
-      lastPostId,
+      lastDate: lastDate.current,
+      lastPostId: lastPostId.current,
     })
       .then((res) => {
-        console.log(res);
+        if (res.data.length === 0) {
+          window.removeEventListener("scroll", handleScroll);
+        }
         const photos = res.data.map((data: any) => {
           if (data.media.length > 0) {
             const media = data.media[0];
@@ -40,16 +52,29 @@ export default function Timeline() {
           }
           return data;
         });
-        setPhotos(photos);
-        setLastDate(res.lastDate);
-        setLastPostId(res.lastPostId);
+        setPhotos((p) => [...p, ...photos]);
+        lastDate.current = res.lastDate;
+        lastPostId.current = res.lastPostId;
         setPageLoading(false);
       })
       .catch((e) => {
         console.log(e);
         setPageLoading(false);
       });
-  }, []);
+  };
+
+  // Fetch more posts when the user reaches the bottom of the page
+  const handleScroll = async () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop ===
+        document.documentElement.offsetHeight &&
+      !loadingAdditionalPosts
+    ) {
+      setLoadingAdditionalPosts(true);
+      await getTimeline();
+      setLoadingAdditionalPosts(false);
+    }
+  };
 
   if (pageLoading) {
     return <PageLoading />;
@@ -68,6 +93,7 @@ export default function Timeline() {
               photos={photos}
             />
           </div>
+          {loadingAdditionalPosts && <BlinkingLoadingCircles />}
         </div>
       </div>
     </>
