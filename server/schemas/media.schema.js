@@ -11,7 +11,7 @@ const mediaSchema = new Schema(
       enum: ["image", "video", "sticker", "thumbnail"],
       required: true,
     },
-    thumbnail: [{ type: Schema.Types.ObjectId, ref: "Media" }],
+    thumbnail: { type: Schema.Types.ObjectId, ref: "Media" },
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
