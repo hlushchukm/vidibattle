@@ -52,6 +52,26 @@ export const remove = async (url: string) => {
   }
 };
 
+export const upload = async (
+  url: string,
+  formData: FormData,
+  onUploadProgress: (e: any) => void
+) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/${url}`, formData, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      onUploadProgress,
+    });
+    return response.data;
+  } catch (error: any) {
+    handleStatusCodes(error.response.status);
+    throw error;
+  }
+};
+
 function handleStatusCodes(status: number) {
   switch (status) {
     case 401:
