@@ -74,9 +74,9 @@ export default function Post({ post }: { post: any }) {
             <img
               style={{
                 width: "auto",
-                maxWidth: "900px",
+                maxWidth: "100%",
                 height: "auto",
-                minHeight: "400px",
+                minHeight: "200px",
                 maxHeight: "600px",
                 objectFit: "contain",
               }}
@@ -94,10 +94,11 @@ export default function Post({ post }: { post: any }) {
               id="videoPlayer"
               style={{
                 width: "auto",
-                maxWidth: "900px",
+                maxWidth: "100%",
                 height: "auto",
-                minHeight: "400px",
+                minHeight: "200px",
                 maxHeight: "600px",
+                objectFit: "contain",
               }}
               controls
             >
