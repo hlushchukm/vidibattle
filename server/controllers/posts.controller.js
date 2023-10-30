@@ -60,11 +60,17 @@ module.exports.getTimeline = async (req, res, next) => {
 };
 
 module.exports.create = async (req, res, next) => {
-  // TODO: match author with the person making the request
   const { caption, author, type } = req.body;
   const { filename, contentType } = req.file;
 
-  if (type !== "image" && type !== "video") {
+  const { _id } = req.user;
+
+  // match author with the person making the request
+  if (_id !== author) {
+    return res
+      .status(403)
+      .json({ message: "can create a post for the given author" });
+  } else if (type !== "image" && type !== "video") {
     return res.status(400).json({ message: "invalid media type" });
   }
 
@@ -77,7 +83,6 @@ module.exports.create = async (req, res, next) => {
       owner: author,
     });
     // TODO: store thumbnail
-    // TODO: if no thumbnail, make one
 
     await media.save();
 
