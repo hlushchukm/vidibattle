@@ -1,3 +1,4 @@
+const createHttpError = require("http-errors");
 const { default: mongoose } = require("mongoose");
 
 // generate feed for a user
@@ -62,6 +63,10 @@ module.exports.timeline = function ({
 // like post
 module.exports.like = async function (userId, postId) {
   const post = await this.findById(postId);
+  if (!post) {
+    throw createHttpError(404, "post not found");
+  }
+
   if (!post.likes.includes(userId)) {
     post.likes.push(userId);
     post.likes_count += 1;
@@ -74,6 +79,9 @@ module.exports.like = async function (userId, postId) {
 // unlike post
 module.exports.unlike = async function (userId, postId) {
   const post = await this.findById(postId);
+  if (!post) {
+    throw createHttpError(404, "post not found");
+  }
 
   const likeIndex = post.likes.indexOf(userId);
   if (likeIndex > -1) {

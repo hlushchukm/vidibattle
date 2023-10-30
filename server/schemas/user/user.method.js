@@ -19,6 +19,10 @@ module.exports.removePost = function (userId, postId) {
 // add follower
 module.exports.addFollower = function (userId, followerId) {
   return this.findById(userId).then((user) => {
+    if (!user) {
+      throw createHttpError(404, "user not found");
+    }
+
     if (!user.followers.includes(followerId)) {
       user.followers.push(followerId);
       user.followers_count += 1;
@@ -32,6 +36,10 @@ module.exports.addFollower = function (userId, followerId) {
 // remove follower
 module.exports.removeFollower = function (userId, followerId) {
   return this.findById(userId).then((user) => {
+    if (!user) {
+      throw createHttpError(404, "user not found");
+    }
+
     const followerIndex = user.followers.indexOf(followerId);
     if (followerIndex > -1) {
       user.followers.splice(followerIndex, 1);
