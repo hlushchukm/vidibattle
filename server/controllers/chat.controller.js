@@ -47,6 +47,8 @@ module.exports.getMessages = async (req, res, next) => {
     const { chatId } = req.params;
     const { pageSize, lastDate, lastMessageId } = req.query;
 
+    if (!pageSize) pageSize = 10;
+
     if (!chatId) {
       return res.status(400).json({ message: "Chat ID is required" });
     }

@@ -6,6 +6,8 @@ module.exports.getFeed = async (req, res, next) => {
   const { userId, pageSize, lastDate, lastPostId } = req.query;
 
   try {
+    if (!pageSize) pageSize = 10;
+
     const posts = await Post.feed({ lastDate, lastPostId, pageSize });
 
     let updatedLastDate = lastDate;
@@ -33,6 +35,8 @@ module.exports.getTimeline = async (req, res, next) => {
   const { pageSize, lastDate, lastPostId } = req.query;
 
   try {
+    if (!pageSize) pageSize = 10;
+
     const posts = await Post.timeline({
       author: userId,
       lastDate,
