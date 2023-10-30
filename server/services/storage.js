@@ -17,7 +17,6 @@ const storage = new GridFsStorage({
           filename: filename,
           bucketName: "media",
         };
-        console.log(fileInfo);
         resolve(fileInfo);
       });
     });

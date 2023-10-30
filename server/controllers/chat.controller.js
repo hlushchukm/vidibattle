@@ -1,9 +1,3 @@
-// module.exports.newMessage = (message) => {
-// TODO: check if the chat exists, if not
-//   console.log("New Message received", message);
-//   io.emit("message", message);
-// };
-
 const { Chat } = require("../models/chat.model");
 const { Message } = require("../models/message.model");
 const { User } = require("../models/user.model");

@@ -13,7 +13,6 @@ passport.use(
       scope: ["profile", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
-      console.log(profile);
       const user = {
         first_name: profile.name.givenName,
         last_name: profile.name.familyName,

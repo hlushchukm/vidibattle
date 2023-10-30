@@ -5,6 +5,7 @@ function loginController(req, res) {
   res.send("Post workss");
 }
 
+// TODO: remove login success and fail controllers if they are going to be unused
 function loginSuccess(req, res) {
   console.log(req);
   if (req.user) {
