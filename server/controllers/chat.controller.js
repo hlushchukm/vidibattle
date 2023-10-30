@@ -5,7 +5,15 @@ const { User } = require("../models/user.model");
 module.exports.getChatList = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    // TODO: check if the userId is the same as the person making this request
+
+    // check if the userId is the same as the person making this request
+    const { _id } = req.user;
+    if (_id !== userId) {
+      return res
+        .status(403)
+        .json({ message: "can't access this user's chats" });
+    }
+
     const user = await User.findById(userId).populate({
       path: "chats",
       populate: {
@@ -43,7 +51,6 @@ module.exports.getMessages = async (req, res, next) => {
       return res.status(400).json({ message: "Chat ID is required" });
     }
 
-    // TODO: check if the person making the request is in the chat participants lists
     const messages = await Message.chatList({
       chatId,
       lastDate,
@@ -51,7 +58,17 @@ module.exports.getMessages = async (req, res, next) => {
       pageSize,
     });
 
-    const chat = await Chat.findById(chatId, "participants").populate({
+    const chat = await Chat.findById(chatId, "participants");
+
+    // check if the person making the request is in the chat participants lists
+    const { _id } = req.user;
+    if (!chat.participants.includes(_id)) {
+      return res
+        .status(403)
+        .json({ message: "can't access this user's chats" });
+    }
+
+    await chat.populate({
       path: "participants",
       select: "first_name last_name bio profile_img",
     });
