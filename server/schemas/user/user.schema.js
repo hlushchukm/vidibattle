@@ -35,7 +35,7 @@ const userSchema = Schema(
     followers_count: { type: Number, dafault: 0 },
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
     following_count: { type: Number, default: 0 },
-    follwing: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: Schema.Types.ObjectId, ref: "User" }],
     posts_count: { type: Number, default: 0 },
     posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
     chats_count: { type: Number, default: 0 },
