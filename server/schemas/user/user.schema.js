@@ -40,6 +40,7 @@ const userSchema = Schema(
     posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
     chats_count: { type: Number, default: 0 },
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
+    blocked_users: [{ type: Schema.Types.ObjectId, ref: "User" }],
     is_deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
