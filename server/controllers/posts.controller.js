@@ -102,3 +102,39 @@ module.exports.create = async (req, res, next) => {
     next(error);
   }
 };
+
+module.exports.likePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const { _id } = req.user;
+
+    if (!_id || !postId) {
+      return res
+        .status(400)
+        .json({ message: "both userId and postId are required" });
+    }
+
+    await Post.like(_id, postId);
+    res.status(200).json({ message: "post liked successfully" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.unlikePost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const { _id } = req.user;
+
+    if (!_id || !postId) {
+      return res
+        .status(400)
+        .json({ message: "both userId and postId are required" });
+    }
+
+    await Post.unlike(_id, postId);
+    res.status(200).json({ message: "post unliked successfully" });
+  } catch (e) {
+    next(e);
+  }
+};

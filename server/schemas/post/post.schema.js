@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { feed, timeline } = require("./post.method");
+const { feed, timeline, like, unlike } = require("./post.method");
 
 const Schema = mongoose.Schema;
 
@@ -23,5 +23,7 @@ const postSchema = new Schema(
 // Methods
 postSchema.statics.feed = feed; // feed generation
 postSchema.statics.timeline = timeline; // timeline generation
+postSchema.statics.like = like; // like a post
+postSchema.statics.unlike = unlike; // unlike a post
 
 module.exports.postSchema = postSchema;

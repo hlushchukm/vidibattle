@@ -4,12 +4,14 @@ const postsController = require("../controllers/posts.controller");
 const { upload } = require("../services/storage");
 const { authGuard } = require("../services/authGuard");
 
-//read
+//get
 router.get("/feed", authGuard, postsController.getFeed);
 router.get("/timeline/:userId", postsController.getTimeline);
 
-//create
+//post
 router.post("/", authGuard, upload.single("file"), postsController.create);
+router.post("/like/:postId", authGuard, postsController.likePost);
+router.post("/unlike/:postId", authGuard, postsController.unlikePost);
 
 //update
 // router.put("/:id", postsController.update);

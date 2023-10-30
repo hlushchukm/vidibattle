@@ -58,3 +58,29 @@ module.exports.timeline = function ({
       },
     });
 };
+
+// like post
+module.exports.like = async function (userId, postId) {
+  const post = await this.findById(postId);
+  if (!post.likes.includes(userId)) {
+    post.likes.push(userId);
+    post.likes_count += 1;
+    return post.save();
+  } else {
+    return;
+  }
+};
+
+// unlike post
+module.exports.unlike = async function (userId, postId) {
+  const post = await this.findById(postId);
+
+  const likeIndex = post.likes.indexOf(userId);
+  if (likeIndex > -1) {
+    post.likes.splice(likeIndex, 1);
+    post.likes_count -= 1;
+    return post.save();
+  } else {
+    return;
+  }
+};
