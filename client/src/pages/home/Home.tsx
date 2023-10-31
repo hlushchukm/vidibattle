@@ -37,7 +37,6 @@ export default function Home() {
 
   const getFeed = async () => {
     return get("post/feed", {
-      userId: getUserId(),
       pageSize: 10,
       lastDate: lastDate.current,
       lastPostId: lastPostId.current,
