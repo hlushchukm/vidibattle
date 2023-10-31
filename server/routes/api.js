@@ -7,6 +7,7 @@ const mediaRouter = require("./media.route");
 const chatRouter = require("./chat.route");
 const userRouter = require("./user.route");
 const commentRouter = require("./comment.route");
+const reportRouter = require("./report.route");
 
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
@@ -14,5 +15,6 @@ router.use("/media", mediaRouter);
 router.use("/chat", authGuard, chatRouter);
 router.use("/user", userRouter);
 router.use("/comment", authGuard, commentRouter);
+router.use("/report", authGuard, reportRouter);
 
 module.exports = router;
