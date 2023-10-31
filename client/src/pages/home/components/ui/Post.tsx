@@ -1,7 +1,13 @@
 import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 
-export default function Post({ post }: { post: any }) {
+export default function Post({
+  post,
+  toggleComment,
+}: {
+  post: any;
+  toggleComment: (id: string) => void;
+}) {
   return (
     <>
       <div className="post-card">
@@ -121,7 +127,10 @@ export default function Post({ post }: { post: any }) {
                 </a>
               </li>
               <li>
-                <a href="comment.html" className="action-btn bg-secondary">
+                <a
+                  onClick={() => toggleComment(post._id)}
+                  className="action-btn bg-secondary"
+                >
                   <i className="fa-solid fa-comment fill-icon"></i>
                   <h6 className="font-14 mb-0 ms-2">
                     {post.comments_count ?? 0}

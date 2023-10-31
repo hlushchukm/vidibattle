@@ -4,7 +4,6 @@ import HomeHeader from "./components/HomeHeader";
 import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";
-import { getUserId } from "../../services/auth";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 
 export default function Home() {
