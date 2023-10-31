@@ -25,7 +25,7 @@ module.exports.getAuthenticatedUser = async (req, res, next) => {
 module.exports.follow = async (req, res, next) => {
   try {
     const followerId = req.user._id;
-    const followedId = req.body.followed;
+    const { followedId } = req.params;
 
     if (!followerId || !followedId) {
       return res.status(400).json({ message: "incomplete data" });
@@ -47,7 +47,7 @@ module.exports.follow = async (req, res, next) => {
 module.exports.unfollow = async (req, res, next) => {
   try {
     const followerId = req.user._id;
-    const followedId = req.body.followed;
+    const { followedId } = req.params;
 
     if (!followerId || !followedId) {
       return res.status(400).json({ message: "incomplete data" });
@@ -61,6 +61,48 @@ module.exports.unfollow = async (req, res, next) => {
     await User.removeFollowing(followerId, followedId);
 
     res.status(200).json({ message: "user data updated successfully" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.block = async (req, res, next) => {
+  try {
+    const { blockedId } = req.params;
+    const { _id: userId } = req.user;
+
+    if (userId === blockedId) {
+      return res
+        .status(400)
+        .json({ message: "blocked and blocking person cannot be the same" });
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      $push: { blocked_users: blockedId },
+    });
+
+    res.status(200).json({ message: "user blocked successfully" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.unblock = async (req, res, next) => {
+  try {
+    const { blockedId } = req.params;
+    const { _id: userId } = req.user;
+
+    if (userId === blockedId) {
+      return res
+        .status(400)
+        .json({ message: "blocked and blocking person cannot be the same" });
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      $pull: { blocked_users: blockedId },
+    });
+
+    res.status(200).json({ message: "user unblocked successfully" });
   } catch (e) {
     next(e);
   }
