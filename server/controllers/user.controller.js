@@ -78,7 +78,7 @@ module.exports.block = async (req, res, next) => {
     }
 
     await User.findByIdAndUpdate(userId, {
-      $push: { blocked_users: blockedId },
+      $addToSet: { blocked_users: blockedId },
     });
 
     res.status(200).json({ message: "user blocked successfully" });
