@@ -29,7 +29,7 @@ export default function PostsContainer({ feed }: PostContainerProps) {
             ref={(el) => (componentRefs.current[post._id] = el as HTMLElement)}
           >
             <Post post={post} toggleComment={toggleComment} />
-            {visibleComment === post._id && <CommentsContainer />}
+            {visibleComment === post._id && <CommentsContainer post={post} />}
           </div>
         ))}
       </div>

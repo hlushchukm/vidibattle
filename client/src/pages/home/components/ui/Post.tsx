@@ -130,6 +130,7 @@ export default function Post({
                 <a
                   onClick={() => toggleComment(post._id)}
                   className="action-btn bg-secondary"
+                  style={{ cursor: "pointer" }}
                 >
                   <i className="fa-solid fa-comment fill-icon"></i>
                   <h6 className="font-14 mb-0 ms-2">
