@@ -31,6 +31,11 @@ module.exports.feed = function ({
       populate: {
         path: "thumbnail",
       },
+    })
+    .populate({
+      path: "likes",
+      match: { _id: currentUser._id },
+      select: "_id",
     });
 };
 
