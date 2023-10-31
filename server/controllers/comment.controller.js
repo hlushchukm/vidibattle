@@ -8,7 +8,7 @@ module.exports.getComments = async (req, res, next) => {
 
     if (!comment_for) {
       return res.status(400).json({ message: "comment_for must be provided" });
-    } else if (comment_for !== "post" || comment_for !== "comment") {
+    } else if (comment_for !== "post" && comment_for !== "comment") {
       return res
         .status(400)
         .json({ message: "invalid comment_for value provided" });
@@ -25,11 +25,12 @@ module.exports.getComments = async (req, res, next) => {
     );
 
     const comments = comments_list.map((c) => {
-      c.has_reply = comments_list.comments.length > 0;
-      c.is_liked = comments_list.likes.length > 0;
-      delete c.comments;
-      delete c.is_liked;
-      return c;
+      const temp = { ...c.toObject() };
+      temp.has_reply = c.comments.length > 0;
+      temp.is_liked = c.likes.length > 0;
+      delete temp.comments;
+      delete temp.likes;
+      return temp;
     });
 
     let newLastDate = lastDate;
