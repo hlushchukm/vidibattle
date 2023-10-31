@@ -3,12 +3,22 @@ const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
 
 module.exports.getFeed = async (req, res, next) => {
-  const { userId, pageSize, lastDate, lastPostId } = req.query;
-
   try {
+    let { pageSize, lastDate, lastPostId } = req.query;
+    const { _id: userId } = req.user;
+
     if (!pageSize) pageSize = 10;
 
-    const posts = await Post.feed({ lastDate, lastPostId, pageSize });
+    const currentUser = await User.findById(userId);
+    if (!currentUser)
+      return res.status(400).json({ message: "user not found" });
+
+    const posts = await Post.feed({
+      lastDate,
+      lastPostId,
+      pageSize,
+      currentUser,
+    });
 
     let updatedLastDate = lastDate;
     let updatedLastPostId = lastPostId;
@@ -31,10 +41,10 @@ module.exports.getFeed = async (req, res, next) => {
 };
 
 module.exports.getTimeline = async (req, res, next) => {
-  const { userId } = req.params;
-  const { pageSize, lastDate, lastPostId } = req.query;
-
   try {
+    const { userId } = req.params;
+    let { pageSize, lastDate, lastPostId } = req.query;
+
     if (!pageSize) pageSize = 10;
 
     const posts = await Post.timeline({

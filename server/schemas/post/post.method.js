@@ -2,8 +2,13 @@ const createHttpError = require("http-errors");
 const { default: mongoose } = require("mongoose");
 
 // generate feed for a user
-module.exports.feed = function ({ lastDate, lastPostId, pageSize }) {
-  let query = { hidden: false };
+module.exports.feed = function ({
+  lastDate,
+  lastPostId,
+  pageSize,
+  currentUser,
+}) {
+  let query = { hidden: false, author: { $nin: currentUser.blocked_users } }; // visible posts and posts by unblocked people
 
   if (lastDate) {
     query.$or = [

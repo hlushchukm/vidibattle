@@ -4,7 +4,7 @@ const { Post } = require("../models/post.model");
 module.exports.getComments = async (req, res, next) => {
   try {
     const { parentId } = req.params;
-    const { comment_for, pageSize, lastDate, lastCommentId } = req.query;
+    let { comment_for, pageSize, lastDate, lastCommentId } = req.query;
 
     if (!comment_for) {
       return res.status(400).json({ message: "comment_for must be provided" });
