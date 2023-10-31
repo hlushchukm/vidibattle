@@ -14,8 +14,15 @@ module.exports.getChatList = async (req, res, next) => {
         .json({ message: "can't access this user's chats" });
     }
 
-    const user = await User.findById(userId).populate({
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const populatedUser = await user.populate({
       path: "chats",
+      match: { participants: { $nin: user.blocked_users } }, // exclude chats with blocked users
       populate: {
         path: "participants",
         select: "first_name last_name profile_img",
@@ -31,12 +38,8 @@ module.exports.getChatList = async (req, res, next) => {
       },
     });
 
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
     // TODO: sort the chats and make the last updated one appear on top
-    res.json({ data: user.chats, count: user.chats_count });
+    res.json({ data: populatedUser.chats, count: populatedUser.chats_count });
   } catch (e) {
     next(e);
   }
@@ -45,7 +48,7 @@ module.exports.getChatList = async (req, res, next) => {
 module.exports.getMessages = async (req, res, next) => {
   try {
     const { chatId } = req.params;
-    const { pageSize, lastDate, lastMessageId } = req.query;
+    let { pageSize, lastDate, lastMessageId } = req.query;
 
     if (!pageSize) pageSize = 10;
 
