@@ -1,3 +1,5 @@
+import timeAgo from "../../../../services/timeAndDate";
+
 export default function Comment({
   comment,
   showCommentInput,
@@ -13,12 +15,29 @@ export default function Comment({
   toggleShowCommentInput: (id: string) => void;
   loadReplies?: (id: string) => void;
 }) {
+  const getName = () => {
+    if (!comment || !comment.author) {
+      return "loading ... ";
+    }
+
+    let res = "";
+    if (comment.author.first_name) {
+      res += comment.author.first_name;
+    }
+
+    if (comment.author.last_name) {
+      res += " " + comment.author.last_name;
+    }
+
+    return res;
+  };
+
   return (
     <>
       <div className="list-content">
-        <img src={comment.profile_img} alt="/" />
+        <img src={comment?.author?.profile_img} alt="/" />
         <div>
-          <h6 className="font-14 mb-1">{comment.name}</h6>
+          <h6 className="font-14 mb-1">{getName()}</h6>
           <p className="mb-2">{comment.content}</p>
           <ul className="bottom-item">
             <li className="text-light">{comment.likes_count} Like</li>
@@ -29,7 +48,7 @@ export default function Comment({
             >
               {showCommentInput === comment._id ? "Cancel" : "Reply"}
             </li>
-            <li className="text-light">2d days ago</li>
+            <li className="text-light">{timeAgo(comment.createdAt)}</li>
           </ul>
           {type === "comment" && comment.has_reply && (
             <div

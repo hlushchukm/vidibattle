@@ -2,91 +2,32 @@ import { useState, useEffect, useRef } from "react";
 import CommentInput from "../ui/CommentInput";
 import Comment from "../ui/Comment";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
+import { get } from "../../../../services/crud";
+import { useCommentsStore } from "../../../../store";
 
 export default function CommentsContainer({ post }: { post: any }) {
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState<any[]>([]);
   const [showRepliesFor, setShowRepliesFor] = useState("");
   const [showCommentInputFor, setShowCommentInputFor] = useState("");
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [replyLoading, setReplyLoading] = useState(false);
   const componentRefs = useRef<{ [key: string]: HTMLLIElement }>({});
+  const lastDate = useRef<string | null>(null);
+  const lastCommentId = useRef<string | null>(null);
+  const lastReplyDate = useRef<string | null>(null);
+  const lastReplyId = useRef<string | null>(null);
+  const comments = useCommentsStore((state) => state.comments);
+  const addToComments = useCommentsStore((state) => state.addToComments);
+  const clearComments = useCommentsStore((state) => state.clearComments);
+  const setReplies = useCommentsStore((state) => state.setReplies);
 
   useEffect(() => {
-    // TODO: send request to fetch requests here
     fetchComments();
-    setComments(dummyData);
-  }, []);
 
-  const dummyData = [
-    {
-      _id: 1,
-      name: "Lucas Mokmana",
-      content:
-        "Awesome app i ever used. great structure, and customizable for multipurpose. 😀😀",
-      likes_count: 3,
-      is_liked: true,
-      has_reply: true,
-      profile_img: "assets/images/stories/small/pic1.jpg",
-      comments: [
-        {
-          _id: 11,
-          name: "Lucas",
-          content: "Yes I am also use this.🙂",
-          likes_count: 2,
-          is_liked: false,
-          has_reply: false,
-          profile_img: "assets/images/stories/small/pic2.jpg",
-        },
-        {
-          _id: 12,
-          name: "John Doe",
-          content: "Really Nice.👍",
-          likes_count: 1,
-          is_liked: true,
-          has_reply: false,
-          profile_img: "assets/images/stories/small/pic7.jpg",
-        },
-      ],
-    },
-    {
-      _id: 2,
-      name: "Hendri Lee",
-      content: "Nice work... 😍😍",
-      likes_count: 10,
-      is_liked: false,
-      has_reply: false,
-      profile_img: "assets/images/stories/small/pic3.jpg",
-    },
-    {
-      _id: 3,
-      name: "Brian Harahap",
-      content: "We will always be friends until we are so old and senile.",
-      likes_count: 2,
-      is_liked: false,
-      has_reply: false,
-      profile_img: "assets/images/stories/small/pic4.jpg",
-    },
-    {
-      _id: 4,
-      name: "Dons John",
-      content: "Wow, you are flawless, intelligent, and bright.🤗🤗",
-      likes_count: 6,
-      is_liked: true,
-      has_reply: false,
-      profile_img: "assets/images/stories/small/pic5.jpg",
-    },
-    {
-      _id: 5,
-      name: "Eric Leew",
-      content:
-        "Finding a loving, cute, generous, caring, and intelligent pal is so hard. So, my advice to you all in the picture, never lose me.",
-      likes_count: 0,
-      is_liked: false,
-      has_reply: true,
-      profile_img: "assets/images/stories/small/pic6.jpg",
-    },
-  ];
+    return () => {
+      clearComments();
+    };
+  }, []);
 
   const sendComment = (e: any) => {
     e.preventDefault();
@@ -97,21 +38,52 @@ export default function CommentsContainer({ post }: { post: any }) {
   };
 
   const fetchComments = () => {
-    console.log("fetch more comments");
     setCommentsLoading(true);
-    setTimeout(() => setCommentsLoading(false), 5000);
+    get("comment/get/" + post._id, {
+      pageSize: 10,
+      lastDate: lastDate.current,
+      lastCommentId: lastCommentId.current,
+      comment_for: "post",
+    })
+      .then((res) => {
+        addToComments([...res.data]);
+        lastDate.current = res.lastDate;
+        lastCommentId.current = res.lastCommentId;
+        setCommentsLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setCommentsLoading(false);
+      });
   };
 
   const loadReplies = (id: string) => {
     // TODO: when loading replies, if it has already been loaded, show that instead of sending a new request
     // TODO: hide 'show more' buttons if there are no more comments/replies
-    fetchReplies(id);
+    if (showRepliesFor !== id) {
+      fetchReplies(id);
+    }
     toggleShowButton(id);
   };
 
   const fetchReplies = (id: string) => {
-    console.log(id);
     setReplyLoading(true);
+    get("comment/get/" + id, {
+      pageSize: 5,
+      lastDate: lastReplyDate.current,
+      lastCommentId: lastReplyId.current,
+      comment_for: "comment",
+    })
+      .then((res) => {
+        setReplies([...res.data], id);
+        lastReplyDate.current = res.lastDate;
+        lastReplyId.current = res.lastCommentId;
+        setReplyLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setReplyLoading(false);
+      });
 
     setTimeout(() => setReplyLoading(false), 5000);
   };
