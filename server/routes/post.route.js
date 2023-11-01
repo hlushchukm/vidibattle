@@ -6,7 +6,7 @@ const { authGuard } = require("../services/authGuard");
 
 //get
 router.get("/feed", authGuard, postsController.getFeed);
-router.get("/timeline/:userId", postsController.getTimeline);
+router.get("/timeline/:userId", authGuard, postsController.getTimeline);
 
 //post
 router.post("/", authGuard, upload.single("file"), postsController.create);
