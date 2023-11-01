@@ -88,15 +88,8 @@ export default function Router() {
                   </MainLayout>
                 }
               />
-              <Route
-                path="/edit-profile"
-                element={
-                  <MainLayout>
-                    <EditProfile />
-                  </MainLayout>
-                }
-              />
               <Route path="/create-post" element={<CreatePost />} />
+              <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
