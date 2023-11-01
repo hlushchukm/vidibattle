@@ -3,7 +3,6 @@ export default function PresentationModeBtns() {
     <>
       <ul className="nav nav-tabs" id="myTab3" role="tablist">
         <li className="nav-item" role="presentation">
-          {/* TODO: active class for the active button */}
           <button
             className="nav-link active"
             id="home-tab3"

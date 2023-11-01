@@ -1,6 +1,6 @@
 import PresentationModeBtns from "../ui/PresentationModeBtns";
 
-export default function ProfilePostsContainer() {
+export default function ProfilePostsContainer({ posts }: { posts: any }) {
   return (
     <>
       <div className="title-bar my-2">
@@ -18,24 +18,11 @@ export default function ProfilePostsContainer() {
           tabIndex={0}
         >
           <div className="dz-lightgallery style-2" id="lightgallery">
-            <a className="gallery-box" href="/assets/images/post/pic1.png">
-              <img src="/assets/images/post/pic1.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic2.png">
-              <img src="/assets/images/post/pic2.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic3.png">
-              <img src="/assets/images/post/pic3.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic4.png">
-              <img src="/assets/images/post/pic4.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic5.png">
-              <img src="/assets/images/post/pic5.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic6.png">
-              <img src="/assets/images/post/pic6.png" alt="image" />
-            </a>
+            {posts.map((post: any) => (
+              <a key={post._id} className="gallery-box" href={post.src}>
+                <img src={post.src} alt="image" />
+              </a>
+            ))}
           </div>
         </div>
         <div
@@ -46,24 +33,11 @@ export default function ProfilePostsContainer() {
           tabIndex={0}
         >
           <div className="dz-lightgallery" id="lightgallery-2">
-            <a className="gallery-box" href="/assets/images/post/pic4.png">
-              <img src="/assets/images/post/pic4.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic3.png">
-              <img src="/assets/images/post/pic3.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic2.png">
-              <img src="/assets/images/post/pic2.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic1.png">
-              <img src="/assets/images/post/pic1.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic9.png">
-              <img src="/assets/images/post/pic9.png" alt="image" />
-            </a>
-            <a className="gallery-box" href="/assets/images/post/pic12.png">
-              <img src="/assets/images/post/pic12.png" alt="image" />
-            </a>
+            {posts.map((post: any) => (
+              <a className="gallery-box" href={post.src}>
+                <img src={post.src} alt="image" />
+              </a>
+            ))}
           </div>
         </div>
       </div>
