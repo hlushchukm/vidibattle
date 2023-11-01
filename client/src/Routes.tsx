@@ -41,6 +41,14 @@ export default function Router() {
             </Route>
           </Route>
           <Route path="/" element={<Navigate to="/home" />}></Route>
+          <Route
+            path="/profile/:id"
+            element={
+              <MainLayout>
+                <Profile />
+              </MainLayout>
+            }
+          />
 
           {/* Private Routes */}
           {loggedIn ? (

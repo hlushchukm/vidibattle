@@ -1,6 +1,26 @@
+import { useEffect, useState } from "react";
 import TopNavBarWrapper from "../../components/TopNavBarWrapper";
+import { getUserId } from "../../services/auth";
+import { useParams } from "react-router-dom";
 
 export default function Profile() {
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userId, setUserId] = useState("");
+  const params = useParams();
+
+  useEffect(() => {
+    setLoggedIn(getUserId() !== null && getUserId() !== null);
+
+    if (params.id && params.id !== getUserId()) {
+      setIsOwnProfile(false);
+      setUserId(params.id);
+    } else {
+      setIsOwnProfile(true);
+      setUserId(getUserId() ?? "");
+    }
+  }, []);
+
   return (
     <>
       <TopNavBarWrapper>
@@ -44,25 +64,27 @@ export default function Profile() {
                   src="/assets/images/stories/pic2.png"
                   alt="/"
                 />
-                <a
-                  href="edit-profile.html"
-                  className="upload-btn"
-                  style={{
-                    position: "absolute",
-                    bottom: "-5px",
-                    left: "-5px",
-                    width: "35px",
-                    height: "35px",
-                    backgroundColor: "var(--primary)",
-                    borderRadius: "var(--border-radius-base)",
-                    textAlign: "center",
-                    lineHeight: "35px",
-                    boxShadow: "0px 9px 10px 0px rgba(254, 144, 99, 0.35)",
-                    color: "#fff",
-                  }}
-                >
-                  <i className="fa-solid fa-pencil"></i>
-                </a>
+                {isLoggedIn && isOwnProfile && (
+                  <a
+                    href="edit-profile.html"
+                    className="upload-btn"
+                    style={{
+                      position: "absolute",
+                      bottom: "-5px",
+                      left: "-5px",
+                      width: "35px",
+                      height: "35px",
+                      backgroundColor: "var(--primary)",
+                      borderRadius: "var(--border-radius-base)",
+                      textAlign: "center",
+                      lineHeight: "35px",
+                      boxShadow: "0px 9px 10px 0px rgba(254, 144, 99, 0.35)",
+                      color: "#fff",
+                    }}
+                  >
+                    <i className="fa-solid fa-pencil"></i>
+                  </a>
+                )}
               </div>
             </div>
 
@@ -81,28 +103,32 @@ export default function Profile() {
               <div className="right-content d-none d-sm-block">
                 <div className="upload-box">
                   <img src="/assets/images/stories/pic2.png" alt="/" />
-                  <a href="edit-profile.html" className="upload-btn">
-                    <i className="fa-solid fa-pencil"></i>
-                  </a>
+                  {isLoggedIn && isOwnProfile && (
+                    <a href="edit-profile.html" className="upload-btn">
+                      <i className="fa-solid fa-pencil"></i>
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Following and message button */}
-            <ul className="list-button">
-              <li>
-                {/* TODO: change to follow/unfollow button */}
-                <a href="javascript:void(0);">Following</a>
-              </li>
-              <li>
-                <a href="messages-detail.html">Message</a>
-              </li>
-              <li>
-                <a href="javascript:void(0);">
-                  <i className="fa fa-ban" aria-hidden="true"></i>
-                </a>
-              </li>
-            </ul>
+            {isLoggedIn && !isOwnProfile && (
+              <ul className="list-button">
+                <li>
+                  {/* TODO: change to follow/unfollow button */}
+                  <a href="javascript:void(0);">Following</a>
+                </li>
+                <li>
+                  <a href="messages-detail.html">Message</a>
+                </li>
+                <li>
+                  <a href="javascript:void(0);">
+                    <i className="fa fa-ban" aria-hidden="true"></i>
+                  </a>
+                </li>
+              </ul>
+            )}
           </div>
           <div className="contant-section">
             <div className="social-bar">
