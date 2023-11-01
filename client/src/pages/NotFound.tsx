@@ -1,17 +1,13 @@
-import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../components/TopNavBarWrapper";
+import BackBtn from "../components/BackBtn";
 
 export default function NotFound() {
-  const navigate = useNavigate();
-
   return (
     <>
       {/* Header */}
       <TopNavBarWrapper>
         <div className="left-content">
-          <button onClick={() => navigate(-1)} className="back-btn btn">
-            <i className="fa-solid fa-arrow-left"></i>
-          </button>
+          <BackBtn />
           <h4 className="title mb-0">Not Found</h4>
         </div>
         <div className="mid-content"></div>

@@ -1,9 +1,7 @@
-import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
+import BackBtn from "../../../components/BackBtn";
 
 export default function MessageHeader({ user }: { user: any }) {
-  const navigate = useNavigate();
-
   const getName = () => {
     if (!user) {
       return "loading ... ";
@@ -25,9 +23,7 @@ export default function MessageHeader({ user }: { user: any }) {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <button onClick={() => navigate("/chat")} className="back-btn btn">
-            <i className="fa-solid fa-arrow-left"></i>
-          </button>
+          <BackBtn to={"/chat"} />
           <div className="media me-3 media-35 rounded-circle">
             <img src={user?.profile_img} alt="/" />
           </div>
