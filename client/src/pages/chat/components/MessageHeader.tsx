@@ -1,5 +1,6 @@
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 import BackBtn from "../../../components/BackBtn";
+import { Link } from "react-router-dom";
 
 export default function MessageHeader({ user }: { user: any }) {
   const getName = () => {
@@ -23,7 +24,7 @@ export default function MessageHeader({ user }: { user: any }) {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn to={"/chat"} />
+          <BackBtn />
           <div className="media me-3 media-35 rounded-circle">
             <img src={user?.profile_img} alt="/" />
           </div>
@@ -31,14 +32,15 @@ export default function MessageHeader({ user }: { user: any }) {
         </div>
         <div className="mid-content"></div>
         <div className="right-content">
-          {/* <a
-            href="javascript:void(0);"
-            className="text-dark font-20"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal1"
-          >
-            <i className="fa-solid fa-video"></i>
-          </a> */}
+          {user && (
+            <Link
+              to={"/profile/" + user._id}
+              className="nav-link text-secondary"
+              title="view profile"
+            >
+              <i className="fa fa-user-circle fa-2x " aria-hidden="true"></i>
+            </Link>
+          )}
         </div>
       </TopNavBarWrapper>
     </>
