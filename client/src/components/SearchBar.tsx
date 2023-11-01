@@ -1,9 +1,13 @@
-export default function SearchBar() {
+export default function SearchBar({ placeholder }: { placeholder?: string }) {
   return (
     <>
       <form>
         <div className="input-group">
-          <input type="text" className="form-control" placeholder="Search.." />
+          <input
+            type="text"
+            className="form-control"
+            placeholder={placeholder ?? "Search.."}
+          />
           <span className="input-group-text">
             <svg
               width="24"

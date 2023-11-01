@@ -6,7 +6,7 @@ export default function TimelineHeader() {
     <>
       <TopNavBarWrapper>
         <div className="mt-3 w-100">
-          <SearchBar />
+          <SearchBar placeholder="Search posts, users etc..." />
         </div>
       </TopNavBarWrapper>
     </>
