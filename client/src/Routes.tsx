@@ -14,6 +14,7 @@ import CreatePost from "./pages/create-post/CreatePost";
 import Messages from "./pages/chat/Messages";
 import SuccessCallback from "./pages/auth/SuccessCallback";
 import { getUser, getUserId } from "./services/auth";
+import EditProfile from "./pages/profile/EditProfile";
 
 export default function Router() {
   let loggedIn = getUserId() !== null && getUser() !== null;
@@ -84,6 +85,14 @@ export default function Router() {
                 element={
                   <MainLayout>
                     <Profile />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/edit-profile"
+                element={
+                  <MainLayout>
+                    <EditProfile />
                   </MainLayout>
                 }
               />

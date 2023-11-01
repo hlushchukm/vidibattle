@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function BasicInfo({
   isLoggedIn,
   isOwnProfile,
@@ -34,8 +36,8 @@ export default function BasicInfo({
               alt="/"
             />
             {isLoggedIn && isOwnProfile && (
-              <a
-                href="edit-profile.html"
+              <Link
+                to={"/edit-profile"}
                 className="upload-btn"
                 style={{
                   position: "absolute",
@@ -52,7 +54,7 @@ export default function BasicInfo({
                 }}
               >
                 <i className="fa-solid fa-pencil"></i>
-              </a>
+              </Link>
             )}
           </div>
         </div>
@@ -72,9 +74,9 @@ export default function BasicInfo({
             <div className="upload-box">
               <img src="/assets/images/stories/pic2.png" alt="/" />
               {isLoggedIn && isOwnProfile && (
-                <a href="edit-profile.html" className="upload-btn">
+                <Link to={"/edit-profile"} className="upload-btn">
                   <i className="fa-solid fa-pencil"></i>
-                </a>
+                </Link>
               )}
             </div>
           </div>
