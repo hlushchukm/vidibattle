@@ -1,24 +1,26 @@
-export default function NavTabs() {
+import { Link } from "react-router-dom";
+
+export default function NavTabs({ userId }: { userId?: string }) {
   return (
     <div className="social-bar">
       <ul>
         <li className="active">
-          <a href="javascript:void(0);">
+          <a>
             <h4>52</h4>
             <span>Post</span>
           </a>
         </li>
         <li>
-          <a href="social-friends.html">
+          <Link to={`/followers${userId ? "/userId" : ""}?following=true`}>
             <h4>250</h4>
             <span>Following</span>
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="social-friends.html">
+          <Link to={`/followers${userId ? "/userId" : ""}?followers=true`}>
             <h4>4.5k</h4>
             <span>Followers</span>
-          </a>
+          </Link>
         </li>
       </ul>
     </div>
