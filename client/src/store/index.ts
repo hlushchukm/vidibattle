@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getUserId } from "../services/auth";
-import { PostState } from "./interface";
+import { CommentState, PostState } from "./interface";
 
 export const useCurrentUserStore = create((set) => ({
   id: getUserId(),
@@ -29,7 +29,7 @@ export const usePostStore = create<PostState>((set) => ({
     set((state) => ({ posts: [...state.posts, ...posts] })),
 
   togglePostLike: (id: string, liked: boolean) =>
-    set((state: PostState) => {
+    set((state) => {
       const postsCopy = state.posts.map((p) => {
         if (p._id === id) {
           p.likes_count = liked ? p.likes_count + 1 : p.likes_count - 1;
@@ -42,4 +42,33 @@ export const usePostStore = create<PostState>((set) => ({
     }),
 
   clearPosts: () => set({ posts: [] }),
+}));
+
+export const useCommentsStore = create<CommentState>((set) => ({
+  comments: [],
+
+  setComments: (comments: CommentState["comments"]) =>
+    set({ comments: [...comments] }),
+
+  addToComments: (comments: CommentState["comments"]) =>
+    set((state) => ({ comments: [...state.comments, ...comments] })),
+
+  setReplies: (replies: CommentState["comments"], parent_id: string) =>
+    set((state) => {
+      const commentsCopy = state.comments.map((comment) => {
+        console.log(comment.id, parent_id);
+        if (comment._id === parent_id) {
+          if (comment.comments && comment.comments.length > 0) {
+            comment.comments.push(...replies);
+          } else {
+            comment.comments = [...replies];
+          }
+        }
+        return comment;
+      });
+
+      return { comments: commentsCopy };
+    }),
+
+  clearComments: () => set({ comments: [] }),
 }));
