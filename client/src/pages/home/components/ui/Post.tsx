@@ -4,9 +4,11 @@ import timeAgo from "../../../../services/timeAndDate";
 export default function Post({
   post,
   toggleComment,
+  togglePostLike,
 }: {
   post: any;
   toggleComment: (id: string) => void;
+  togglePostLike: (id: string, liked: boolean) => void;
 }) {
   return (
     <>
@@ -118,7 +120,15 @@ export default function Post({
           <div className="post-meta-btn">
             <ul>
               <li>
-                <a href="javascript:void(0);" className="action-btn bg-primary">
+                <a
+                  onClick={() =>
+                    togglePostLike(post._id, !(post?.likes?.length > 0))
+                  }
+                  className={`action-btn bg-primary ${
+                    post?.likes?.length > 0 ? "active" : ""
+                  }`}
+                  style={{ cursor: "pointer" }}
+                >
                   <i className="fa-regular fa-heart fill-icon"></i>
                   <i className="fa-solid fa-heart fill-icon-2"></i>
                   <h6 className="font-14 mb-0 ms-2" id="value1">
