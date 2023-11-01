@@ -5,20 +5,28 @@ import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
+import { usePostStore } from "../../store";
 
 export default function Home() {
   const [pageLoading, setPageLoading] = useState(true);
-  const [loadingAdditionalPosts, setLoadingAdditionalPosts] = useState(false);
-  const [feed, setFeed] = useState<any[]>([]);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
+  const loadingAdditionalPosts = useRef<boolean>(false);
+
+  const posts = usePostStore((state) => state.posts);
+  const addToFeed = usePostStore((state) => state.addToFeed);
+  const clearPosts = usePostStore((state) => state.clearPosts);
 
   useEffect(() => {
     getFeed();
 
     // add event listener for scorll event to fetch additional posts on the bottom of the page
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearPosts();
+    };
   }, []);
 
   // Fetch more posts when the user reaches the bottom of the page
@@ -26,11 +34,11 @@ export default function Home() {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
         document.documentElement.offsetHeight &&
-      !loadingAdditionalPosts
+      !loadingAdditionalPosts.current
     ) {
-      setLoadingAdditionalPosts(true);
+      loadingAdditionalPosts.current = true;
       await getFeed();
-      setLoadingAdditionalPosts(false);
+      loadingAdditionalPosts.current = false;
     }
   };
 
@@ -42,9 +50,10 @@ export default function Home() {
     })
       .then((res) => {
         if (res.data.length === 0) {
+          loadingAdditionalPosts.current = false;
           window.removeEventListener("scroll", handleScroll);
         }
-        setFeed((f) => [...f, ...res.data]);
+        addToFeed([...res.data]);
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
         setPageLoading(false);
@@ -58,6 +67,7 @@ export default function Home() {
   if (pageLoading) {
     return <PageLoading />;
   }
+
   return (
     <>
       <HomeHeader />
@@ -74,9 +84,9 @@ export default function Home() {
             <StoryBar />
 
             {/* POSTS */}
-            <PostsContainer feed={feed} />
+            <PostsContainer feed={posts} />
 
-            {loadingAdditionalPosts && <BlinkingLoadingCircles />}
+            {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
           </div>
         </div>
       </div>
