@@ -19,6 +19,7 @@ const userSchema = Schema(
     first_name: { type: String },
     last_name: { type: String },
     email: { type: String },
+    whatsapp: { type: String },
     bio: { type: String },
     password: { type: String },
     profile_img: { type: String },
@@ -41,6 +42,7 @@ const userSchema = Schema(
     chats_count: { type: Number, default: 0 },
     chats: [{ type: Schema.Types.ObjectId, ref: "Chat" }],
     blocked_users: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    is_complete: { type: Boolean, default: false },
     is_deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
