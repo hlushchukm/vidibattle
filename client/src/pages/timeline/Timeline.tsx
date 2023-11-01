@@ -12,7 +12,7 @@ export default function Timeline() {
   const [photos, setPhotos] = useState<any[]>([]);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
-  const [loadingAdditionalPosts, setLoadingAdditionalPosts] = useState(false);
+  const loadingAdditionalPosts = useRef(false);
 
   // TODO:
   /**
@@ -36,6 +36,7 @@ export default function Timeline() {
     })
       .then((res) => {
         if (res.data.length === 0) {
+          loadingAdditionalPosts.current = false;
           window.removeEventListener("scroll", handleScroll);
         }
         const photos = res.data.map((data: any) => {
@@ -68,11 +69,11 @@ export default function Timeline() {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
         document.documentElement.offsetHeight &&
-      !loadingAdditionalPosts
+      !loadingAdditionalPosts.current
     ) {
-      setLoadingAdditionalPosts(true);
+      loadingAdditionalPosts.current = true;
       await getTimeline();
-      setLoadingAdditionalPosts(false);
+      loadingAdditionalPosts.current = false;
     }
   };
 
@@ -93,7 +94,7 @@ export default function Timeline() {
               photos={photos}
             />
           </div>
-          {loadingAdditionalPosts && <BlinkingLoadingCircles />}
+          {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
         </div>
       </div>
     </>
