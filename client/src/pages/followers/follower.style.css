@@ -14,21 +14,16 @@
   transform: translateX(-100%);
 }
 
-/* .tab-indicator {
-  transition: width 0.5s ease;
-} */
-
 .width-none {
-  /* animation: slideInFromLeft 0.5s ease; */
   width: 0 !important;
 }
 
 .slide-bar-left {
-  animation: slideInFromLeft 0.5s ease;
+  animation: slideInFromLeft 0.4s ease;
 }
 
 .slide-bar-right {
-  animation: slideInFromRight 0.5s ease;
+  animation: slideInFromRight 0.4s ease;
 }
 
 @keyframes slideInFromLeft {
