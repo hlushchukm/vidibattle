@@ -1,4 +1,5 @@
 const createHttpError = require("http-errors");
+const { default: mongoose } = require("mongoose");
 
 // like comment
 module.exports.like = async function (userId, commentId) {
