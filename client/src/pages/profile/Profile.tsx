@@ -45,7 +45,7 @@ export default function Profile() {
           <BasicInfo isLoggedIn={isLoggedIn} isOwnProfile={isOwnProfile} />
           <div className="contant-section">
             {/* Posts, followers and following buttons */}
-            <NavTabs />
+            <NavTabs userId={isOwnProfile ? null : userId} />
 
             <ProfilePostsContainer posts={posts} />
           </div>

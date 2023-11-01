@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
-export default function NavTabs({ userId }: { userId?: string }) {
+export default function NavTabs({ userId }: { userId?: string | null }) {
+  console.log(userId);
   return (
     <div className="social-bar">
       <ul>
@@ -11,13 +12,13 @@ export default function NavTabs({ userId }: { userId?: string }) {
           </a>
         </li>
         <li>
-          <Link to={`/followers${userId ? "/userId" : ""}?following=true`}>
+          <Link to={`/followers${userId ? "/" + userId : ""}?following=true`}>
             <h4>250</h4>
             <span>Following</span>
           </Link>
         </li>
         <li>
-          <Link to={`/followers${userId ? "/userId" : ""}?followers=true`}>
+          <Link to={`/followers${userId ? "/" + userId : ""}?followers=true`}>
             <h4>4.5k</h4>
             <span>Followers</span>
           </Link>
