@@ -51,6 +51,7 @@ export default function Router() {
               </MainLayout>
             }
           />
+          <Route path="/followers/:id" element={<Followers />} />
 
           {/* Private Routes */}
           {loggedIn ? (
@@ -92,7 +93,6 @@ export default function Router() {
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/followers" element={<Followers />} />
-              <Route path="/followers/:id" element={<Followers />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
