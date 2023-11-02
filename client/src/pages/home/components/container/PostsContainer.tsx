@@ -3,6 +3,7 @@ import Post from "../ui/Post";
 import CommentsContainer from "./CommentsContainer";
 import { usePostStore } from "../../../../store";
 import { create } from "../../../../services/crud";
+import NoPostsFound from "../../../../components/NoPostsFound";
 
 interface PostContainerProps {
   feed: any[];
@@ -37,6 +38,10 @@ export default function PostsContainer({ feed }: PostContainerProps) {
       });
     }
   };
+
+  if (feed.length === 0) {
+    return <NoPostsFound showBtn={true} />;
+  }
 
   return (
     <>
