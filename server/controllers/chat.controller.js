@@ -20,6 +20,7 @@ module.exports.getChatList = async (req, res, next) => {
       return res.status(400).json({ message: "User not found" });
     }
 
+    // TODO: currently if a user is blocked by another person, the blocked person can access the message, only the blocker can't see it
     const populatedUser = await user.populate({
       path: "chats",
       match: { participants: { $nin: user.blocked_users } }, // exclude chats with blocked users
@@ -67,11 +68,13 @@ module.exports.getMessages = async (req, res, next) => {
 
     // check if the person making the request is in the chat participants lists
     const { _id } = req.user;
-    if (!chat.participants.includes(_id)) {
+    if (!chat?.participants?.includes(_id)) {
       return res
         .status(403)
         .json({ message: "can't access this user's chats" });
     }
+
+    // TODO: return not found if one user has blocked the other
 
     await chat.populate({
       path: "participants",
