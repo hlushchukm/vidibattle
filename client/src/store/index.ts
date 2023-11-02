@@ -46,29 +46,102 @@ export const usePostStore = create<PostState>((set) => ({
 
 export const useCommentsStore = create<CommentState>((set) => ({
   comments: [],
+  commentsHash: {},
 
-  setComments: (comments: CommentState["comments"]) =>
-    set({ comments: [...comments] }),
+  setComments: (newComments: CommentState["comments"]) =>
+    set((state) => {
+      const { comments, commentsHash } = buildCommentsHash(
+        newComments,
+        state.comments,
+        state.commentsHash
+      );
+      return { comments, commentsHash };
+    }),
 
-  addToComments: (comments: CommentState["comments"]) =>
-    set((state) => ({ comments: [...state.comments, ...comments] })),
+  addToComments: (newComments: CommentState["comments"]) =>
+    set((state) => {
+      const { comments, commentsHash } = buildCommentsHash(
+        newComments,
+        state.comments,
+        state.commentsHash
+      );
+      return { comments, commentsHash };
+    }),
+
+  addNewComment: (comment: any) =>
+    set((state) => {
+      if (!state.commentsHash[comment._id]) {
+        return {
+          comments: [comment, ...state.comments],
+          commentsHash: { ...state.commentsHash, [comment._id]: true },
+        };
+      } else {
+        return { comments: state.comments, commentsHash: state.commentsHash };
+      }
+    }),
 
   setReplies: (replies: CommentState["comments"], parent_id: string) =>
     set((state) => {
+      const { uniqueComments, updatedHash } = getUniqueComments(
+        replies,
+        state.commentsHash
+      );
       const commentsCopy = state.comments.map((comment) => {
-        console.log(comment.id, parent_id);
         if (comment._id === parent_id) {
           if (comment.comments && comment.comments.length > 0) {
-            comment.comments.push(...replies);
+            comment.comments.push(...uniqueComments);
           } else {
-            comment.comments = [...replies];
+            comment.comments = [...uniqueComments];
           }
+          comment.has_reply = true;
         }
         return comment;
       });
 
-      return { comments: commentsCopy };
+      return { comments: commentsCopy, commentsHash: updatedHash };
     }),
 
-  clearComments: () => set({ comments: [] }),
+  clearComments: () => set({ comments: [], commentsHash: {} }),
 }));
+
+// maintain a commenthash so that comments don't get duplicated
+function buildCommentsHash(
+  comments: CommentState["comments"],
+  oldComments: CommentState["comments"],
+  oldHash: CommentState["commentsHash"]
+): {
+  comments: CommentState["comments"];
+  commentsHash: CommentState["commentsHash"];
+} {
+  let hash: CommentState["commentsHash"] = { ...oldHash };
+  let newComments: CommentState["comments"] = [...oldComments];
+
+  comments.map((comment) => {
+    if (!hash[comment._id]) {
+      hash[comment._id] = true;
+      newComments.push(comment);
+    }
+  });
+
+  return { comments: newComments, commentsHash: hash };
+}
+
+function getUniqueComments(
+  newComments: CommentState["comments"],
+  oldCommentsHash: CommentState["commentsHash"]
+): {
+  uniqueComments: CommentState["comments"];
+  updatedHash: CommentState["commentsHash"];
+} {
+  const updatedHash: CommentState["commentsHash"] = { ...oldCommentsHash };
+  const uniqueComments: CommentState["comments"] = [];
+
+  newComments.map((c) => {
+    if (!updatedHash[c._id]) {
+      updatedHash[c._id] = true;
+      uniqueComments.push(c);
+    }
+  });
+
+  return { uniqueComments, updatedHash };
+}
