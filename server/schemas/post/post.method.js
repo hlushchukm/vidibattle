@@ -22,7 +22,10 @@ module.exports.feed = function ({
     ];
   }
 
-  return this.find(query, "caption media likes_count createdAt updatedAt")
+  return this.find(
+    query,
+    "caption media likes_count comments_count createdAt updatedAt"
+  )
     .sort({ createdAt: -1, _id: -1 })
     .limit(parseInt(pageSize))
     .populate("author", "first_name last_name profile_img")

@@ -90,12 +90,20 @@ module.exports.createComment = async (req, res, next) => {
         author,
       });
       await comment.save();
+
+      // increment comments count on post
+      parent_post.comments_count = parent_post.comments_count + 1;
+      await parent_post.save();
     } else {
       // create a reply for a comment
 
       const parent_comment = await Comment.findById(parentId);
       if (!parent_comment)
         return res.status(404).json({ message: "parent comment not found" });
+
+      const parent_post = await Post.findById(parent_comment.parent_post);
+      if (!parent_post)
+        return res.status(404).json({ message: "parent post not found" });
 
       comment = new Comment({
         content,
@@ -108,6 +116,10 @@ module.exports.createComment = async (req, res, next) => {
       await comment.save();
       parent_comment.comments.push(comment._id);
       await parent_comment.save();
+
+      // increment comments count on post
+      parent_post.comments_count = parent_post.comments_count + 1;
+      await parent_post.save();
     }
 
     const responseComment = { ...comment.toObject(), author: authorInfo };
