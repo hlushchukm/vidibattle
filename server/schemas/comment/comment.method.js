@@ -53,26 +53,41 @@ module.exports.getComments = async function (
   }
 
   if (lastDate) {
-    query.$or = [
-      { createdAt: { $lt: new Date(lastDate) } },
-      {
-        $and: [
-          { createdAt: new Date(lastDate) },
-          { _id: { $lt: new mongoose.Types.ObjectId(lastCommentId) } },
-        ],
-      },
-    ];
+    if (comment_for === "post") {
+      query.$or = [
+        { createdAt: { $lt: new Date(lastDate) } },
+        {
+          $and: [
+            { createdAt: new Date(lastDate) },
+            { _id: { $lt: new mongoose.Types.ObjectId(lastCommentId) } },
+          ],
+        },
+      ];
+    } else {
+      query.$or = [
+        { createdAt: { $gt: new Date(lastDate) } },
+        {
+          $and: [
+            { createdAt: new Date(lastDate) },
+            { _id: { $gt: new mongoose.Types.ObjectId(lastCommentId) } },
+          ],
+        },
+      ];
+    }
   }
 
-  return this.find(query)
-    .sort({ createdAt: -1, _id: -1 })
-    .limit(parseInt(pageSize))
-    .populate("reply_for", "first_name last_name")
-    .populate("author", "first_name last_name profile_img")
-    .populate({
-      // get if the current user has liked the comment
-      path: "likes",
-      match: { _id: userId }, // Match the user ID
-      select: "_id", // Only select the user ID
-    });
+  return (
+    this.find(query)
+      // comments for post must be from newest to oldest, but replies should be from oldest to newest
+      .sort({ createdAt: comment_for === "comment" ? 1 : -1, _id: -1 })
+      .limit(parseInt(pageSize))
+      .populate("reply_for", "first_name last_name")
+      .populate("author", "first_name last_name profile_img")
+      .populate({
+        // get if the current user has liked the comment
+        path: "likes",
+        match: { _id: userId }, // Match the user ID
+        select: "_id", // Only select the user ID
+      })
+  );
 };
