@@ -13,6 +13,41 @@ module.exports.getBasicUserInfo = async (req, res, next) => {
   }
 };
 
+module.exports.getProfileInfo = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { _id: requestingUserId } = req.user;
+
+    const user = await User.findById(
+      id,
+      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users"
+    );
+
+    // if user doesn't exist or has blocked the person making the request
+    if (!user || user.blocked_users?.includes(requestingUserId)) {
+      return res.status(404).json({ message: "user profile not found" });
+    }
+
+    const is_followed = user.followers.includes(requestingUserId);
+
+    const requesingUser = await User.findById(requestingUserId);
+
+    if (!requesingUser) {
+      return res.status(404).json({ message: "requesting user not found" });
+    }
+
+    const is_blocked = requesingUser.blocked_users?.includes(user._id);
+
+    const response = { ...user.toObject(), is_followed, is_blocked };
+    delete response.followers;
+    delete response.blocked_users;
+
+    res.json({ data: response });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.getAuthenticatedUser = async (req, res, next) => {
   try {
     const { _id, first_name, last_name, profile_img } = req.user;
