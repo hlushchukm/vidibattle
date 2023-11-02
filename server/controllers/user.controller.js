@@ -57,6 +57,42 @@ module.exports.getAuthenticatedUser = async (req, res, next) => {
   }
 };
 
+module.exports.getFollowersAndFollowing = async (req, res, next) => {
+  try {
+    // TODO: add pagination
+    const { id } = req.params;
+    const { _id: requestingUserId } = req.user;
+
+    // if requesting user is blocked by the requested user, return not found
+    const user = await User.findById(
+      id,
+      "followers followers_count following following_count followers blocked_users"
+    );
+
+    if (!user || user.blocked_users?.includes(requestingUserId)) {
+      return res.status(404).json({ message: "user profile not found" });
+    }
+
+    await user.populate([
+      {
+        path: "followers",
+        select: "first_name last_name profile_img",
+      },
+      {
+        path: "following",
+        select: "first_name last_name profile_img",
+      },
+    ]);
+
+    const responseUsers = user.toObject();
+    delete responseUsers.blocked_users;
+
+    res.status(200).json({ data: responseUsers });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.follow = async (req, res, next) => {
   try {
     const followerId = req.user._id;

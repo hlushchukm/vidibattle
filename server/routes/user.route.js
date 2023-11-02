@@ -7,6 +7,7 @@ const {
   block,
   unblock,
   getProfileInfo,
+  getFollowersAndFollowing,
 } = require("../controllers/user.controller");
 const { authGuard } = require("../services/authGuard");
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 router.get("/basicInfo/:id", authGuard, getBasicUserInfo);
 router.get("/profileInfo/:id", getProfileInfo);
 router.get("/authenticated", getAuthenticatedUser);
+router.get("/followers-following/:id", getFollowersAndFollowing);
 
 // post
 router.post("/follow/:followedId", authGuard, follow);
