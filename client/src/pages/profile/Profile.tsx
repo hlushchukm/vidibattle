@@ -5,12 +5,18 @@ import NavTabs from "./components/ui/NavTabs";
 import ProfilePostsContainer from "./components/container/ProfilePostsContainer";
 import BasicInfo from "./components/container/BasicInfo";
 import ProfileHeader from "./components/ProfileHeader";
+import PageLoading from "../../components/PageLoading";
+import { create, get } from "../../services/crud";
+import UserNotFound from "../../components/UserNotFound";
 
 export default function Profile() {
+  const [pageLoading, setPageLoading] = useState(true);
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [userId, setUserId] = useState("");
   const [posts, setPosts] = useState<any[]>([]);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [noUserFound, setNoUserFound] = useState(false);
   const params = useParams();
 
   useEffect(() => {
@@ -36,16 +42,76 @@ export default function Profile() {
     setPosts(dummyPosts);
   }, []);
 
+  useEffect(() => {
+    if (userId) fetchProfileInfo(userId);
+  }, [userId]);
+
+  const fetchProfileInfo = (id: string) => {
+    get("user/profileInfo/" + id)
+      .then((res) => {
+        setProfileData(res.data);
+        setPageLoading(false);
+      })
+      .catch((e) => {
+        if (e.response?.status) {
+          setNoUserFound(true);
+        }
+        setPageLoading(false);
+      });
+  };
+
+  const toggleBlock = (is_block: boolean) => {
+    setProfileData((profile: any) => ({
+      ...profile,
+      is_blocked: is_block,
+    }));
+
+    create("user/" + (is_block ? "block/" : "unblock/") + profileData._id, {})
+      .then()
+      .catch((e) => {
+        console.log(e);
+        setProfileData((profile: any) => ({
+          ...profile,
+          is_blocked: !is_block,
+        }));
+      });
+  };
+
+  if (pageLoading) {
+    return <PageLoading />;
+  }
+
+  if (noUserFound) {
+    return (
+      <>
+        <ProfileHeader />
+        <UserNotFound />;
+      </>
+    );
+  }
+
+  // TODO: on follow/unfollow update followers count and is_followed property
+
   return (
     <>
       <ProfileHeader />
 
       <div className="page-content">
         <div className="container profile-area">
-          <BasicInfo isLoggedIn={isLoggedIn} isOwnProfile={isOwnProfile} />
+          <BasicInfo
+            profile={profileData}
+            isLoggedIn={isLoggedIn}
+            isOwnProfile={isOwnProfile}
+            toggleBlock={() => toggleBlock(!profileData.is_blocked)}
+          />
           <div className="contant-section">
             {/* Posts, followers and following buttons */}
-            <NavTabs userId={isOwnProfile ? null : userId} />
+            <NavTabs
+              posts={profileData?.posts_count}
+              followers={profileData?.followers_count}
+              following={profileData?.following_count}
+              userId={isOwnProfile ? null : userId}
+            />
 
             <ProfilePostsContainer posts={posts} />
           </div>

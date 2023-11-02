@@ -1,12 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { getName } from "../../../../services/utils";
 
 export default function BasicInfo({
+  profile,
   isLoggedIn,
   isOwnProfile,
+  toggleBlock,
 }: {
+  profile: any;
   isLoggedIn: boolean;
   isOwnProfile: boolean;
+  toggleBlock: () => void;
 }) {
+  const navigate = useNavigate();
+
   return (
     <>
       <div className="profile">
@@ -32,7 +39,7 @@ export default function BasicInfo({
                 borderRadius: "18px",
                 border: "6px solid #FEF3ED",
               }}
-              src="/assets/images/stories/pic2.png"
+              src={profile?.profile_img}
               alt="/"
             />
             {isLoggedIn && isOwnProfile && (
@@ -61,18 +68,15 @@ export default function BasicInfo({
 
         <div className="main-profile">
           <div className="left-content">
-            <h5 className="mt-1">Brian Harahap</h5>
+            <h5 className="mt-1">{getName(profile)}</h5>
             <div className="info pe-sm-5 text-justify">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                sum sit ematons ectetur adipiscing elit, sed do sum sit emat 😎.
-              </p>
+              <p>{profile?.bio} </p>
             </div>
           </div>
           {/* Profile icon for large screens */}
           <div className="right-content d-none d-sm-block">
             <div className="upload-box">
-              <img src="/assets/images/stories/pic2.png" alt="/" />
+              <img src={profile?.profile_img} alt="/" />
               {isLoggedIn && isOwnProfile && (
                 <Link to={"/edit-profile"} className="upload-btn">
                   <i className="fa-solid fa-pencil"></i>
@@ -85,16 +89,33 @@ export default function BasicInfo({
         {/* Following and message button */}
         {isLoggedIn && !isOwnProfile && (
           <ul className="list-button">
-            <li>
-              {/* TODO: change to follow/unfollow button */}
-              <a href="javascript:void(0);">Following</a>
-            </li>
-            <li>
-              <a href="messages-detail.html">Message</a>
-            </li>
-            <li>
-              <a href="javascript:void(0);">
-                <i className="fa fa-ban" aria-hidden="true"></i>
+            {!profile?.is_blocked && (
+              <>
+                <li>
+                  {/* TODO: change to follow/unfollow button */}
+                  <a className="" style={{ cursor: "pointer" }}>
+                    {profile?.is_followed ? "Unfollow" : "Follow"}
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    className=""
+                    onClick={() => navigate("/chat/" + profile._id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Message
+                  </a>
+                </li>
+              </>
+            )}
+            <li className={`${profile?.is_blocked ? "w-100" : ""}`}>
+              <a
+                className={`${profile?.is_blocked ? "text-white bg-dark" : ""}`}
+                onClick={toggleBlock}
+                style={{ cursor: "pointer" }}
+              >
+                {profile?.is_blocked ? "Unblock" : "Block"}
               </a>
             </li>
           </ul>

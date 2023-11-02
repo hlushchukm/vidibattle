@@ -34,7 +34,7 @@ export default function ProfilePostsContainer({ posts }: { posts: any }) {
         >
           <div className="dz-lightgallery" id="lightgallery-2">
             {posts.map((post: any) => (
-              <a className="gallery-box" href={post.src}>
+              <a key={post._id} className="gallery-box" href={post.src}>
                 <img src={post.src} alt="image" />
               </a>
             ))}
