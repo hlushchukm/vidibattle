@@ -26,6 +26,9 @@ export default function Followers() {
   const [endX, setEndX] = useState(0);
   const [data, setApiData] = useState<any>(null);
   const [userNotFound, setUserNotFound] = useState(false);
+  const [followingHash, setFollowingHash] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     setLoggedIn(getUserId() !== null && getUserId() !== null);
@@ -49,12 +52,24 @@ export default function Followers() {
     if (userId) fetchFollowersAndFollowing(userId);
   }, [userId]);
 
+  useEffect(() => {
+    if (data && data.following) {
+      const hash: { [key: string]: boolean } = {};
+      data.following.map((f: any) => {
+        if (!hash[f._id]) {
+          hash[f._id] = f.unfollowed !== undefined ? !f.unfollowed : true;
+        }
+      });
+
+      setFollowingHash(hash);
+    }
+  }, [data?.following]);
+
   const fetchFollowersAndFollowing = (id: string) => {
     get("user/followers-following/" + id)
       .then((res) => {
         setApiData(res.data);
         setPageLoading(false);
-        console.log(res);
       })
       .catch((e) => {
         setPageLoading(false);
@@ -91,16 +106,27 @@ export default function Followers() {
     setEndX(0);
   };
 
-  const toggleFollow = (id: string, action: "follow" | "unfollow") => {
+  const toggleFollow = (
+    id: string,
+    action: "follow" | "unfollow",
+    userData?: boolean
+  ) => {
     const originalCopy = JSON.stringify(data);
     const apiDataCopy = { ...data };
 
+    let found = false;
     apiDataCopy.following = apiDataCopy?.following?.map((followed: any) => {
       if (followed._id === id) {
-        followed.unfollowed = !followed.unfollowed;
+        followed.unfollowed = !followed.unfollowed ?? true;
+        found = true;
       }
       return followed;
     });
+
+    if (!found && "follow" && userData) {
+      apiDataCopy.following = [userData, ...apiDataCopy.following];
+    }
+
     apiDataCopy.following_count =
       action === "follow"
         ? apiDataCopy.following_count + 1
@@ -108,14 +134,10 @@ export default function Followers() {
 
     setApiData({ ...apiDataCopy });
 
-    create("user/" + action + "/" + id, {})
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((e) => {
-        console.log(e);
-        setApiData(JSON.parse(originalCopy));
-      });
+    create("user/" + action + "/" + id, {}).catch((e) => {
+      console.log(e);
+      setApiData(JSON.parse(originalCopy));
+    });
   };
 
   if (pageLoading) {
@@ -169,6 +191,7 @@ export default function Followers() {
                       listType={currentTab}
                       users={data.following}
                       toggleFollow={toggleFollow}
+                      followingHash={followingHash}
                     />
                   )}
                 </div>
@@ -187,6 +210,7 @@ export default function Followers() {
                       listType={currentTab}
                       users={data.followers}
                       toggleFollow={toggleFollow}
+                      followingHash={followingHash}
                     />
                   )}
                 </div>

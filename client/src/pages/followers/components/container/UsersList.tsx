@@ -1,6 +1,7 @@
 import DisplayModeBtns from "../ui/DisplayModeBtns";
 import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
+import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
 
 export default function UsersList({
   listType,
@@ -8,12 +9,14 @@ export default function UsersList({
   isLoggedIn,
   isOwnProfile,
   toggleFollow,
+  followingHash,
 }: {
   listType: "followers" | "following";
   users: any[];
   isLoggedIn: boolean;
   isOwnProfile: boolean;
-  toggleFollow: (id: string, action: "follow" | "unfollow") => void;
+  toggleFollow: (id: string, action: "follow" | "unfollow", user?: any) => void;
+  followingHash: { [key: string]: boolean };
 }) {
   const navigate = useNavigate();
 
@@ -56,13 +59,14 @@ export default function UsersList({
                       >
                         {getName(user)}
                       </a>
-                      {listType === "following" &&
-                        isLoggedIn &&
-                        isOwnProfile && (
-                          <a href="javascript:void(0);" className="follow-btn">
-                            UNFOLLOW
-                          </a>
-                        )}
+                      {isLoggedIn && isOwnProfile && (
+                        <FollowUnfollowBtn
+                          listType={listType}
+                          toggleFollow={toggleFollow}
+                          user={user}
+                          followingHash={followingHash}
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
@@ -88,22 +92,14 @@ export default function UsersList({
                         </div>
                         <span className="name">{getName(user)}</span>
                       </a>
-                      {listType === "following" &&
-                        isLoggedIn &&
-                        isOwnProfile && (
-                          <a
-                            onClick={() => {
-                              toggleFollow(
-                                user._id,
-                                user?.unfollowed ? "follow" : "unfollow"
-                              );
-                            }}
-                            style={{ cursor: "pointer" }}
-                            className="follow-btn"
-                          >
-                            {user?.unfollowed ? "FOLLOW" : "UNFOLLOW"}
-                          </a>
-                        )}
+                      {isLoggedIn && isOwnProfile && (
+                        <FollowUnfollowBtn
+                          listType={listType}
+                          toggleFollow={toggleFollow}
+                          user={user}
+                          followingHash={followingHash}
+                        />
+                      )}
                     </div>
                   </div>
                 ))}
