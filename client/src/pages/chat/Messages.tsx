@@ -6,12 +6,14 @@ import socket from "../../services/socket";
 import { useLocation, useParams } from "react-router-dom";
 import { get } from "../../services/crud";
 import { useCurrentChatStore, useCurrentUserStore } from "../../store";
+import ChatNotFound from "../../components/ChatNotFound";
 
 export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<any>([]);
   const messagesRef = useRef<any>(); // to access messages within socket event listener. States are not accessible
   const [isNewChat, setNewChat] = useState(false);
+  const [chatNotFound, setChatNotFound] = useState(false);
   const location = useLocation();
   const params = useParams();
 
@@ -83,8 +85,10 @@ export default function Messages() {
         }
         setMessages(res.data?.messages ?? []);
         console.log(res);
+        setChatNotFound(false);
       })
       .catch((e) => {
+        setChatNotFound(true);
         console.log(e);
       });
   };
@@ -120,13 +124,17 @@ export default function Messages() {
     <>
       <MessageHeader user={receiver} />
 
-      <MessagesContainer messages={messages} />
-
-      <MessageInput
-        text={newMessage}
-        setText={handleMessageChange}
-        sendMessage={handleSendMessage}
-      />
+      {chatNotFound && <ChatNotFound />}
+      {!chatNotFound && (
+        <>
+          <MessagesContainer messages={messages} />
+          <MessageInput
+            text={newMessage}
+            setText={handleMessageChange}
+            sendMessage={handleSendMessage}
+          />
+        </>
+      )}
     </>
   );
 }
