@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 
@@ -10,18 +11,27 @@ export default function Post({
   toggleComment: (id: string) => void;
   togglePostLike: (id: string, liked: boolean) => void;
 }) {
+  const navigate = useNavigate();
+
   return (
     <>
       <div className="post-card">
         <div className="top-meta">
           <div className="d-flex justify-content-between align-items-start">
-            <a href="user-profile.html" className="media media-40">
+            <a
+              onClick={() => navigate("/profile/" + post.author._id)}
+              className="media media-40"
+              style={{ cursor: "pointer" }}
+            >
               {/* TODO: add default profile image incase profile image doesn't exist */}
               <img className="rounded" src={post.author?.profile_img} alt="/" />
             </a>
             <div className="meta-content ms-3">
               <h6 className="title mb-0">
-                <a href="user-profile.html">
+                <a
+                  onClick={() => navigate("/profile/" + post.author._id)}
+                  style={{ cursor: "pointer" }}
+                >
                   {post.author?.first_name + " " + post.author?.last_name}
                 </a>
               </h6>
