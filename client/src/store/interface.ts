@@ -3,6 +3,8 @@ export interface PostState {
   setPosts: (posts: PostState["posts"]) => void;
   addToFeed: (posts: PostState["posts"]) => void;
   togglePostLike: (id: string, liked: boolean) => void;
+  incrementCommentsCount: (id: string) => void;
+  decrementCommentsCount: (id: string) => void;
   clearPosts: () => void;
 }
 

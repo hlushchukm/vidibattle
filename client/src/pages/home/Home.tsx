@@ -77,7 +77,7 @@ export default function Home() {
       {/* Sidebar End  */}
 
       {/* Page Content  */}
-      <div className="page-content vh-100">
+      <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
             {/* STORY  */}

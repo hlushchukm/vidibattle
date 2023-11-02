@@ -41,6 +41,32 @@ export const usePostStore = create<PostState>((set) => ({
       return { posts: postsCopy };
     }),
 
+  incrementCommentsCount: (id: string) =>
+    set((state) => {
+      const postsCopy = state.posts.map((post) => {
+        if (post._id === id) {
+          if (post.comments_count) post.comments_count++;
+          else post.comments_count = 1;
+        }
+        return post;
+      });
+
+      return { posts: postsCopy };
+    }),
+
+  decrementCommentsCount: (id: string) =>
+    set((state) => {
+      const postsCopy = state.posts.map((post) => {
+        if (post._id === id) {
+          if (post.comments_count) post.comments_count--;
+          else post.comments_count = 0;
+        }
+        return post;
+      });
+
+      return { posts: postsCopy };
+    }),
+
   clearPosts: () => set({ posts: [] }),
 }));
 

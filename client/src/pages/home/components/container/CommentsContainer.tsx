@@ -3,7 +3,7 @@ import CommentInput from "../ui/CommentInput";
 import Comment from "../ui/Comment";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 import { create, get } from "../../../../services/crud";
-import { useCommentsStore } from "../../../../store";
+import { useCommentsStore, usePostStore } from "../../../../store";
 
 export default function CommentsContainer({ post }: { post: any }) {
   const [commentText, setCommentText] = useState("");
@@ -27,6 +27,12 @@ export default function CommentsContainer({ post }: { post: any }) {
   const setReplies = useCommentsStore((state) => state.setReplies);
   const toggleCommentLike_store = useCommentsStore(
     (state) => state.toggleCommentLike
+  );
+  const incrementCommentsCount = usePostStore(
+    (state) => state.incrementCommentsCount
+  );
+  const decrementCommentsCount = usePostStore(
+    (state) => state.decrementCommentsCount
   );
 
   useEffect(() => {
@@ -58,8 +64,8 @@ export default function CommentsContainer({ post }: { post: any }) {
         payload.reply_for = reply_for;
       }
 
-      // TODO: Increment comments count
       setSendingComment(true);
+      incrementCommentsCount(post._id);
       create("comment/create", payload)
         .then((res) => {
           if (comment_for === "post") {
@@ -78,6 +84,7 @@ export default function CommentsContainer({ post }: { post: any }) {
         .catch((e) => {
           console.log(e);
           setSendingComment(false);
+          decrementCommentsCount(post._id);
         });
     }
   };
