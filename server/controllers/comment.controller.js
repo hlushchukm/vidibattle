@@ -56,6 +56,8 @@ module.exports.createComment = async (req, res, next) => {
   try {
     const { content, comment_for, parentId, reply_for } = req.body;
     const { _id: author } = req.user;
+    const { _id, first_name, last_name, profile_img } = req.user;
+    const authorInfo = { _id, first_name, last_name, profile_img };
 
     // validations
     if (!content || content.length === 0) {
@@ -108,7 +110,8 @@ module.exports.createComment = async (req, res, next) => {
       await parent_comment.save();
     }
 
-    return res.status(201).json({ data: comment });
+    const responseComment = { ...comment.toObject(), author: authorInfo };
+    return res.status(201).json({ data: responseComment });
   } catch (e) {
     next(e);
   }
