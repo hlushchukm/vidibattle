@@ -2,15 +2,19 @@ import { useState, useEffect, useRef } from "react";
 import CommentInput from "../ui/CommentInput";
 import Comment from "../ui/Comment";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
-import { get } from "../../../../services/crud";
+import { create, get } from "../../../../services/crud";
 import { useCommentsStore } from "../../../../store";
 
 export default function CommentsContainer({ post }: { post: any }) {
   const [commentText, setCommentText] = useState("");
   const [showRepliesFor, setShowRepliesFor] = useState("");
   const [showCommentInputFor, setShowCommentInputFor] = useState("");
+  const [showNewCommentInput, setShowNewCommentInput] = useState(false);
+  const [noMoreComments, setNoMoreComments] = useState(false);
+  const [noMoreReplies, setNoMoreReplies] = useState(false);
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [replyLoading, setReplyLoading] = useState(false);
+  const [sendingComment, setSendingComment] = useState(false);
   const componentRefs = useRef<{ [key: string]: HTMLLIElement }>({});
   const lastDate = useRef<string | null>(null);
   const lastCommentId = useRef<string | null>(null);
@@ -18,6 +22,7 @@ export default function CommentsContainer({ post }: { post: any }) {
   const lastReplyId = useRef<string | null>(null);
   const comments = useCommentsStore((state) => state.comments);
   const addToComments = useCommentsStore((state) => state.addToComments);
+  const addNewComment = useCommentsStore((state) => state.addNewComment);
   const clearComments = useCommentsStore((state) => state.clearComments);
   const setReplies = useCommentsStore((state) => state.setReplies);
 
@@ -29,23 +34,64 @@ export default function CommentsContainer({ post }: { post: any }) {
     };
   }, []);
 
-  const sendComment = (e: any) => {
+  const sendComment = (
+    e: any,
+    {
+      comment_for,
+      parentId,
+      reply_for,
+    }: {
+      comment_for: "post" | "comment";
+      parentId: string;
+      reply_for?: "string";
+    }
+  ) => {
     e.preventDefault();
     if (commentText.length > 0) {
-      setCommentText("");
-      setShowCommentInputFor("");
+      const content = commentText;
+      let payload: any = { content, comment_for, parentId };
+
+      if (comment_for === "comment") {
+        payload.reply_for = reply_for;
+      }
+
+      // TODO: Increment comments count
+      setSendingComment(true);
+      create("comment/create", payload)
+        .then((res) => {
+          if (comment_for === "post") {
+            addNewComment(res.data);
+          } else {
+            setReplies([res.data], parentId);
+            if (showRepliesFor !== parentId) {
+              setShowRepliesFor(parentId);
+            }
+          }
+          setCommentText("");
+          setShowCommentInputFor("");
+          setSendingComment(false);
+          setShowNewCommentInput(false);
+        })
+        .catch((e) => {
+          console.log(e);
+          setSendingComment(false);
+        });
     }
   };
 
   const fetchComments = () => {
     setCommentsLoading(true);
+    const pageSize = 10;
     get("comment/get/" + post._id, {
-      pageSize: 10,
+      pageSize,
       lastDate: lastDate.current,
       lastCommentId: lastCommentId.current,
       comment_for: "post",
     })
       .then((res) => {
+        if (res.data.length === 0 || res.data.length < pageSize) {
+          setNoMoreComments(true);
+        }
         addToComments([...res.data]);
         lastDate.current = res.lastDate;
         lastCommentId.current = res.lastCommentId;
@@ -58,23 +104,28 @@ export default function CommentsContainer({ post }: { post: any }) {
   };
 
   const loadReplies = (id: string) => {
-    // TODO: when loading replies, if it has already been loaded, show that instead of sending a new request
-    // TODO: hide 'show more' buttons if there are no more comments/replies
     if (showRepliesFor !== id) {
+      lastReplyDate.current = null;
+      lastReplyId.current = null;
       fetchReplies(id);
+      setNoMoreReplies(false);
     }
-    toggleShowButton(id);
+    toggleShowRepliesButton(id);
   };
 
   const fetchReplies = (id: string) => {
+    const pageSize = 2;
     setReplyLoading(true);
     get("comment/get/" + id, {
-      pageSize: 5,
+      pageSize,
       lastDate: lastReplyDate.current,
       lastCommentId: lastReplyId.current,
       comment_for: "comment",
     })
       .then((res) => {
+        if (res.data.length === 0 || res.data.length < pageSize) {
+          setNoMoreReplies(true);
+        }
         setReplies([...res.data], id);
         lastReplyDate.current = res.lastDate;
         lastReplyId.current = res.lastCommentId;
@@ -88,7 +139,8 @@ export default function CommentsContainer({ post }: { post: any }) {
     setTimeout(() => setReplyLoading(false), 5000);
   };
 
-  const toggleShowButton = (id: string) => {
+  const toggleShowRepliesButton = (id: string) => {
+    setShowNewCommentInput(false);
     if (showRepliesFor === id) {
       setShowRepliesFor("");
     } else {
@@ -97,11 +149,18 @@ export default function CommentsContainer({ post }: { post: any }) {
   };
 
   const toggleShowCommentInput = (id: string) => {
+    setShowNewCommentInput(false);
     if (showCommentInputFor === id) {
       setShowCommentInputFor("");
     } else {
       setShowCommentInputFor(id);
     }
+  };
+
+  const toggleNewCommentInput = () => {
+    setShowCommentInputFor("");
+    setShowRepliesFor("");
+    setShowNewCommentInput((s) => !s);
   };
 
   // display no comments if no comments are found
@@ -111,9 +170,12 @@ export default function CommentsContainer({ post }: { post: any }) {
         <h6 className="text-muted">No Comments</h6>
         <div className="divider border-secondary mt-1"></div>
         <CommentInput
+          sendingComment={sendingComment}
           commentText={commentText}
           onChange={setCommentText}
-          onSubmit={sendComment}
+          onSubmit={(e) =>
+            sendComment(e, { comment_for: "post", parentId: post._id })
+          }
         />
       </div>
     );
@@ -121,14 +183,42 @@ export default function CommentsContainer({ post }: { post: any }) {
 
   return (
     <div className="card bg-light p-3">
-      <h6 className="">Comments</h6>
+      <div className="d-flex align-items-center">
+        <h6 className="flex-grow-1">Comments</h6>
+        <a
+          onClick={toggleNewCommentInput}
+          className="bell-icon bg-secondary me-1"
+          style={{ width: 40, height: 40, cursor: "pointer" }}
+          title="write comment"
+        >
+          {!showNewCommentInput && (
+            <i className="fa fa-plus fa-lg text-white"></i>
+          )}
+          {showNewCommentInput && (
+            <i className="fa fa-times fa-lg text-white"></i>
+          )}
+        </a>
+      </div>
       <div className="divider border-secondary mt-1"></div>
+
+      {/* to add a new comment */}
+      {showNewCommentInput && (
+        <div className="mb-3">
+          <CommentInput
+            sendingComment={sendingComment}
+            commentText={commentText}
+            onChange={setCommentText}
+            onSubmit={(e) =>
+              sendComment(e, { comment_for: "post", parentId: post._id })
+            }
+          />
+        </div>
+      )}
 
       <ul className="dz-comments-list">
         {comments.map((comment: any, i: number) => (
-          <div>
+          <div key={i}>
             <li
-              key={i}
               ref={(el) =>
                 (componentRefs.current[comment._id] = el as HTMLLIElement)
               }
@@ -145,9 +235,16 @@ export default function CommentsContainer({ post }: { post: any }) {
             {showCommentInputFor === comment._id && (
               <li>
                 <CommentInput
+                  sendingComment={sendingComment}
                   commentText={commentText}
                   onChange={setCommentText}
-                  onSubmit={sendComment}
+                  onSubmit={(e) =>
+                    sendComment(e, {
+                      comment_for: "comment",
+                      parentId: comment._id,
+                      reply_for: comment.author?._id,
+                    })
+                  }
                 />
               </li>
             )}
@@ -165,32 +262,41 @@ export default function CommentsContainer({ post }: { post: any }) {
                   {showCommentInputFor === reply._id && (
                     <li className="parent-list">
                       <CommentInput
+                        sendingComment={sendingComment}
                         commentText={commentText}
                         onChange={setCommentText}
-                        onSubmit={sendComment}
+                        onSubmit={(e) =>
+                          sendComment(e, {
+                            comment_for: "comment",
+                            parentId: comment._id,
+                            reply_for: reply.author?._id,
+                          })
+                        }
                       />
                     </li>
                   )}
                 </div>
               ))}
 
-            {showRepliesFor === comment._id && !replyLoading && (
-              <li
-                className="parent-list small"
-                style={{ cursor: "pointer" }}
-                onClick={() => fetchReplies(comment._id)}
-              >
-                <i className="fa fa-refresh me-2" aria-hidden="true"></i>
-                <span>Show more replies</span>
-              </li>
-            )}
+            {showRepliesFor === comment._id &&
+              !replyLoading &&
+              !noMoreReplies && (
+                <li
+                  className="parent-list small"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => fetchReplies(comment._id)}
+                >
+                  <i className="fa fa-refresh me-2" aria-hidden="true"></i>
+                  <span>Show more replies</span>
+                </li>
+              )}
             {showRepliesFor === comment._id && replyLoading && (
               <BlinkingLoadingCircles />
             )}
           </div>
         ))}
 
-        {!commentsLoading && (
+        {!commentsLoading && !noMoreComments && (
           <li
             className="small"
             style={{ cursor: "pointer" }}
