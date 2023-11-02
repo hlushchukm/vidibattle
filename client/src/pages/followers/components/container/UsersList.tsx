@@ -1,31 +1,25 @@
-import { useEffect, useState } from "react";
 import DisplayModeBtns from "../ui/DisplayModeBtns";
-import { getUserId } from "../../../../services/auth";
-import { useParams } from "react-router-dom";
+import { getName } from "../../../../services/utils";
+import { useNavigate } from "react-router-dom";
 
 export default function UsersList({
   listType,
   users,
+  isLoggedIn,
+  isOwnProfile,
+  toggleFollow,
 }: {
   listType: "followers" | "following";
   users: any[];
+  isLoggedIn: boolean;
+  isOwnProfile: boolean;
+  toggleFollow: (id: string, action: "follow" | "unfollow") => void;
 }) {
-  const [isLoggedIn, setLoggedIn] = useState(false);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [userId, setUserId] = useState("");
-  const params = useParams();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    setLoggedIn(getUserId() !== null && getUserId() !== null);
-
-    if (params.id && params.id !== getUserId()) {
-      setIsOwnProfile(false);
-      setUserId(params.id);
-    } else {
-      setIsOwnProfile(true);
-      setUserId(getUserId() ?? "");
-    }
-  }, []);
+  if (users.length === 0) {
+    return <h3 className="text-muted py-5 text-center">No Data</h3>;
+  }
 
   return (
     <>
@@ -49,17 +43,18 @@ export default function UsersList({
                   <div key={i} className="col-6">
                     <div className="user-grid">
                       <a
-                        href="user-profile.html"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/profile/" + user._id)}
                         className="media status media-60"
                       >
-                        <img
-                          src="/assets/images/stories/small/pic1.jpg"
-                          alt="/"
-                        />
-                        <div className="active-point"></div>
+                        <img src={user?.profile_img} alt="/" />
                       </a>
-                      <a href="user-profile.html" className="name">
-                        Andy Lee
+                      <a
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/profile/" + user._id)}
+                        className="name"
+                      >
+                        {getName(user)}
                       </a>
                       {listType === "following" &&
                         isLoggedIn &&
@@ -84,23 +79,29 @@ export default function UsersList({
                   <div key={i} className="col-12">
                     <div className="user-grid style-2">
                       <a
-                        href="user-profile.html"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/profile/" + user._id)}
                         className="d-flex align-items-center"
                       >
                         <div className="media status media-50">
-                          <img
-                            src="/assets/images/stories/small/pic6.jpg"
-                            alt="/"
-                          />
-                          <div className="active-point"></div>
+                          <img src={user?.profile_img} alt="/" />
                         </div>
-                        <span className="name">Andy Lee</span>
+                        <span className="name">{getName(user)}</span>
                       </a>
                       {listType === "following" &&
                         isLoggedIn &&
                         isOwnProfile && (
-                          <a href="javascript:void(0);" className="follow-btn">
-                            UNFOLLOW
+                          <a
+                            onClick={() => {
+                              toggleFollow(
+                                user._id,
+                                user?.unfollowed ? "follow" : "unfollow"
+                              );
+                            }}
+                            style={{ cursor: "pointer" }}
+                            className="follow-btn"
+                          >
+                            {user?.unfollowed ? "FOLLOW" : "UNFOLLOW"}
                           </a>
                         )}
                     </div>

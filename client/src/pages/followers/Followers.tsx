@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import PageLoading from "../../components/PageLoading";
 import FollowersHeader from "./components/FollowersHeader";
 import "./follower.style.css";
 import NavLinks from "./components/container/NavLinks";
 import UsersList from "./components/container/UsersList";
+import { getUserId } from "../../services/auth";
+import { create, get } from "../../services/crud";
 
 export default function Followers() {
   const [pageLoading, setPageLoading] = useState(true);
+  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userId, setUserId] = useState("");
+  const params = useParams();
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const [currentTab, setCurrentTab] = useState<"following" | "followers">(
@@ -16,19 +22,42 @@ export default function Followers() {
   const pagesContainerRef = useRef<HTMLElement>();
   const [startX, setStartX] = useState(0);
   const [endX, setEndX] = useState(0);
-  const [followingCount, setFollowingCount] = useState(5);
-  const [followingList, setFollowingList] = useState([1, 2, 3, 4, 5]);
-  const [followersCount, setFollowersCount] = useState(8);
-  const [followersList, setFollowersList] = useState([1, 2, 3, 4, 5, 6, 7, 8]);
+  const [data, setApiData] = useState<any>(null);
 
   useEffect(() => {
-    setPageLoading(false);
+    setLoggedIn(getUserId() !== null && getUserId() !== null);
+
+    if (params.id && params.id !== getUserId()) {
+      setIsOwnProfile(false);
+      setUserId(params.id);
+    } else {
+      setIsOwnProfile(true);
+      setUserId(getUserId() ?? "");
+    }
+
     if (queryParams.get("following") === "true") {
       setCurrentTab("following");
     } else if (queryParams.get("followers") === "true") {
       setCurrentTab("followers");
     }
   }, []);
+
+  useEffect(() => {
+    if (userId) fetchFollowersAndFollowing(userId);
+  }, [userId]);
+
+  const fetchFollowersAndFollowing = (id: string) => {
+    get("user/followers-following/" + id)
+      .then((res) => {
+        setApiData(res.data);
+        setPageLoading(false);
+        console.log(res);
+      })
+      .catch((e) => {
+        setPageLoading(false);
+        console.log(e);
+      });
+  };
 
   const onNavBarClick = (slideTo: "followers" | "following") => {
     setCurrentTab(slideTo);
@@ -56,6 +85,33 @@ export default function Followers() {
     setEndX(0);
   };
 
+  const toggleFollow = (id: string, action: "follow" | "unfollow") => {
+    const originalCopy = JSON.stringify(data);
+    const apiDataCopy = { ...data };
+
+    apiDataCopy.following = apiDataCopy?.following?.map((followed: any) => {
+      if (followed._id === id) {
+        followed.unfollowed = !followed.unfollowed;
+      }
+      return followed;
+    });
+    apiDataCopy.following_count =
+      action === "follow"
+        ? apiDataCopy.following_count + 1
+        : apiDataCopy.following_count - 1;
+
+    setApiData({ ...apiDataCopy });
+
+    create("user/" + action + "/" + id, {})
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((e) => {
+        console.log(e);
+        setApiData(JSON.parse(originalCopy));
+      });
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -69,8 +125,8 @@ export default function Followers() {
           <NavLinks
             currentTab={currentTab}
             onNavBarClick={onNavBarClick}
-            followersCount={followersCount}
-            followingCount={followingCount}
+            followersCount={data.followers_count}
+            followingCount={data.following_count}
           />
         </nav>
 
@@ -92,7 +148,13 @@ export default function Followers() {
                   }`}
                 >
                   {currentTab === "following" && (
-                    <UsersList listType={currentTab} users={followingList} />
+                    <UsersList
+                      isLoggedIn={isLoggedIn}
+                      isOwnProfile={isOwnProfile}
+                      listType={currentTab}
+                      users={data.following}
+                      toggleFollow={toggleFollow}
+                    />
                   )}
                 </div>
                 <div
@@ -104,7 +166,13 @@ export default function Followers() {
                   }`}
                 >
                   {currentTab === "followers" && (
-                    <UsersList listType={currentTab} users={followersList} />
+                    <UsersList
+                      isLoggedIn={isLoggedIn}
+                      isOwnProfile={isOwnProfile}
+                      listType={currentTab}
+                      users={data.followers}
+                      toggleFollow={toggleFollow}
+                    />
                   )}
                 </div>
               </div>
