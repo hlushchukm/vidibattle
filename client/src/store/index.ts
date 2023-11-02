@@ -101,6 +101,38 @@ export const useCommentsStore = create<CommentState>((set) => ({
       return { comments: commentsCopy, commentsHash: updatedHash };
     }),
 
+  toggleCommentLike: (
+    id: string,
+    comment_for: "post" | "comment",
+    isLike?: boolean,
+    parentId?: string
+  ) =>
+    set((state) => {
+      let updatedComments: any = [];
+      if (comment_for === "post") {
+        updatedComments = state.comments.map((comment) => {
+          if (comment._id === id)
+            comment.is_liked =
+              isLike !== undefined ? isLike : !comment.is_liked;
+          return comment;
+        });
+      } else {
+        updatedComments = state.comments.map((comment) => {
+          if (comment._id === parentId) {
+            comment.comments = comment.comments.map((reply: any) => {
+              if (reply._id === id)
+                reply.is_liked =
+                  isLike !== undefined ? isLike : !reply.is_liked;
+              return reply;
+            });
+          }
+          return comment;
+        });
+      }
+
+      return { comments: updatedComments };
+    }),
+
   clearComments: () => set({ comments: [], commentsHash: {} }),
 }));
 

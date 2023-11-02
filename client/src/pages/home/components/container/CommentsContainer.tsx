@@ -25,6 +25,9 @@ export default function CommentsContainer({ post }: { post: any }) {
   const addNewComment = useCommentsStore((state) => state.addNewComment);
   const clearComments = useCommentsStore((state) => state.clearComments);
   const setReplies = useCommentsStore((state) => state.setReplies);
+  const toggleCommentLike_store = useCommentsStore(
+    (state) => state.toggleCommentLike
+  );
 
   useEffect(() => {
     fetchComments();
@@ -114,7 +117,7 @@ export default function CommentsContainer({ post }: { post: any }) {
   };
 
   const fetchReplies = (id: string) => {
-    const pageSize = 2;
+    const pageSize = 5;
     setReplyLoading(true);
     get("comment/get/" + id, {
       pageSize,
@@ -161,6 +164,22 @@ export default function CommentsContainer({ post }: { post: any }) {
     setShowCommentInputFor("");
     setShowRepliesFor("");
     setShowNewCommentInput((s) => !s);
+  };
+
+  const toggleCommentLike = (
+    id: string,
+    comment_for: "comment" | "post",
+    isLike: boolean,
+    parentId?: string
+  ) => {
+    toggleCommentLike_store(id, comment_for, isLike, parentId);
+
+    create("comment/" + (isLike ? "like" : "unlike") + "/" + id, {})
+      .then()
+      .catch((e) => {
+        console.log(e);
+        toggleCommentLike_store(id, comment_for, isLike, parentId);
+      });
   };
 
   // display no comments if no comments are found
@@ -230,6 +249,9 @@ export default function CommentsContainer({ post }: { post: any }) {
                 toggleShowCommentInput={toggleShowCommentInput}
                 loadReplies={loadReplies}
                 type="comment"
+                likeStatusChange={(id, isLike) =>
+                  toggleCommentLike(id, "post", isLike)
+                }
               />
             </li>
             {showCommentInputFor === comment._id && (
@@ -257,6 +279,9 @@ export default function CommentsContainer({ post }: { post: any }) {
                       showCommentInput={showCommentInputFor}
                       toggleShowCommentInput={toggleShowCommentInput}
                       type="reply"
+                      likeStatusChange={(id, isLike) =>
+                        toggleCommentLike(id, "comment", isLike, comment._id)
+                      }
                     />
                   </li>
                   {showCommentInputFor === reply._id && (

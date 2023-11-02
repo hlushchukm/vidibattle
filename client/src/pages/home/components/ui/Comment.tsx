@@ -6,6 +6,7 @@ export default function Comment({
   showReplies,
   type,
   toggleShowCommentInput,
+  likeStatusChange,
   loadReplies,
 }: {
   comment: any;
@@ -13,6 +14,7 @@ export default function Comment({
   showReplies?: string;
   type: "comment" | "reply";
   toggleShowCommentInput: (id: string) => void;
+  likeStatusChange: (id: string, isLike: boolean) => void;
   loadReplies?: (id: string) => void;
 }) {
   const getName = () => {
@@ -40,7 +42,7 @@ export default function Comment({
           <h6 className="font-14 mb-1">{getName()}</h6>
           <p className="mb-2">{comment.content}</p>
           <ul className="bottom-item">
-            <li className="text-light">{comment.likes_count} Like</li>
+            <li className="text-light">{comment.likes_count} Likes</li>
             <li
               className="text-light"
               style={{ cursor: "pointer" }}
@@ -75,7 +77,12 @@ export default function Comment({
         </div>
       </div>
       <div className="ms-auto">
-        <div className={`like-button ${comment.is_liked ? "active" : ""}`}>
+        {/* TODO: like/unlike animation */}
+        <div
+          onClick={() => likeStatusChange(comment._id, !comment.is_liked)}
+          className={`like-button ${comment.is_liked ? "active" : ""}`}
+          style={{ cursor: "pointer" }}
+        >
           <i className="fa-regular fa-heart ms-auto"></i>
         </div>
       </div>

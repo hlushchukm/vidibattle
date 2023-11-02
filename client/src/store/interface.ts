@@ -13,5 +13,11 @@ export interface CommentState {
   addToComments: (comments: CommentState["comments"]) => void;
   addNewComment: (comments: any) => void;
   setReplies: (replies: CommentState["comments"], parent_id: string) => void;
+  toggleCommentLike: (
+    id: string,
+    comment_for: "post" | "comment",
+    isLike: boolean,
+    parentId?: string
+  ) => void;
   clearComments: () => void;
 }
