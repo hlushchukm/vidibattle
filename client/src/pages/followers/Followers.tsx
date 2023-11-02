@@ -7,6 +7,8 @@ import NavLinks from "./components/container/NavLinks";
 import UsersList from "./components/container/UsersList";
 import { getUserId } from "../../services/auth";
 import { create, get } from "../../services/crud";
+import UserNotFound from "../../components/UserNotFound";
+import { getName } from "../../services/utils";
 
 export default function Followers() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -23,6 +25,7 @@ export default function Followers() {
   const [startX, setStartX] = useState(0);
   const [endX, setEndX] = useState(0);
   const [data, setApiData] = useState<any>(null);
+  const [userNotFound, setUserNotFound] = useState(false);
 
   useEffect(() => {
     setLoggedIn(getUserId() !== null && getUserId() !== null);
@@ -56,6 +59,9 @@ export default function Followers() {
       .catch((e) => {
         setPageLoading(false);
         console.log(e);
+        if (e?.response?.status) {
+          setUserNotFound(true);
+        }
       });
   };
 
@@ -116,9 +122,18 @@ export default function Followers() {
     return <PageLoading />;
   }
 
+  if (userNotFound) {
+    return (
+      <>
+        <FollowersHeader />
+        <UserNotFound />
+      </>
+    );
+  }
+
   return (
     <>
-      <FollowersHeader />
+      <FollowersHeader name={getName(data)} />
 
       <div className="page-content">
         <nav id="main-navigation">
