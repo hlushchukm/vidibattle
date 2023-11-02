@@ -66,15 +66,40 @@ export default function Profile() {
       is_blocked: is_block,
     }));
 
-    create("user/" + (is_block ? "block/" : "unblock/") + profileData._id, {})
-      .then()
-      .catch((e) => {
-        console.log(e);
-        setProfileData((profile: any) => ({
-          ...profile,
-          is_blocked: !is_block,
-        }));
-      });
+    create(
+      "user/" + (is_block ? "block/" : "unblock/") + profileData._id,
+      {}
+    ).catch((e) => {
+      console.log(e);
+      setProfileData((profile: any) => ({
+        ...profile,
+        is_blocked: !is_block,
+      }));
+    });
+  };
+
+  const toggleFollow = (is_follow: boolean) => {
+    setProfileData((profile: any) => ({
+      ...profile,
+      is_followed: is_follow,
+      followers_count: is_follow
+        ? profile.followers_count + 1
+        : profile.followers_count - 1,
+    }));
+
+    create(
+      "user/" + (is_follow ? "follow/" : "unfollow/") + profileData._id,
+      {}
+    ).catch((e) => {
+      console.log(e);
+      setProfileData((profile: any) => ({
+        ...profile,
+        is_followed: !is_follow,
+        followers_count: !is_follow
+          ? profile.followers_count + 1
+          : profile.followers_count - 1,
+      }));
+    });
   };
 
   if (pageLoading) {
@@ -90,8 +115,6 @@ export default function Profile() {
     );
   }
 
-  // TODO: on follow/unfollow update followers count and is_followed property
-
   return (
     <>
       <ProfileHeader />
@@ -103,6 +126,7 @@ export default function Profile() {
             isLoggedIn={isLoggedIn}
             isOwnProfile={isOwnProfile}
             toggleBlock={() => toggleBlock(!profileData.is_blocked)}
+            toggleFollow={() => toggleFollow(!profileData.is_followed)}
           />
           <div className="contant-section">
             {/* Posts, followers and following buttons */}

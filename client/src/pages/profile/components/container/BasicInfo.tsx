@@ -6,11 +6,13 @@ export default function BasicInfo({
   isLoggedIn,
   isOwnProfile,
   toggleBlock,
+  toggleFollow,
 }: {
   profile: any;
   isLoggedIn: boolean;
   isOwnProfile: boolean;
   toggleBlock: () => void;
+  toggleFollow: () => void;
 }) {
   const navigate = useNavigate();
 
@@ -92,8 +94,11 @@ export default function BasicInfo({
             {!profile?.is_blocked && (
               <>
                 <li>
-                  {/* TODO: change to follow/unfollow button */}
-                  <a className="" style={{ cursor: "pointer" }}>
+                  <a
+                    onClick={toggleFollow}
+                    className=""
+                    style={{ cursor: "pointer" }}
+                  >
                     {profile?.is_followed ? "Unfollow" : "Follow"}
                   </a>
                 </li>
