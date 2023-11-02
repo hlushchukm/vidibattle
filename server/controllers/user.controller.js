@@ -66,7 +66,7 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
     // if requesting user is blocked by the requested user, return not found
     const user = await User.findById(
       id,
-      "followers followers_count following following_count followers blocked_users"
+      "first_name last_name profile_img followers followers_count following following_count followers blocked_users"
     );
 
     if (!user || user.blocked_users?.includes(requestingUserId)) {
