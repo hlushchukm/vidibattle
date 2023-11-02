@@ -1,4 +1,5 @@
 import timeAgo from "../../../../services/timeAndDate";
+import { getName } from "../../../../services/utils";
 
 export default function Comment({
   comment,
@@ -17,29 +18,12 @@ export default function Comment({
   likeStatusChange: (id: string, isLike: boolean) => void;
   loadReplies?: (id: string) => void;
 }) {
-  const getName = () => {
-    if (!comment || !comment.author) {
-      return "loading ... ";
-    }
-
-    let res = "";
-    if (comment.author.first_name) {
-      res += comment.author.first_name;
-    }
-
-    if (comment.author.last_name) {
-      res += " " + comment.author.last_name;
-    }
-
-    return res;
-  };
-
   return (
     <>
       <div className="list-content">
         <img src={comment?.author?.profile_img} alt="/" />
         <div>
-          <h6 className="font-14 mb-1">{getName()}</h6>
+          <h6 className="font-14 mb-1">{getName(comment?.author)}</h6>
           <p className="mb-2">{comment.content}</p>
           <ul className="bottom-item">
             <li className="text-light">{comment.likes_count} Likes</li>
