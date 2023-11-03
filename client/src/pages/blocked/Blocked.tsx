@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import BlockedHeader from "./components/BlockedHeader";
-import { get } from "../../services/crud";
+import { create, get } from "../../services/crud";
 import PageLoading from "../../components/PageLoading";
 import { getName } from "../../services/utils";
 import { useNavigate } from "react-router-dom";
@@ -8,32 +8,19 @@ import DisplayModeBtns from "../../components/DisplayModeBtns";
 
 export default function Blocked() {
   const [pageLoading, setPageLoading] = useState(true);
-  const [apiData, setApiData] = useState<any>();
-  const [blockedUsers, setBlockedUser] = useState<any>([]);
+  const [blockedUsers, setBlockedUsers] = useState<any>([]);
   const [pagination, setPagination] = useState<any>();
-  const [requestingUser, setRequestingUser] = useState<any>();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchBlockedUsers();
   }, []);
 
-  useEffect(() => {
-    if (apiData?.blocked_users) {
-      setBlockedUser(apiData.blocked_users);
-    }
-    if (apiData?.pagination) {
-      setPagination(apiData.pagination);
-    }
-    if (apiData?.requesting_user) {
-      setRequestingUser(apiData.requesting_user);
-    }
-  }, [apiData]);
-
   const fetchBlockedUsers = () => {
     get("user/blocked")
       .then((res) => {
-        setApiData(res.data);
+        setBlockedUsers(res.data);
+        setPagination(res.pagination);
         setPageLoading(false);
       })
       .catch((e) => {
@@ -42,13 +29,41 @@ export default function Blocked() {
       });
   };
 
+  const toggleBlock = (id: string, is_unblock: boolean) => {
+    const originalCopy = JSON.stringify(blockedUsers);
+    const blockedListCopy = blockedUsers.map((user: any) => {
+      if (user._id === id) {
+        user.unblocked = is_unblock;
+      }
+      return user;
+    });
+
+    setBlockedUsers(blockedListCopy);
+
+    create("user/" + (is_unblock ? "unblock/" : "block/") + id, {}).catch(
+      (e) => {
+        console.log(e);
+        setBlockedUsers(JSON.parse(originalCopy));
+      }
+    );
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
 
+  if (blockedUsers.length === 0) {
+    return (
+      <>
+        <BlockedHeader />
+        <h3 className="text-muted py-5 text-center">No Blocked Users</h3>;
+      </>
+    );
+  }
+
   return (
     <>
-      <BlockedHeader name={getName(requestingUser)} />
+      <BlockedHeader />
 
       <div className="page-content">
         <div className="container profile-area pt-0">
@@ -76,13 +91,18 @@ export default function Blocked() {
                           className="media status media-60"
                         >
                           <img src={user.profile_img} alt="/" />
-                          <div className="active-point"></div>
                         </a>
                         <a href="user-profile.html" className="name">
                           {getName(user)}
                         </a>
-                        <a href="javascript:void(0);" className="follow-btn">
-                          UNBLOCK
+                        <a
+                          onClick={() =>
+                            toggleBlock(user._id, user.unblocked ? false : true)
+                          }
+                          style={{ cursor: "pointer" }}
+                          className="follow-btn"
+                        >
+                          {user?.unblocked ? "BLOCK" : "UNBLOCK"}
                         </a>
                       </div>
                     </div>
@@ -106,12 +126,17 @@ export default function Blocked() {
                         >
                           <div className="media status media-50">
                             <img src={user.profile_img} alt="/" />
-                            <div className="active-point"></div>
                           </div>
                           <span className="name">{getName(user)}</span>
                         </a>
-                        <a href="javascript:void(0);" className="follow-btn">
-                          UNBLOCK
+                        <a
+                          onClick={() =>
+                            toggleBlock(user._id, user.unblocked ? false : true)
+                          }
+                          style={{ cursor: "pointer" }}
+                          className="follow-btn"
+                        >
+                          {user?.unblocked ? "BLOCK" : "UNBLOCK"}
                         </a>
                       </div>
                     </div>
