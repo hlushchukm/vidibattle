@@ -16,6 +16,7 @@ import SuccessCallback from "./pages/auth/SuccessCallback";
 import { getUser, getUserId } from "./services/auth";
 import EditProfile from "./pages/profile/EditProfile";
 import Followers from "./pages/followers/Followers";
+import Setting from "./pages/setting/Setting";
 
 export default function Router() {
   let loggedIn = getUserId() !== null && getUser() !== null;
@@ -93,6 +94,7 @@ export default function Router() {
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/followers" element={<Followers />} />
+              <Route path="/setting" element={<Setting />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
