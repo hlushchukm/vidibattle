@@ -109,7 +109,7 @@ export default function Profile() {
   if (noUserFound) {
     return (
       <>
-        <ProfileHeader />
+        <ProfileHeader isOwnProfile={isOwnProfile} />
         <UserNotFound />;
       </>
     );
@@ -117,7 +117,7 @@ export default function Profile() {
 
   return (
     <>
-      <ProfileHeader />
+      <ProfileHeader isOwnProfile={isOwnProfile} />
 
       <div className="page-content">
         <div className="container profile-area">
