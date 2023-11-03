@@ -23,3 +23,8 @@ export interface CommentState {
   ) => void;
   clearComments: () => void;
 }
+
+export interface ShareState {
+  post: any;
+  setPostToShare: (post: any) => void;
+}

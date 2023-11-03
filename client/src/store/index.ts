@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getUserId } from "../services/auth";
-import { CommentState, PostState } from "./interface";
+import { CommentState, PostState, ShareState } from "./interface";
 
 export const useCurrentUserStore = create((set) => ({
   id: getUserId(),
@@ -18,6 +18,11 @@ export const useCurrentUserStore = create((set) => ({
 export const useCurrentChatStore = create((set) => ({
   currentChat: null,
   setCurrentChat: (chat: any) => set({ currentChat: chat }),
+}));
+
+export const useShareStore = create<ShareState>((set) => ({
+  post: {},
+  setPostToShare: (post: any) => set({ post }),
 }));
 
 export const usePostStore = create<PostState>((set) => ({
