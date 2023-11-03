@@ -17,6 +17,7 @@ import { getUser, getUserId } from "./services/auth";
 import EditProfile from "./pages/profile/EditProfile";
 import Followers from "./pages/followers/Followers";
 import Setting from "./pages/setting/Setting";
+import Blocked from "./pages/blocked/Blocked";
 
 export default function Router() {
   let loggedIn = getUserId() !== null && getUser() !== null;
@@ -95,6 +96,7 @@ export default function Router() {
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/followers" element={<Followers />} />
               <Route path="/setting" element={<Setting />} />
+              <Route path="/blocked" element={<Blocked />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
