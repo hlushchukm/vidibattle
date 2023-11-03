@@ -13,18 +13,19 @@ import Profile from "./pages/profile/Profile";
 import CreatePost from "./pages/create-post/CreatePost";
 import Messages from "./pages/chat/Messages";
 import SuccessCallback from "./pages/auth/SuccessCallback";
-import { getUser, getUserId } from "./services/auth";
+import { isLoggedIn } from "./services/auth";
 import EditProfile from "./pages/profile/EditProfile";
 import Followers from "./pages/followers/Followers";
 import Setting from "./pages/setting/Setting";
 import Blocked from "./pages/blocked/Blocked";
+import SinglePost from "./pages/home/SinglePost";
 
 export default function Router() {
-  let loggedIn = getUserId() !== null && getUser() !== null;
+  let loggedIn = isLoggedIn();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loggedIn = getUserId() !== null && getUser() !== null;
+    loggedIn = isLoggedIn();
     setLoading(false);
   }, []);
 
@@ -54,6 +55,7 @@ export default function Router() {
             }
           />
           <Route path="/followers/:id" element={<Followers />} />
+          <Route path="/post/:id" element={<SinglePost />} />
 
           {/* Private Routes */}
           {loggedIn ? (

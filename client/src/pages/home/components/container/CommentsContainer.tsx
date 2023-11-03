@@ -4,6 +4,8 @@ import Comment from "../ui/Comment";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 import { create, get } from "../../../../services/crud";
 import { useCommentsStore, usePostStore } from "../../../../store";
+import { isLoggedIn as checkUserLoggedIn } from "../../../../services/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function CommentsContainer({ post }: { post: any }) {
   const [commentText, setCommentText] = useState("");
@@ -34,9 +36,12 @@ export default function CommentsContainer({ post }: { post: any }) {
   const decrementCommentsCount = usePostStore(
     (state) => state.decrementCommentsCount
   );
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchComments();
+    setIsLoggedIn(checkUserLoggedIn());
 
     return () => {
       clearComments();
@@ -159,6 +164,8 @@ export default function CommentsContainer({ post }: { post: any }) {
   };
 
   const toggleShowCommentInput = (id: string) => {
+    if (!isLoggedIn) return navigate("/auth");
+
     setShowNewCommentInput(false);
     if (showCommentInputFor === id) {
       setShowCommentInputFor("");
@@ -179,6 +186,8 @@ export default function CommentsContainer({ post }: { post: any }) {
     isLike: boolean,
     parentId?: string
   ) => {
+    if (!isLoggedIn) return navigate("/auth");
+
     toggleCommentLike_store(id, comment_for, isLike, parentId);
 
     create("comment/" + (isLike ? "like" : "unlike") + "/" + id, {})
@@ -195,14 +204,16 @@ export default function CommentsContainer({ post }: { post: any }) {
       <div className="card bg-light p-3">
         <h6 className="text-muted">No Comments</h6>
         <div className="divider border-secondary mt-1"></div>
-        <CommentInput
-          sendingComment={sendingComment}
-          commentText={commentText}
-          onChange={setCommentText}
-          onSubmit={(e) =>
-            sendComment(e, { comment_for: "post", parentId: post._id })
-          }
-        />
+        {isLoggedIn && (
+          <CommentInput
+            sendingComment={sendingComment}
+            commentText={commentText}
+            onChange={setCommentText}
+            onSubmit={(e) =>
+              sendComment(e, { comment_for: "post", parentId: post._id })
+            }
+          />
+        )}
       </div>
     );
   }
@@ -228,7 +239,7 @@ export default function CommentsContainer({ post }: { post: any }) {
       <div className="divider border-secondary mt-1"></div>
 
       {/* to add a new comment */}
-      {showNewCommentInput && (
+      {showNewCommentInput && isLoggedIn && (
         <div className="mb-3">
           <CommentInput
             sendingComment={sendingComment}
@@ -261,7 +272,7 @@ export default function CommentsContainer({ post }: { post: any }) {
                 }
               />
             </li>
-            {showCommentInputFor === comment._id && (
+            {showCommentInputFor === comment._id && isLoggedIn && (
               <li>
                 <CommentInput
                   sendingComment={sendingComment}
@@ -291,7 +302,7 @@ export default function CommentsContainer({ post }: { post: any }) {
                       }
                     />
                   </li>
-                  {showCommentInputFor === reply._id && (
+                  {showCommentInputFor === reply._id && isLoggedIn && (
                     <li className="parent-list">
                       <CommentInput
                         sendingComment={sendingComment}

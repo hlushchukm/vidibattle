@@ -17,3 +17,7 @@ export const getUser = () => {
     ? JSON.parse(localStorage.getItem("user") ?? "")
     : null;
 };
+
+export const isLoggedIn = () => {
+  return getUserId() !== null && getUser() !== null;
+};

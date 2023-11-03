@@ -4,6 +4,8 @@ import CommentsContainer from "./CommentsContainer";
 import { usePostStore } from "../../../../store";
 import { create } from "../../../../services/crud";
 import NoPostsFound from "../../../../components/NoPostsFound";
+import { isLoggedIn } from "../../../../services/auth";
+import { useNavigate } from "react-router-dom";
 
 interface PostContainerProps {
   feed: any[];
@@ -13,6 +15,7 @@ export default function PostsContainer({ feed }: PostContainerProps) {
   const [visibleComment, setVisibleComment] = useState<string | null>();
   const componentRefs = useRef<{ [key: string]: HTMLElement }>({});
   const togglePostLike = usePostStore((state) => state.togglePostLike);
+  const navigate = useNavigate();
 
   const toggleComment = (id: string) => {
     if (visibleComment === id) {
@@ -25,6 +28,8 @@ export default function PostsContainer({ feed }: PostContainerProps) {
   };
 
   const likePost = (id: string, liked: boolean) => {
+    if (!isLoggedIn()) return navigate("/auth");
+
     togglePostLike(id, liked);
     if (liked) {
       create("post/like/" + id, {}).catch((e) => {
