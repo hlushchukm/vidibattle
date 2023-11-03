@@ -3,16 +3,19 @@ import PageLoading from "../../components/PageLoading";
 import TimelineHeader from "./components/TimelineHeader";
 import { get } from "../../services/crud";
 import { env } from "../../env";
-import PhotoAlbum from "react-photo-album";
 import { getUserId } from "../../services/auth";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
+import DisplayModeBtns from "../../components/DisplayModeBtns";
+import { useNavigate } from "react-router-dom";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
   const [photos, setPhotos] = useState<any[]>([]);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
-  const loadingAdditionalPosts = useRef(false);
+  const loadingAdditionalPosts = useRef<boolean>(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const navigate = useNavigate();
 
   // TODO:
   /**
@@ -29,13 +32,15 @@ export default function Timeline() {
   }, []);
 
   const getTimeline = async () => {
+    setShowLoading(true);
+    const pageSize = 15;
     return get("post/timeline/" + getUserId(), {
-      pageSize: 21,
+      pageSize,
       lastDate: lastDate.current,
       lastPostId: lastPostId.current,
     })
       .then((res) => {
-        if (res.data.length === 0) {
+        if (res.data.length === 0 || res.data.length < pageSize) {
           loadingAdditionalPosts.current = false;
           window.removeEventListener("scroll", handleScroll);
         }
@@ -47,9 +52,6 @@ export default function Timeline() {
             } else {
               data.src = `${env.VITE_API_URL}/media/${media?.filename}`;
             }
-            data.width = 400;
-            data.height = 300;
-            console.log(data);
           }
           return data;
         });
@@ -57,10 +59,12 @@ export default function Timeline() {
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
         setPageLoading(false);
+        setShowLoading(false);
       })
       .catch((e) => {
         console.log(e);
         setPageLoading(false);
+        setShowLoading(false);
       });
   };
 
@@ -80,6 +84,7 @@ export default function Timeline() {
   if (pageLoading) {
     return <PageLoading />;
   }
+
   return (
     <>
       <TimelineHeader />
@@ -87,12 +92,55 @@ export default function Timeline() {
       <div className="page-content vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
-            <PhotoAlbum
-              layout="rows"
-              targetRowHeight={250}
-              spacing={4}
-              photos={photos}
-            />
+            <div className="title-bar my-2">
+              <h6 className="mb-0">My Posts</h6>
+              <div className="dz-tab style-2">
+                <DisplayModeBtns />
+              </div>
+            </div>
+            {/* TODO: show play btn on videos */}
+            <div className="tab-content" id="myTabContent2">
+              <div
+                className="tab-pane fade show active"
+                id="grid2"
+                role="tabpanel"
+                aria-labelledby="home-tab"
+                tabIndex={0}
+              >
+                <div className="dz-lightgallery style-2" id="lightgallery">
+                  {photos.map((photo) => (
+                    <a
+                      key={photo._id}
+                      className="gallery-box position-relative"
+                      style={{ cursor: "pointer", background: "#77777730" }}
+                      onClick={() => navigate("/post/" + photo._id)}
+                    >
+                      <img src={photo.src} alt="image" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div
+                className="tab-pane fade"
+                id="list2"
+                role="tabpanel"
+                aria-labelledby="profile-tab"
+                tabIndex={0}
+              >
+                <div className="dz-lightgallery" id="lightgallery-2">
+                  {photos.map((photo) => (
+                    <a
+                      key={photo._id}
+                      className="gallery-box position-relative"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => navigate("/post/" + photo._id)}
+                    >
+                      <img src={photo.src} alt="image" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
           {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
         </div>
