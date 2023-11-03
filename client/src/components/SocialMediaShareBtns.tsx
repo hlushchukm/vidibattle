@@ -59,7 +59,7 @@ export default function SocialMediaShareBtns({
 
   return (
     <>
-      <div className="m-auto overflow-hidden text-center">
+      <div className="m-auto overflow-hidden">
         <Swiper
           spaceBetween={"0px"}
           slidesPerView={"auto"}
