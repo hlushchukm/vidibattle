@@ -18,7 +18,7 @@ module.exports.getProfileInfo = async (req, res, next) => {
     const { id } = req.params;
     let requestingUserId;
     if (req.user) {
-      requestingUserId = req.user;
+      requestingUserId = req.user._id;
     }
 
     const user = await User.findById(
@@ -73,7 +73,7 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
     const { id } = req.params;
     let requestingUserId;
     if (req.user) {
-      requestingUserId = req.user;
+      requestingUserId = req.user._id;
     }
 
     // if requesting user is blocked by the requested user, return not found
@@ -137,21 +137,16 @@ module.exports.getBlockedUsers = async (req, res, next) => {
     const totalBlockedUsers = requestingUser.blocked_users.length;
 
     // Prepare the response object
-    const response = {
-      requesting_user: {
-        first_name: requestingUser.first_name,
-        last_name: requestingUser.last_name,
-      },
-      blocked_users: blockedUsers,
+
+    res.status(200).json({
+      data: blockedUsers,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total: totalBlockedUsers,
         totalPages: Math.ceil(totalBlockedUsers / limit),
       },
-    };
-
-    res.status(200).json({ data: response });
+    });
   } catch (e) {
     next(e);
   }
