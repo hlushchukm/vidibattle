@@ -8,7 +8,13 @@ module.exports.feed = function ({
   pageSize,
   currentUser,
 }) {
-  let query = { hidden: false, author: { $nin: currentUser.blocked_users } }; // visible posts and posts by unblocked people
+  let query = {
+    hidden: false,
+    $and: [
+      { author: { $nin: currentUser.blocked_users } },
+      { author: { $nin: currentUser.blocked_by } },
+    ],
+  }; // visible posts and posts by unblocked people
 
   if (lastDate) {
     query.$or = [

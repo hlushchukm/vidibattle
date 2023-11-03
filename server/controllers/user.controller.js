@@ -211,6 +211,10 @@ module.exports.block = async (req, res, next) => {
       $addToSet: { blocked_users: blockedId },
     });
 
+    await User.findByIdAndUpdate(blockedId, {
+      $addToSet: { blocked_by: userId },
+    });
+
     res.status(200).json({ message: "user blocked successfully" });
   } catch (e) {
     next(e);
@@ -230,6 +234,10 @@ module.exports.unblock = async (req, res, next) => {
 
     await User.findByIdAndUpdate(userId, {
       $pull: { blocked_users: blockedId },
+    });
+
+    await User.findByIdAndUpdate(blockedId, {
+      $pull: { blocked_by: userId },
     });
 
     res.status(200).json({ message: "user unblocked successfully" });
