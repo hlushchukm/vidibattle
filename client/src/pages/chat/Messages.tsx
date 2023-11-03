@@ -27,6 +27,9 @@ export default function Messages() {
     (state: any) => state.setCurrentChat
   );
 
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+
   useEffect(() => {
     // TODO: check if we have socket connection
     if (location.pathname.includes("new") && params.userId) {
@@ -51,6 +54,24 @@ export default function Messages() {
           // TODO: if we are on a new message page and the first text has been sent, go to the new chat page
         }
       });
+    }
+
+    // check if it came from a share screen, and set the input element with the text
+    if (
+      queryParams.get("share") === "true" &&
+      queryParams.get("url") !== undefined
+    ) {
+      let text = "";
+
+      if (queryParams.get("url")) {
+        text = queryParams.get("url") ?? " ";
+      }
+
+      if (queryParams.get("title")) {
+        text += " " + queryParams.get("title");
+      }
+
+      setNewMessage(text.trim());
     }
   }, []);
 

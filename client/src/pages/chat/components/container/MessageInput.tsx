@@ -22,6 +22,7 @@ export default function MessageInput({
                     type="text"
                     className="form-control"
                     placeholder="Type message..."
+                    autoFocus={true}
                     value={text}
                     onChange={setText}
                     onKeyDown={(e) => {
