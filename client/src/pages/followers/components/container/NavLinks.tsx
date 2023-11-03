@@ -15,7 +15,7 @@ export default function NavLinks({
         onClick={() => onNavBarClick("following")}
         className="nav-link position-relative"
       >
-        <span>{followingCount} Following</span>
+        <span>{followingCount ?? 0} Following</span>
         <div
           className={`tab-indicator bg-primary position-absolute w-100 bottom-0 ${
             currentTab !== "following" ? "width-none" : "slide-bar-left"
@@ -27,7 +27,7 @@ export default function NavLinks({
         onClick={() => onNavBarClick("followers")}
         className="nav-link position-relative"
       >
-        <span>{followersCount} Followers</span>
+        <span>{followersCount ?? 0} Followers</span>
         <div
           className={`tab-indicator bg-primary position-absolute w-100 bottom-0  ${
             currentTab !== "followers" ? "width-none" : "slide-bar-right"

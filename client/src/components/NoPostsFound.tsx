@@ -12,7 +12,7 @@ export default function NoPostsFound({
           <img src="/assets/images/icons/camera_icon.png" alt="No Posts Yet" />
         </div>
         <div className="clearfix d-flex flex-column justify-content-center">
-          <h2 className="title text-primary">No Posts Found</h2>
+          <h2 className="title text-primary">No Post Found</h2>
           {showBtn && (
             <Link
               to={"/create-post"}
