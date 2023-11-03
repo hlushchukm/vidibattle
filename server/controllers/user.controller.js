@@ -16,7 +16,10 @@ module.exports.getBasicUserInfo = async (req, res, next) => {
 module.exports.getProfileInfo = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { _id: requestingUserId } = req.user;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user;
+    }
 
     const user = await User.findById(
       id,
@@ -24,20 +27,27 @@ module.exports.getProfileInfo = async (req, res, next) => {
     );
 
     // if user doesn't exist or has blocked the person making the request
-    if (!user || user.blocked_users?.includes(requestingUserId)) {
+    if (
+      !user ||
+      (requestingUserId && user.blocked_users?.includes(requestingUserId))
+    ) {
       return res.status(404).json({ message: "user profile not found" });
     }
 
-    const is_followed = user.followers.includes(requestingUserId);
+    let is_followed = false;
+    let is_blocked = false;
 
-    const requesingUser = await User.findById(requestingUserId);
+    if (requestingUserId) {
+      is_followed = user.followers.includes(requestingUserId);
 
-    if (!requesingUser) {
-      return res.status(404).json({ message: "requesting user not found" });
+      const requesingUser = await User.findById(requestingUserId);
+
+      if (!requesingUser) {
+        return res.status(404).json({ message: "requesting user not found" });
+      }
+
+      is_blocked = requesingUser.blocked_users?.includes(user._id);
     }
-
-    const is_blocked = requesingUser.blocked_users?.includes(user._id);
-
     const response = { ...user.toObject(), is_followed, is_blocked };
     delete response.followers;
     delete response.blocked_users;
@@ -61,7 +71,10 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
   try {
     // TODO: add pagination
     const { id } = req.params;
-    const { _id: requestingUserId } = req.user;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user;
+    }
 
     // if requesting user is blocked by the requested user, return not found
     const user = await User.findById(
@@ -69,7 +82,10 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
       "first_name last_name profile_img followers followers_count following following_count followers blocked_users"
     );
 
-    if (!user || user.blocked_users?.includes(requestingUserId)) {
+    if (
+      !user ||
+      (requestingUserId && user.blocked_users?.includes(requestingUserId))
+    ) {
       return res.status(404).json({ message: "user profile not found" });
     }
 
