@@ -9,7 +9,12 @@ import DisplayModeBtns from "../../components/DisplayModeBtns";
 export default function Blocked() {
   const [pageLoading, setPageLoading] = useState(true);
   const [blockedUsers, setBlockedUsers] = useState<any>([]);
-  const [pagination, setPagination] = useState<any>();
+  const [pagination, setPagination] = useState<any>({
+    page: 0,
+    limit: 10,
+  });
+  const [hideMoreBtn, setHideMoreBtn] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,15 +22,21 @@ export default function Blocked() {
   }, []);
 
   const fetchBlockedUsers = () => {
-    get("user/blocked")
+    setDataLoading(true);
+    get("user/blocked", { page: pagination.page + 1, limit: pagination.limit })
       .then((res) => {
-        setBlockedUsers(res.data);
+        if (res.data.length === 0 || res.data.length < pagination.limit) {
+          setHideMoreBtn(true);
+        }
+        setBlockedUsers((s: any) => [...s, ...res.data]);
         setPagination(res.pagination);
         setPageLoading(false);
+        setDataLoading(false);
       })
       .catch((e) => {
         console.log(e);
         setPageLoading(false);
+        setDataLoading(false);
       });
   };
 
@@ -141,6 +152,26 @@ export default function Blocked() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+              <div
+                className="tab-pane fade show active"
+                id="list2"
+                role="tabpanel"
+                aria-labelledby="list-tab"
+              >
+                <div className="dz-user-list row g-3 py-3">
+                  {!hideMoreBtn && (
+                    <button
+                      className={`btn light btn-primary ${
+                        dataLoading && "disabled"
+                      }`}
+                      onClick={fetchBlockedUsers}
+                    >
+                      {!dataLoading && <span>show more</span>}
+                      {dataLoading && <i className="fa fa-spinner fa-spin"></i>}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
