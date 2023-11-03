@@ -14,7 +14,7 @@ router.use("/post", postRouter);
 router.use("/media", mediaRouter);
 router.use("/chat", authGuard, chatRouter);
 router.use("/user", userRouter);
-router.use("/comment", authGuard, commentRouter);
+router.use("/comment", commentRouter);
 router.use("/report", authGuard, reportRouter);
 
 module.exports = router;
