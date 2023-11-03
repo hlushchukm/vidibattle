@@ -73,6 +73,59 @@ module.exports.getTimeline = async (req, res, next) => {
   }
 };
 
+module.exports.getPost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user._id;
+    }
+
+    const post = await Post.findOne({ _id: postId, is_deleted: false });
+
+    if (!post) {
+      return res.status(404).json({ message: "post not found!" });
+    }
+
+    let is_liked = false;
+
+    if (requestingUserId) {
+      const requestingUser = await User.findById(requestingUserId);
+      const author_is_blocked =
+        requestingUser?.blocked_users?.includes(requestingUserId);
+      const requesting_user_is_blocked = requestingUser?.blocked_by?.includes(
+        post.author
+      );
+
+      if (author_is_blocked || requesting_user_is_blocked) {
+        return res.status(403).json({ message: "can't access this post" });
+      }
+
+      is_liked = post.likes?.includes(requestingUserId);
+    }
+
+    await post.populate([
+      {
+        path: "author",
+        select: "first_name last_name profile_img",
+      },
+      {
+        path: "media",
+        populate: {
+          path: "thumbnail",
+        },
+      },
+    ]);
+    console.log(post);
+
+    const responsePost = { ...post.toObject(), is_liked };
+
+    res.status(200).json({ data: responsePost });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.create = async (req, res, next) => {
   const { caption, author, type } = req.body;
   const { filename, contentType } = req.file;
