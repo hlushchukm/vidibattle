@@ -137,18 +137,28 @@ export const useCommentsStore = create<CommentState>((set) => ({
       let updatedComments: any = [];
       if (comment_for === "post") {
         updatedComments = state.comments.map((comment) => {
-          if (comment._id === id)
+          if (comment._id === id) {
             comment.is_liked =
               isLike !== undefined ? isLike : !comment.is_liked;
+
+            comment.likes_count = comment.is_liked
+              ? comment.likes_count + 1
+              : comment.likes_count - 1;
+          }
           return comment;
         });
       } else {
         updatedComments = state.comments.map((comment) => {
           if (comment._id === parentId) {
             comment.comments = comment.comments.map((reply: any) => {
-              if (reply._id === id)
+              if (reply._id === id) {
                 reply.is_liked =
                   isLike !== undefined ? isLike : !reply.is_liked;
+
+                reply.likes_count = reply.is_liked
+                  ? reply.likes_count + 1
+                  : reply.likes_count - 1;
+              }
               return reply;
             });
           }
