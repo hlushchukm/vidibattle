@@ -1,4 +1,4 @@
-import DisplayModeBtns from "../ui/DisplayModeBtns";
+import DisplayModeBtns from "../../../../components/DisplayModeBtns";
 import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
