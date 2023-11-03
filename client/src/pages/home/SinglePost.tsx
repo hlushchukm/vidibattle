@@ -5,6 +5,7 @@ import PageLoading from "../../components/PageLoading";
 import { get } from "../../services/crud";
 import PostsContainer from "./components/container/PostsContainer";
 import { usePostStore } from "../../store";
+import ShareModal from "../../components/ShareModal";
 
 export default function SinglePost() {
   const posts = usePostStore((state) => state.posts);
@@ -48,6 +49,8 @@ export default function SinglePost() {
           </div>
         </div>
       </div>
+
+      <ShareModal />
     </>
   );
 }
