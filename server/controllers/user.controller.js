@@ -109,6 +109,54 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
   }
 };
 
+module.exports.getBlockedUsers = async (req, res, next) => {
+  try {
+    const { _id: requestingUserId } = req.user;
+    const { page = 1, limit = 10 } = req.query;
+
+    // Find the requesting user
+    const requestingUser = await User.findById(
+      requestingUserId,
+      "first_name last_name blocked_users"
+    );
+
+    if (!requestingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Retrieve the paginated list of blocked users
+    const blockedUsers = await User.find({
+      _id: { $in: requestingUser.blocked_users },
+    })
+      .select("first_name last_name profile_img")
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+
+    // Count the total number of blocked users
+    const totalBlockedUsers = requestingUser.blocked_users.length;
+
+    // Prepare the response object
+    const response = {
+      requesting_user: {
+        first_name: requestingUser.first_name,
+        last_name: requestingUser.last_name,
+      },
+      blocked_users: blockedUsers,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: totalBlockedUsers,
+        totalPages: Math.ceil(totalBlockedUsers / limit),
+      },
+    };
+
+    res.status(200).json({ data: response });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.follow = async (req, res, next) => {
   try {
     const followerId = req.user._id;
