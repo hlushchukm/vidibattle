@@ -1,4 +1,9 @@
+import { useState } from "react";
+import SocialMediaShareBtns from "./SocialMediaShareBtns";
+
 export default function ShareModal() {
+  const [shareMessage, setShareMessage] = useState('');
+
   return (
     <>
       <div
@@ -8,9 +13,10 @@ export default function ShareModal() {
       >
         <button
           type="button"
-          className="btn-close drage-close"
+          className="btn-close drage-close btn-primary"
           data-bs-dismiss="offcanvas"
           aria-label="Close"
+          title="Close"
         ></button>
         <div className="offcanvas-header share-style m-0 pb-0">
           <form className="w-100">
@@ -18,6 +24,8 @@ export default function ShareModal() {
               type="text"
               className="form-control border-0"
               placeholder="Write a message ..."
+              value={shareMessage}
+              onChange={(e) => setShareMessage(e.target.value)}
             />
           </form>
         </div>
@@ -45,6 +53,9 @@ export default function ShareModal() {
               </span>
             </div>
           </form>
+          <div>
+            <SocialMediaShareBtns shareMessage={shareMessage} />
+          </div>
           <div className="canvas-height mt-4 dz-scroll">
             <ul className="share-list">
               <li>

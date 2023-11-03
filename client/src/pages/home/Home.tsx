@@ -6,6 +6,7 @@ import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import { usePostStore } from "../../store";
+import ShareModal from "../../components/ShareModal";
 
 export default function Home() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -22,7 +23,7 @@ export default function Home() {
 
     // add event listener for scorll event to fetch additional posts on the bottom of the page
     window.addEventListener("scroll", handleScroll);
-    
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
       clearPosts();
@@ -87,6 +88,8 @@ export default function Home() {
             <PostsContainer feed={posts} />
 
             {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
+
+            <ShareModal />
           </div>
         </div>
       </div>

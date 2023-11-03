@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
+import { useShareStore } from "../../../../store";
 
 export default function Post({
   post,
@@ -12,6 +13,7 @@ export default function Post({
   togglePostLike: (id: string, liked: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const setPostToShare = useShareStore((state) => state.setPostToShare);
 
   return (
     <>
@@ -41,7 +43,8 @@ export default function Post({
             </div>
           </div>
           <a
-            href="javascript:void(0);"
+            onClick={() => setPostToShare(post)}
+            style={{ cursor: "pointer" }}
             className="item-content item-link"
             data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasBottom1"
