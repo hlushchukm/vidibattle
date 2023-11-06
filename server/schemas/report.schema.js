@@ -7,6 +7,7 @@ const reportSchema = new Schema(
     post: { type: Schema.Types.ObjectId, ref: "Post", required: true },
     reported_by: { type: Schema.Types.ObjectId, ref: "User", required: true },
     comment: { type: String },
+    status: { type: String, enum: ["resolved", "pending"], default: "pending" },
   },
   { timestamps: true }
 );
