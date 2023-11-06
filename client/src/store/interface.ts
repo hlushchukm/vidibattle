@@ -28,3 +28,8 @@ export interface ShareState {
   post: any;
   setPostToShare: (post: any) => void;
 }
+
+export interface ReportState {
+  post: any;
+  setPostToReport: (post: any) => void;
+}
