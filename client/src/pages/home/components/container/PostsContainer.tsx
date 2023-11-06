@@ -1,11 +1,13 @@
 import { useState, useRef } from "react";
 import Post from "../ui/Post";
 import CommentsContainer from "./CommentsContainer";
-import { usePostStore } from "../../../../store";
+import { usePostStore, useReportStore } from "../../../../store";
 import { create } from "../../../../services/crud";
 import NoPostsFound from "../../../../components/NoPostsFound";
 import { isLoggedIn } from "../../../../services/auth";
 import { useNavigate } from "react-router-dom";
+import ReportModal from "../../../../components/ReportModal";
+import { toast } from "react-toastify";
 
 interface PostContainerProps {
   feed: any[];
@@ -14,6 +16,7 @@ interface PostContainerProps {
 export default function PostsContainer({ feed }: PostContainerProps) {
   const [visibleComment, setVisibleComment] = useState<string | null>();
   const componentRefs = useRef<{ [key: string]: HTMLElement }>({});
+  const postToReport = useReportStore((state) => state.post);
   const togglePostLike = usePostStore((state) => state.togglePostLike);
   const navigate = useNavigate();
 
@@ -44,6 +47,29 @@ export default function PostsContainer({ feed }: PostContainerProps) {
     }
   };
 
+  const reportPost = (comment: string) => {
+    console.log("the comment is ", comment);
+    console.log("the post to be reported is ", postToReport);
+    if (postToReport && comment) {
+      create("report", { post: postToReport._id, comment })
+        .then(() => {
+          toast.success("Report Sent For Review!");
+        })
+        .catch((e) => {
+          console.log(e);
+          toast.error("Error! Report Not Submitted");
+        });
+    }
+    closeReportModal();
+  };
+
+  const closeReportModal = () => {
+    let btn = document.getElementById("bottomModalClose");
+    if (btn) {
+      btn.click();
+    }
+  };
+
   if (feed.length === 0) {
     return <NoPostsFound showBtn={true} />;
   }
@@ -65,6 +91,8 @@ export default function PostsContainer({ feed }: PostContainerProps) {
           </div>
         ))}
       </div>
+
+      <ReportModal reportPost={reportPost} />
     </>
   );
 }
