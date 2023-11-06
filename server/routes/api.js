@@ -15,6 +15,6 @@ router.use("/media", mediaRouter);
 router.use("/chat", authGuard, chatRouter);
 router.use("/user", userRouter);
 router.use("/comment", commentRouter);
-router.use("/report", authGuard, reportRouter);
+router.use("/report", reportRouter);
 
 module.exports = router;

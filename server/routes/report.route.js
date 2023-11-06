@@ -3,12 +3,15 @@ const {
   getReports,
   createReport,
 } = require("../controllers/report.controller");
+const { adminAuthGuard, authGuard } = require("../services/authGuard");
 const router = express.Router();
 
 // get
-router.get("/", getReports);
+router.get("/", adminAuthGuard, getReports);
 
 // post
-router.post("/", createReport);
+router.post("/", authGuard, createReport);
+// router.post("/remove", adminAuthGuard, resolveReport);
+// router.post("/ignore", adminAuthGuard, ignoreReport);
 
 module.exports = router;
