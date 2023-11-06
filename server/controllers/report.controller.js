@@ -9,7 +9,11 @@ module.exports.getReports = async (req, res, next) => {
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    const reports = await Report.find().skip(skip).limit(limit).exec();
+    const reports = await Report.find()
+      .populate("reported_by", "first_name last_name profile_img")
+      .skip(skip)
+      .limit(limit)
+      .exec();
 
     const totalCount = await Report.countDocuments().exec(); // total number of comments
     const totalPages = Math.ceil(totalCount / limit); // total number of pages
