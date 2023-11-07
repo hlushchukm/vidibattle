@@ -5,11 +5,16 @@ module.exports.getReports = async (req, res, next) => {
     // Get the page number and items per page from query parameters
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status || "pending";
+
+    if (status !== "resolved" && status !== "pending" && status !== "ignored") {
+      return res.status(400).json({ message: "invalid report status query" });
+    }
 
     // Calculate the skip value based on the page number and limit
     const skip = (page - 1) * limit;
 
-    const reports = await Report.find()
+    const reports = await Report.find({ status })
       .populate("reported_by", "first_name last_name profile_img")
       .skip(skip)
       .limit(limit)
