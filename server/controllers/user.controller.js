@@ -300,3 +300,27 @@ module.exports.unblock = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.changeUserStatus = async (req, res, next) => {
+  try {
+    const { id, status } = req.body;
+
+    const allowedStatuses = ["active", "under review", "suspended", "deleted"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "invalid status type" });
+    }
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    user.status = status;
+    await user.save();
+
+    return res.status(200).json({ message: "user status changed", data: user });
+  } catch (e) {
+    next(e);
+  }
+};
