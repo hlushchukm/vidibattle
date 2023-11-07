@@ -32,6 +32,34 @@ router.get(
   }
 );
 
+router.post(
+  "/admin/login",
+  function (req, res, next) {
+    passport.authenticate("local", function (err, user, message) {
+      if (err) {
+        return next(err);
+      }
+
+      if (!user) {
+        return res.json({ success: false, message });
+      }
+
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          return next(loginErr);
+        }
+
+        const response = user.toObject()
+        delete response.password;
+        return res.send({
+          success: true,
+          data: response,
+        });
+      });
+    })(req, res, next);
+  }
+);
+
 router.get(
   "/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/login/failed" }),

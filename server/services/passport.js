@@ -1,8 +1,11 @@
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const InstagramStrategy = require("passport-instagram").Strategy;
+const LocalStrategy = require("passport-local").Strategy;
 const passport = require("passport");
+const bcrypt = require("bcryptjs");
 const { User } = require("../models/user.model");
+const { Admin } = require("../models/admin.model");
 
 passport.use(
   new GoogleStrategy(
@@ -109,3 +112,31 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
+
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email", // Specify the field name for the email
+    },
+    async (email, password, done) => {
+      try {
+        // Find the user by email
+        const admin = await Admin.findOne({ email });
+
+        if (!admin) {
+          return done(null, false, "Incorrect email or password");
+        }
+
+        // If user not found or password doesn't match, return error
+        if (!(await bcrypt.compare(password, admin.password))) {
+          return done(null, false, "Incorrect email or password");
+        }
+
+        // Authentication successful
+        return done(null, admin);
+      } catch (e) {
+        return done(e);
+      }
+    }
+  )
+);
