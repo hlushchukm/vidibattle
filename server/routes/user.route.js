@@ -9,8 +9,9 @@ const {
   getProfileInfo,
   getFollowersAndFollowing,
   getBlockedUsers,
+  getUsersList,
 } = require("../controllers/user.controller");
-const { authGuard } = require("../services/authGuard");
+const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const router = express.Router();
 
 // get
@@ -19,6 +20,7 @@ router.get("/profileInfo/:id", getProfileInfo);
 router.get("/authenticated", getAuthenticatedUser);
 router.get("/followers-following/:id", getFollowersAndFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
+router.get("/list", getUsersList); // TODO: add admin auth guard
 
 // post
 router.post("/follow/:followedId", authGuard, follow);

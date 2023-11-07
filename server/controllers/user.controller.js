@@ -152,6 +152,61 @@ module.exports.getBlockedUsers = async (req, res, next) => {
   }
 };
 
+module.exports.getUsersList = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      first_name,
+      last_name,
+      email,
+      whatsapp,
+      provider,
+      is_complete,
+      status,
+      createdAt,
+    } = req.query;
+
+    // Construct the filter query based on the provided filter parameters
+    const filter = {};
+    if (first_name) filter.first_name = { $regex: first_name, $options: "i" };
+    if (last_name) filter.last_name = { $regex: last_name, $options: "i" };
+    if (email) filter.email = { $regex: email, $options: "i" };
+    if (whatsapp) filter.whatsapp = { $regex: whatsapp, $options: "i" };
+    if (provider) filter.provider = provider;
+    if (is_complete) filter.is_complete = is_complete === "true";
+    if (status) filter.status = status;
+    if (createdAt) {
+      // Assuming createdAt is a valid date string in ISO format
+      const startDate = new Date(createdAt);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 1); // Add 1 day to include the entire day
+      filter.createdAt = { $gte: startDate, $lt: endDate };
+    }
+
+    // Count the total number of matching documents for pagination
+    const total = await User.countDocuments(filter);
+
+    // Apply pagination, sorting, and retrieve the users
+    const selectedFields =
+      "first_name last_name profile_img email whatsapp provider is_complete status createdAt";
+    const users = await User.find(filter, selectedFields)
+      .sort({ first_name: 1, last_name: 1, createdAt: -1 }) // Sort by name and createdAt
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .exec();
+
+    res.json({
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      data: users,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.follow = async (req, res, next) => {
   try {
     const followerId = req.user._id;
