@@ -164,3 +164,30 @@ module.exports.unlikeComment = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.removeComment = async (req, res, next) => {
+  try {
+    const { commentId, postId } = req.params;
+
+    const comment = await Comment.findOneAndUpdate(
+      { _id: commentId },
+      { is_deleted: true }
+    );
+
+    if (!comment) {
+      return res.status(404).json({ message: "comment not found" });
+    }
+
+    const post = await Post.findById(postId);
+
+    if (post) {
+      post.comments_count =
+        post.comments_count > 0 ? post.comments_count - 1 : 0;
+      await post.save();
+    }
+
+    res.status(204).json({ message: "comment removed" });
+  } catch (e) {
+    next(e);
+  }
+};

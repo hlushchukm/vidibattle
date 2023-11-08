@@ -52,6 +52,8 @@ module.exports.getComments = async function (
     throw createHttpError(400, "invalid comment_for value provided");
   }
 
+  query.is_deleted = false
+
   if (lastDate) {
     if (comment_for === "post") {
       query.$or = [
