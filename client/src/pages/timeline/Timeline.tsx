@@ -7,6 +7,7 @@ import { getUserId } from "../../services/auth";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import DisplayModeBtns from "../../components/DisplayModeBtns";
 import { useNavigate } from "react-router-dom";
+import PlayBtn from "../../components/PlayBtn";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -98,7 +99,7 @@ export default function Timeline() {
                 <DisplayModeBtns />
               </div>
             </div>
-            {/* TODO: show play btn on videos */}
+
             <div className="tab-content" id="myTabContent2">
               <div
                 className="tab-pane fade show active"
@@ -115,7 +116,8 @@ export default function Timeline() {
                       style={{ cursor: "pointer", background: "#77777730" }}
                       onClick={() => navigate("/post/" + photo._id)}
                     >
-                      <img src={photo.src} alt="image" />
+                      <img src={photo.src} />
+                      {photo.media?.[0]?.type === "video" && <PlayBtn />}
                     </a>
                   ))}
                 </div>
@@ -136,6 +138,11 @@ export default function Timeline() {
                       onClick={() => navigate("/post/" + photo._id)}
                     >
                       <img src={photo.src} alt="image" />
+                      {photo.media?.[0]?.type === "video" && (
+                        <div style={{ minHeight: "200px" }}>
+                          <PlayBtn />
+                        </div>
+                      )}
                     </a>
                   ))}
                 </div>
