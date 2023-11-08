@@ -44,7 +44,6 @@ const userSchema = Schema(
     blocked_users: [{ type: Schema.Types.ObjectId, ref: "User" }],
     blocked_by: [{ type: Schema.Types.ObjectId, ref: "User" }],
     is_complete: { type: Boolean, default: false },
-    is_deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
