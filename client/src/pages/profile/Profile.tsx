@@ -8,6 +8,7 @@ import ProfileHeader from "./components/ProfileHeader";
 import PageLoading from "../../components/PageLoading";
 import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
+import { env } from "../../env";
 
 export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -17,6 +18,10 @@ export default function Profile() {
   const [posts, setPosts] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<any>(null);
   const [noUserFound, setNoUserFound] = useState(false);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [lastDate, setLastDate] = useState();
+  const [lastPostId, setLastPostId] = useState();
+  const [noMorePosts, setNoMorePosts] = useState(false);
   const params = useParams();
 
   useEffect(() => {
@@ -29,21 +34,13 @@ export default function Profile() {
       setIsOwnProfile(true);
       setUserId(getUserId() ?? "");
     }
-
-    const dummyPosts = [
-      { _id: 1, src: "/assets/images/post/pic1.png" },
-      { _id: 2, src: "/assets/images/post/pic2.png" },
-      { _id: 3, src: "/assets/images/post/pic3.png" },
-      { _id: 4, src: "/assets/images/post/pic4.png" },
-      { _id: 5, src: "/assets/images/post/pic5.png" },
-      { _id: 6, src: "/assets/images/post/pic6.png" },
-    ];
-
-    setPosts(dummyPosts);
   }, []);
 
   useEffect(() => {
-    if (userId) fetchProfileInfo(userId);
+    if (userId) {
+      fetchProfileInfo(userId);
+      fetchPosts(userId);
+    }
   }, [userId]);
 
   const fetchProfileInfo = (id: string) => {
@@ -57,6 +54,41 @@ export default function Profile() {
           setNoUserFound(true);
         }
         setPageLoading(false);
+      });
+  };
+
+  const fetchPosts = (id: string) => {
+    setPostsLoading(true);
+    const pageSize = 15;
+    return get("post/timeline/" + id, {
+      pageSize,
+      lastDate,
+      lastPostId,
+    })
+      .then((res) => {
+        if (res.data.length === 0 || res.data.length < pageSize) {
+          setPostsLoading(false);
+          setNoMorePosts(true);
+        }
+        const photos = res.data.map((data: any) => {
+          if (data.media.length > 0) {
+            const media = data.media[0];
+            if (media?.type === "video") {
+              data.src = `${env.VITE_API_URL}/media/${media?.thumbnail?.filename}`;
+            } else {
+              data.src = `${env.VITE_API_URL}/media/${media?.filename}`;
+            }
+          }
+          return data;
+        });
+        setPosts((p) => [...p, ...photos]);
+        setLastDate(res.lastDate);
+        setLastPostId(res.lastPostId);
+        setPostsLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setPostsLoading(false);
       });
   };
 
@@ -137,7 +169,12 @@ export default function Profile() {
               userId={isOwnProfile ? null : userId}
             />
 
-            <ProfilePostsContainer posts={posts} />
+            <ProfilePostsContainer
+              posts={posts}
+              loading={postsLoading}
+              showMoreBtn={!noMorePosts}
+              loadMore={() => fetchPosts(userId)}
+            />
           </div>
         </div>
       </div>

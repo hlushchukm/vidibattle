@@ -1,6 +1,30 @@
+import { Link } from "react-router-dom";
+import PlayBtn from "../../../../components/PlayBtn";
 import PresentationModeBtns from "../ui/PresentationModeBtns";
+import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 
-export default function ProfilePostsContainer({ posts }: { posts: any }) {
+export default function ProfilePostsContainer({
+  posts,
+  loading,
+  showMoreBtn,
+  loadMore,
+}: {
+  posts: any;
+  loading: boolean;
+  showMoreBtn: boolean;
+  loadMore: () => void;
+}) {
+  if (posts.length === 0) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center bg-light my-4 h1 text-secondary rounded"
+        style={{ height: "250px", opacity: 0.7 }}
+      >
+        No Posts
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="title-bar my-2">
@@ -19,9 +43,19 @@ export default function ProfilePostsContainer({ posts }: { posts: any }) {
         >
           <div className="dz-lightgallery style-2" id="lightgallery">
             {posts.map((post: any) => (
-              <a key={post._id} className="gallery-box" href={post.src}>
+              <Link
+                key={post._id}
+                className="gallery-box position-relative"
+                to={"/post/" + post.src}
+                style={{
+                  minHeight: "110px",
+                  maxWidth: "350px",
+                  background: "#77777730",
+                }}
+              >
                 <img src={post.src} alt="image" />
-              </a>
+                {post.media?.[0]?.type === "video" && <PlayBtn />}
+              </Link>
             ))}
           </div>
         </div>
@@ -34,12 +68,34 @@ export default function ProfilePostsContainer({ posts }: { posts: any }) {
         >
           <div className="dz-lightgallery" id="lightgallery-2">
             {posts.map((post: any) => (
-              <a key={post._id} className="gallery-box" href={post.src}>
+              <Link
+                key={post._id}
+                className="gallery-box position-relative"
+                to={"/post/" + post.src}
+                style={{ minHeight: "200px", background: "#77777730" }}
+              >
                 <img src={post.src} alt="image" />
-              </a>
+                {post.media?.[0]?.type === "video" && (
+                  <div>
+                    <PlayBtn />
+                  </div>
+                )}
+              </Link>
             ))}
           </div>
         </div>
+      </div>
+
+      <div>
+        {loading && <BlinkingLoadingCircles />}
+        {!loading && showMoreBtn && (
+          <div className="d-flex justify-content-center py-3">
+            <button className="btn btn-secondary btn-sm" onClick={loadMore}>
+              <i className="fa fa-repeat me-2"></i>
+              <span>Show More</span>
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
