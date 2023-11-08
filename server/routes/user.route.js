@@ -11,6 +11,8 @@ const {
   getBlockedUsers,
   getUsersList,
   changeUserStatus,
+  getSelfInfo,
+  updateSelfProfile,
 } = require("../controllers/user.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const router = express.Router();
@@ -18,6 +20,7 @@ const router = express.Router();
 // get
 router.get("/basicInfo/:id", authGuard, getBasicUserInfo);
 router.get("/profileInfo/:id", getProfileInfo);
+router.get("/selfInfo", authGuard, getSelfInfo);
 router.get("/authenticated", getAuthenticatedUser);
 router.get("/followers-following/:id", getFollowersAndFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
@@ -29,5 +32,8 @@ router.post("/unfollow/:followedId", authGuard, unfollow);
 router.post("/block/:blockedId", authGuard, block);
 router.post("/unblock/:blockedId", authGuard, unblock);
 router.post("/status", adminAuthGuard, changeUserStatus);
+
+// put
+router.put("/", authGuard, updateSelfProfile)
 
 module.exports = router;

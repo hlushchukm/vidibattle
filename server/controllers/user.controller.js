@@ -328,3 +328,69 @@ module.exports.changeUserStatus = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.getSelfInfo = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.status(200).json({ data: user });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.updateSelfProfile = async (req, res, next) => {
+  try {
+    const { first_name, last_name, email, whatsapp, bio } = req.body;
+    const { _id } = req.user;
+
+    if (!first_name) {
+      return res.status(400).json({ message: "first name is required" });
+    }
+
+    if (!last_name) {
+      return res.status(400).json({ message: "last name is required" });
+    }
+
+    let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "invalid email pattern" });
+    }
+
+    let whatsappRegex = /^[0-9]{7,15}$/;
+    if (whatsapp && whatsapp.length > 0 && !whatsappRegex.test(whatsapp)) {
+      return res
+        .status(400)
+        .json({ message: "invalid WhatsApp number length" });
+    }
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    user.first_name = first_name;
+    user.last_name = last_name;
+    user.email = email;
+    user.whatsapp = whatsapp;
+    user.bio = bio;
+    if (first_name && last_name && email && whatsapp && bio) {
+      user.is_complete = true;
+    } else {
+      user.is_complete = false;
+    }
+
+    await user.save();
+
+    res.status(200).json({ message: "user data updated", data: user });
+  } catch (e) {
+    next(e);
+  }
+};
