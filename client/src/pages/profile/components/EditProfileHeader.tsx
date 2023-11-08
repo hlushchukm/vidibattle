@@ -2,8 +2,10 @@ import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function EditProfileHeader({
+  loading,
   saveClicked,
 }: {
+  loading: boolean;
   saveClicked: () => void;
 }) {
   const navigate = useNavigate();
@@ -23,9 +25,9 @@ export default function EditProfileHeader({
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="feather feather-x"
           >
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -41,7 +43,11 @@ export default function EditProfileHeader({
           className="text-dark font-20"
           style={{ cursor: "pointer" }}
         >
-          <i className="fa-solid fa-check"></i>
+          {!loading ? (
+            <i className="fa-solid fa-check"></i>
+          ) : (
+            <i className="fa-solid fa-spinner fa-spin"></i>
+          )}
         </a>
       </div>
     </TopNavBarWrapper>

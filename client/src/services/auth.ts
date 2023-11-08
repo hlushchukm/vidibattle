@@ -21,3 +21,10 @@ export const getUser = () => {
 export const isLoggedIn = () => {
   return getUserId() !== null && getUser() !== null;
 };
+
+export const updateUserData = (user: any) => {
+  const { _id, first_name, last_name, profile_img } = user;
+
+  setUser({ _id, first_name, last_name, profile_img });
+  setUserId(_id);
+};
