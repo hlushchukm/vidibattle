@@ -9,12 +9,12 @@ module.exports.feed = function ({
   currentUser,
 }) {
   let query = {
-    hidden: false,
+    is_deleted: false,
     $and: [
       { author: { $nin: currentUser.blocked_users } },
       { author: { $nin: currentUser.blocked_by } },
     ],
-  }; // visible posts and posts by unblocked people
+  }; // undeleted posts and posts by unblocked people
 
   if (lastDate) {
     query.$or = [
@@ -55,7 +55,7 @@ module.exports.timeline = function ({
   lastPostId,
   pageSize,
 }) {
-  let query = { author };
+  let query = { is_deleted: false, author };
   if (lastDate) {
     query.$or = [
       { createdAt: { $lt: new Date(lastDate) } },

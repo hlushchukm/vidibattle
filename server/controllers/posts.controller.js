@@ -28,7 +28,6 @@ module.exports.getFeed = async (req, res, next) => {
       updatedLastPostId = posts[posts.length - 1]._id.toString();
     }
 
-    // TODO: determine if current user has liked a media
     res.status(200).json({
       data: posts,
       pageSize,
@@ -89,7 +88,7 @@ module.exports.getPost = async (req, res, next) => {
 
     let is_liked = false;
 
-    if (requestingUserId) {
+    if (requestingUserId && !req.user.is_admin) {
       const requestingUser = await User.findById(requestingUserId);
       const author_is_blocked =
         requestingUser?.blocked_users?.includes(requestingUserId);
@@ -201,6 +200,22 @@ module.exports.unlikePost = async (req, res, next) => {
 
     await Post.unlike(_id, postId);
     res.status(200).json({ message: "post unliked successfully" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.removePost = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const post = await Post.findOneAndUpdate({ _id: id }, { is_deleted: true });
+
+    if (!post) {
+      return res.status(404).json({ message: "post not found" });
+    }
+
+    res.status(204).json({ message: "post removed" });
   } catch (e) {
     next(e);
   }

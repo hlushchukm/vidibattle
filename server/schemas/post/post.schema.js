@@ -15,7 +15,6 @@ const postSchema = new Schema(
     likes_count: { type: Number, default: 0 },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     comments_count: { type: Number, default: 0 },
-    hidden: { type: Boolean, default: false },
     is_deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
