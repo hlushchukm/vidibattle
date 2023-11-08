@@ -21,10 +21,14 @@ module.exports.getProfileInfo = async (req, res, next) => {
       requestingUserId = req.user._id;
     }
 
-    const user = await User.findById(
-      id,
-      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users"
-    );
+    let fields =
+      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users";
+
+    if (req.user.is_admin) {
+      fields += " status is_complete provider createdAt";
+    }
+
+    const user = await User.findById(id, fields);
 
     // if user doesn't exist or has blocked the person making the request
     if (
@@ -37,7 +41,7 @@ module.exports.getProfileInfo = async (req, res, next) => {
     let is_followed = false;
     let is_blocked = false;
 
-    if (requestingUserId) {
+    if (requestingUserId && !req.user.is_admin) {
       is_followed = user.followers.includes(requestingUserId);
 
       const requesingUser = await User.findById(requestingUserId);
