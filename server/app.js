@@ -44,7 +44,7 @@ const connect = mongoose
     app.use(passport.session());
     app.use(
       cors({
-        origin: process.env.CLIENT_URL,
+        origin: [process.env.CLIENT_URL, process.env.ADMIN_URL],
         methods: "GET,POST,PUT,DELETE",
         credentials: true,
       })
