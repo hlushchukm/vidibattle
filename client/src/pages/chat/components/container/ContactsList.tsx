@@ -43,7 +43,17 @@ export default function ContactsList({ list }: { list: any[] }) {
                     <h6 className="name">
                       {secondUser?.first_name + " " + secondUser?.last_name}
                     </h6>
-                    <p className="my-1">{li.messages?.[0]?.content}</p>
+                    <p
+                      className="my-1"
+                      style={{
+                        maxWidth: "40vw",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {li.messages?.[0]?.content}
+                    </p>
                   </div>
                   <div className="left-content" style={{ width: "auto" }}>
                     <span className="time">
