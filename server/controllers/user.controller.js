@@ -73,8 +73,8 @@ module.exports.getAuthenticatedUser = async (req, res, next) => {
 
 module.exports.getFollowersAndFollowing = async (req, res, next) => {
   try {
-    // TODO: add pagination
     const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
     let requestingUserId;
     if (req.user) {
       requestingUserId = req.user._id;
@@ -97,17 +97,87 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
       {
         path: "followers",
         select: "first_name last_name profile_img",
+        options: {
+          skip: (page - 1) * limit,
+          limit,
+        },
       },
       {
         path: "following",
         select: "first_name last_name profile_img",
+        options: {
+          skip: (page - 1) * limit,
+          limit,
+        },
       },
     ]);
 
     const responseUsers = user.toObject();
     delete responseUsers.blocked_users;
 
-    res.status(200).json({ data: responseUsers });
+    res.status(200).json({ data: responseUsers, page, limit });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getFollowers = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user._id;
+    }
+
+    const user = await User.findById(id).populate({
+      path: "followers",
+      options: {
+        skip: (page - 1) * limit,
+        limit,
+      },
+      select: "first_name last_name profile_img",
+    });
+
+    if (
+      !user ||
+      (requestingUserId && user.blocked_users?.includes(requestingUserId))
+    ) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.status(200).json({ data: user.followers, page, limit });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getFollowing = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user._id;
+    }
+
+    const user = await User.findById(id).populate({
+      path: "following",
+      options: {
+        skip: (page - 1) * limit,
+        limit,
+      },
+      select: "first_name last_name profile_img",
+    });
+
+    if (
+      !user ||
+      (requestingUserId && user.blocked_users?.includes(requestingUserId))
+    ) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    res.status(200).json({ data: user.following, page, limit });
   } catch (e) {
     next(e);
   }

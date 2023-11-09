@@ -13,6 +13,8 @@ const {
   changeUserStatus,
   getSelfInfo,
   updateSelfProfile,
+  getFollowers,
+  getFollowing,
 } = require("../controllers/user.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const router = express.Router();
@@ -23,6 +25,8 @@ router.get("/profileInfo/:id", getProfileInfo);
 router.get("/selfInfo", authGuard, getSelfInfo);
 router.get("/authenticated", getAuthenticatedUser);
 router.get("/followers-following/:id", getFollowersAndFollowing);
+router.get("/followers/:id", getFollowers);
+router.get("/following/:id", getFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
 router.get("/list", adminAuthGuard, getUsersList);
 
