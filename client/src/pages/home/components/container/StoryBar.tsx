@@ -12,7 +12,6 @@ export default function StoryBar() {
   const [limit, setLimit] = useState(10);
   const [noMorePeople, setNoMorePeople] = useState(false);
   const [loading, setLoading] = useState(false);
-  // TODO: add pagination
 
   useEffect(() => {
     fetchFollowings();
@@ -25,7 +24,7 @@ export default function StoryBar() {
         if (res.data.length < limit) {
           setNoMorePeople(true);
         }
-        setUsers(res.data);
+        setUsers((s: any) => [...s, ...res.data]);
         setPage(parseInt(res.page));
         setLimit(parseInt(res.limit));
         setLoading(false);
@@ -63,9 +62,9 @@ export default function StoryBar() {
                   <SwiperSlide key={i}>
                     <div className="swiper-slide">
                       <Link
-                        to={"/profile/" + users._id}
+                        to={"/profile/" + user._id}
                         className="categore-box"
-                        style={{width: "68px"}}
+                        style={{ width: "68px" }}
                       >
                         <div className="story-bx">
                           <img src={user.profile_img} alt="/" />
@@ -75,111 +74,53 @@ export default function StoryBar() {
                     </div>
                   </SwiperSlide>
                 ))}
-                {/* <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic2.jpg"
-                          alt="/"
-                        />
+                {!noMorePeople && (
+                  <SwiperSlide>
+                    <div className="swiper-slide">
+                      <div className="categore-box" style={{ width: "68px" }}>
+                        <div className="story-bx">
+                          <div
+                            className="d-flex justify-content-center align-items-center"
+                            style={{
+                              boxSizing: "content-box",
+                              borderRadius: "18px",
+                              border: "5px solid #FEF3ED",
+                              width: "54px",
+                              height: "54px",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              if (!loading) fetchFollowings();
+                            }}
+                          >
+                            {!loading ? (
+                              <div
+                                className="bg-secondary rounded-circle text-white d-flex justify-content-center align-items-center"
+                                style={{ width: "20px", height: "20px" }}
+                              >
+                                <i
+                                  className="fa fa-chevron-right"
+                                  style={{ fontSize: "10px" }}
+                                ></i>
+                              </div>
+                            ) : (
+                              <div
+                                className="bg-secondary rounded-circle text-white d-flex justify-content-center align-items-center"
+                                style={{ width: "20px", height: "20px" }}
+                              >
+                                <i
+                                  className="fa fa-spinner fa-spin"
+                                  style={{ fontSize: "10px" }}
+                                ></i>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <span className="detail">More</span>
                       </div>
-                      <span className="detail">Richard</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic3.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Jasmine</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic4.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Lucas</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic5.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Hendri</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic6.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Carla</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="live-story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic7.jpg"
-                          alt="/"
-                        />
-                        <div className="live-text">Live</div>
-                      </div>
-                      <span className="detail">Jermy</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic5.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Kerry</span>
-                    </a>
-                  </div>
-                </SwiperSlide>
-                <SwiperSlide>
-                  <div className="swiper-slide">
-                    <a href="story.html" className="categore-box">
-                      <div className="story-bx">
-                        <img
-                          src="/assets/images/stories/small/pic6.jpg"
-                          alt="/"
-                        />
-                      </div>
-                      <span className="detail">Perry</span>
-                    </a>
-                  </div>
-                </SwiperSlide> */}
+                    </div>
+                  </SwiperSlide>
+                )}
               </Swiper>
             </div>
           </div>
