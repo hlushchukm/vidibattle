@@ -1,8 +1,66 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SocialMediaShareBtns from "./SocialMediaShareBtns";
+import { get } from "../services/crud";
+import { getUserId } from "../services/auth";
+import { toast } from "react-toastify";
+import { Link, createSearchParams, useNavigate } from "react-router-dom";
+import { getName } from "../services/utils";
+import { useShareStore } from "../store";
+import { env } from "../env";
+import BlinkingLoadingCircles from "./BlinkingLoadingCircles";
 
 export default function ShareModal() {
-  const [shareMessage, setShareMessage] = useState('');
+  const [shareMessage, setShareMessage] = useState("");
+  const [users, setUsers] = useState<any>([]);
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(15);
+  const [noMorePeople, setNoMorePeople] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const post = useShareStore((state) => state.post);
+  const [title, setTitle] = useState(shareMessage);
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    fetchFollowings();
+  }, []);
+
+  useEffect(() => {
+    if (post) {
+      setUrl(env.VITE_CLIENT_URL + "/post/" + post._id);
+      if (shareMessage.length <= 0) {
+        setTitle(post.caption);
+      }
+    }
+  }, [post]);
+
+  useEffect(() => {
+    if (shareMessage.length > 0) {
+      setTitle(shareMessage);
+    } else {
+      setTitle(post?.caption ?? "");
+    }
+  }, [shareMessage]);
+
+  const fetchFollowings = () => {
+    setLoading(true);
+    get("user/following/" + getUserId(), { page: page + 1, limit })
+      .then((res) => {
+        if (res.data.length < limit) {
+          setNoMorePeople(true);
+        }
+        setUsers((s: any) => [...s, ...res.data]);
+        setPage(parseInt(res.page));
+        setLimit(parseInt(res.limit));
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(e?.response?.data?.message ?? "Error while fetching users");
+        setLoading(false);
+      });
+  };
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -58,176 +116,56 @@ export default function ShareModal() {
           </div>
           <div className="canvas-height mt-4 dz-scroll">
             <ul className="share-list">
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic1.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Andy Lee</h6>
-                    <span className="username">mr_andy_lee</span>
-                  </a>
+              {users.map((user: any, i: number) => (
+                <li key={i}>
+                  <div className="left-content">
+                    <Link to={"/profile/" + user._id}>
+                      <img src={user.profile_img} alt="/" />
+                    </Link>
+                    <Link to={"/profile/" + user._id}>
+                      <h6 className="name">{getName(user)}</h6>
+                      <span
+                        className="username"
+                        style={{ visibility: "hidden" }}
+                      >
+                        _
+                      </span>
+                    </Link>
+                  </div>
+                  <button
+                    onClick={() =>
+                      navigate({
+                        pathname: "/chat/" + user._id,
+                        search: createSearchParams({
+                          share: "true",
+                          url,
+                          title,
+                        }).toString(),
+                      })
+                    }
+                    className="btn btn-primary btn-sm"
+                  >
+                    Send
+                  </button>
+                </li>
+              ))}
+
+              {!noMorePeople && !loading && (
+                <div className="d-flex justify-content-center align-items-center">
+                  <button
+                    className="btn text-primary"
+                    onClick={fetchFollowings}
+                  >
+                    <i className="fa fa-refresh me-2"></i>
+                    <span>Show More</span>
+                  </button>
                 </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic2.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Brian Harahap</h6>
-                    <span className="username">brian_harahap</span>
-                  </a>
+              )}
+              {loading && (
+                <div className="py-2">
+                  <BlinkingLoadingCircles />
                 </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic3.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Christian Hang</h6>
-                    <span className="username">christian_Hang</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic4.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Chloe Mc. Jenskin</h6>
-                    <span className="username">chloe_mc_jenskin</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic5.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">David Bekam</h6>
-                    <span className="username">david_bekam</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic6.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Donas High</h6>
-                    <span className="username">donas_high</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic7.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Lee Comfort</h6>
-                    <span className="username">lee_comfort</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic8.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Michel Evon</h6>
-                    <span className="username">michel_evon</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic4.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Yatin</h6>
-                    <span className="username">yatin_325</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
-              <li>
-                <div className="left-content">
-                  <a href="user-profile.html">
-                    <img src="assets/images/stories/small/pic3.jpg" alt="/" />
-                  </a>
-                  <a href="user-profile.html">
-                    <h6 className="name">Tushar</h6>
-                    <span className="username">Tjangid_293</span>
-                  </a>
-                </div>
-                <a
-                  href="javascript:void(0);"
-                  className="btn btn-primary btn-sm"
-                >
-                  Send
-                </a>
-              </li>
+              )}
             </ul>
           </div>
         </div>
