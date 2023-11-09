@@ -2,6 +2,7 @@ import DisplayModeBtns from "../../../../components/DisplayModeBtns";
 import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
+import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 
 export default function UsersList({
   listType,
@@ -10,6 +11,9 @@ export default function UsersList({
   isOwnProfile,
   toggleFollow,
   followingHash,
+  showMoreBtn,
+  loading,
+  showMoreClicked,
 }: {
   listType: "followers" | "following";
   users: any[];
@@ -17,6 +21,9 @@ export default function UsersList({
   isOwnProfile: boolean;
   toggleFollow: (id: string, action: "follow" | "unfollow", user?: any) => void;
   followingHash: { [key: string]: boolean };
+  showMoreBtn: boolean;
+  loading: boolean;
+  showMoreClicked: () => void;
 }) {
   const navigate = useNavigate();
 
@@ -105,6 +112,20 @@ export default function UsersList({
                 ))}
               </div>
             </div>
+
+            {showMoreBtn && !loading && (
+              <div className="d-flex justify-content-center align-items-center">
+                <button className="btn text-primary" onClick={showMoreClicked}>
+                  <i className="fa fa-refresh me-2"></i>
+                  <span>Show More</span>
+                </button>
+              </div>
+            )}
+            {loading && (
+              <div className="py-2">
+                <BlinkingLoadingCircles />
+              </div>
+            )}
           </div>
         </div>
       </div>

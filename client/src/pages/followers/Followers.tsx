@@ -9,6 +9,7 @@ import { getUserId } from "../../services/auth";
 import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
 import { getName } from "../../services/utils";
+import { toast } from "react-toastify";
 
 export default function Followers() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -29,6 +30,12 @@ export default function Followers() {
   const [followingHash, setFollowingHash] = useState<{
     [key: string]: boolean;
   }>({});
+  const [page, setPage] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [noMoreFollowers, setNoMoreFollowers] = useState(false);
+  const [noMoreFollowing, setNoMoreFollowing] = useState(false);
+  const [followersLoading, setFollowersLoading] = useState(false);
+  const [followingsLoading, setFollowingsLoading] = useState(false);
 
   useEffect(() => {
     setLoggedIn(getUserId() !== null && getUserId() !== null);
@@ -66,9 +73,20 @@ export default function Followers() {
   }, [data?.following]);
 
   const fetchFollowersAndFollowing = (id: string) => {
-    get("user/followers-following/" + id)
+    get("user/followers-following/" + id, { page: 1, limit })
       .then((res) => {
         setApiData(res.data);
+        setLimit(parseInt(res.limit));
+        setPage(parseInt(res.page));
+
+        if (res.data?.followers?.length < limit) {
+          setNoMoreFollowers(true);
+        }
+
+        if (res.data?.following?.length < limit) {
+          setNoMoreFollowing(true);
+        }
+
         setPageLoading(false);
       })
       .catch((e) => {
@@ -78,6 +96,60 @@ export default function Followers() {
           setUserNotFound(true);
         }
       });
+  };
+
+  const loadFollowers = () => {
+    setFollowersLoading(true);
+    get("user/followers/" + userId, { page: page + 1, limit })
+      .then((res) => {
+        if (res.data.length < limit) {
+          setNoMoreFollowers(true);
+        }
+        addToFollowersList([...res.data]);
+        setLimit(parseInt(res.limit));
+        setPage(parseInt(res.page));
+        setFollowersLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't fetch followers list"
+        );
+        setFollowersLoading(false);
+      });
+  };
+
+  const loadFollowing = () => {
+    setFollowingsLoading(true);
+    get("user/following/" + userId, { page: page + 1, limit })
+      .then((res) => {
+        if (res.data.length < limit) {
+          setNoMoreFollowing(true);
+        }
+        addToFollowingsList([...res.data]);
+        setLimit(parseInt(res.limit));
+        setPage(parseInt(res.page));
+        setFollowingsLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't fetch followings list"
+        );
+        setFollowingsLoading(false);
+      });
+  };
+
+  const addToFollowersList = (newFollowers: any[]) => {
+    const datacopy = data;
+    datacopy.followers = [...datacopy.followers, ...newFollowers];
+    setApiData(datacopy);
+  };
+
+  const addToFollowingsList = (newFollowings: any[]) => {
+    const datacopy = data;
+    datacopy.following = [...datacopy.following, ...newFollowings];
+    setApiData(datacopy);
   };
 
   const onNavBarClick = (slideTo: "followers" | "following") => {
@@ -136,6 +208,7 @@ export default function Followers() {
 
     create("user/" + action + "/" + id, {}).catch((e) => {
       console.log(e);
+      toast.error("Error! action failed")
       setApiData(JSON.parse(originalCopy));
     });
   };
@@ -192,6 +265,9 @@ export default function Followers() {
                       users={data.following}
                       toggleFollow={toggleFollow}
                       followingHash={followingHash}
+                      showMoreBtn={!noMoreFollowing}
+                      loading={followingsLoading}
+                      showMoreClicked={loadFollowing}
                     />
                   )}
                 </div>
@@ -211,6 +287,9 @@ export default function Followers() {
                       users={data.followers}
                       toggleFollow={toggleFollow}
                       followingHash={followingHash}
+                      showMoreBtn={!noMoreFollowers}
+                      loading={followersLoading}
+                      showMoreClicked={loadFollowers}
                     />
                   )}
                 </div>
