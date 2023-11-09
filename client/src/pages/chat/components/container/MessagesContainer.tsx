@@ -1,8 +1,20 @@
 import { useRef } from "react";
 import { getDate, getTime } from "../../../../services/timeAndDate";
 import { useCurrentUserStore } from "../../../../store";
+import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
+import { formatMessageText } from "../../../../services/text-formatting";
 
-export default function MessagesContainer({ messages }: { messages: any[] }) {
+export default function MessagesContainer({
+  messages,
+  loading,
+  showMoreBtn,
+  loadMore,
+}: {
+  messages: any[];
+  loading: boolean;
+  showMoreBtn: boolean;
+  loadMore: () => void;
+}) {
   const currentUserId = useCurrentUserStore((s: any) => s.id);
   const lastDate = useRef<string | null>();
 
@@ -16,6 +28,17 @@ export default function MessagesContainer({ messages }: { messages: any[] }) {
     <>
       <div className="page-content message-content bottom-content d-flex align-items-end">
         <div className="container chat-box-area">
+          {!loading && showMoreBtn && (
+            <div className="d-flex justify-content-center align-items-center">
+              <button className="btn text-primary" onClick={loadMore}>
+                <i className="fa fa-refresh me-2"></i>
+                <span>Show More</span>
+              </button>
+            </div>
+          )}
+
+          {loading && <BlinkingLoadingCircles />}
+
           {messages?.[0] && messages?.[0]?.createdAt && (
             <div className="text-center py-2">
               {getDate(messages?.[0]?.createdAt)}
@@ -36,11 +59,17 @@ export default function MessagesContainer({ messages }: { messages: any[] }) {
                 <div
                   key={i}
                   className={`chat-content ${
-                    message.sender?._id === currentUserId ? "user" : ""
+                    message.sender === currentUserId ? "user" : ""
                   }`}
                 >
                   <div className="message-item">
-                    <div className="bubble">{message.content}</div>
+                    <div className="bubble">
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: formatMessageText(message.content),
+                        }}
+                      />
+                    </div>
                     <div className="message-time">
                       {/* {getDateAndTime(message.createdAt)} */}
                       {getTime(message.createdAt)}

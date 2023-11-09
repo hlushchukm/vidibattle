@@ -12,33 +12,35 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<any>([]);
   const messagesRef = useRef<any>(); // to access messages within socket event listener. States are not accessible
-  const [isNewChat, setNewChat] = useState(false);
   const [chatNotFound, setChatNotFound] = useState(false);
-  const location = useLocation();
   const params = useParams();
 
   const [receiver, setReceiver] = useState<any>(null);
-  const [chatId, setChatId] = useState<String | null>(null);
+  const [userId, setUserId] = useState<String | null>(null);
+  const chatIdRef = useRef();
 
-  const currentUser = useCurrentUserStore((state: any) => state.currentUser);
   const currentUserId = useCurrentUserStore((state: any) => state.id);
   const currentChat = useCurrentChatStore((state: any) => state.currentChat);
-  const setCurrentChat = useCurrentChatStore(
-    (state: any) => state.setCurrentChat
-  );
+
+  const [pageSize, setPageSize] = useState(25);
+  const [lastDate, setLastDate] = useState();
+  const [lastMessageId, setLastMessageId] = useState();
+  const [messagesLoading, setMessagesLoading] = useState(false);
+  const [noMoreMessages, setNoMoreMessages] = useState(false);
 
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
+  // TODO: sending indicator
+
   useEffect(() => {
+    // start with the page scrolled to the bottom
+    // TODO: scroll not working on coming from share page, and it should scroll after fetching the data
+    window.scrollTo(0, document.body.scrollHeight);
+
     // TODO: check if we have socket connection
-    if (location.pathname.includes("new") && params.userId) {
-      setNewChat(true);
-      setChatId(null);
-      getReceiverInfo(params.userId);
-    } else if (params.id) {
-      setNewChat(false);
-      setChatId(params.id);
+    if (params.id) {
+      setUserId(params.id);
       getMessages(params.id);
     }
 
@@ -46,12 +48,11 @@ export default function Messages() {
     if (socket.listeners("INCOMING_MESSAGE").length === 0) {
       // Listen for incoming messages from the server
       socket.on("INCOMING_MESSAGE", function (res) {
-        if (res.chat_id === params.id) {
+        if (res.chat_id === chatIdRef.current) {
           console.log("incoming message ", res.message);
           const oldMessages = [...messagesRef.current];
           oldMessages.push(res.message);
           setMessages([...oldMessages]);
-          // TODO: if we are on a new message page and the first text has been sent, go to the new chat page
         }
       });
     }
@@ -96,7 +97,16 @@ export default function Messages() {
   };
 
   const getMessages = (cid: string) => {
-    get("chat/messages/" + cid)
+    let query: any = { pageSize };
+    if (lastDate) {
+      query.lastDate = lastDate;
+    }
+    if (lastMessageId) {
+      query.lastMessageId = lastMessageId;
+    }
+
+    setMessagesLoading(true);
+    get("chat/messages/" + cid, query)
       .then((res) => {
         if (
           res.data?.chat?.participants &&
@@ -104,22 +114,21 @@ export default function Messages() {
         ) {
           getSecondUser(res.data.chat.participants);
         }
-        setMessages(res.data?.messages ?? []);
-        console.log(res);
+
+        if (res.data.messages.length < pageSize) {
+          setNoMoreMessages(true);
+        }
+
+        setMessages((s: any) => [...res.data?.messages, ...s]);
+        setLastDate(res.data.lastDate);
+        setLastMessageId(res.data.lastMessageId);
         setChatNotFound(false);
+        chatIdRef.current = res.data?.chat?._id;
+        setMessagesLoading(false);
       })
       .catch((e) => {
         setChatNotFound(true);
-        console.log(e);
-      });
-  };
-
-  const getReceiverInfo = (userId: string) => {
-    get("user/basicInfo/" + userId)
-      .then((res) => {
-        setReceiver(res.data);
-      })
-      .catch((e) => {
+        setMessagesLoading(false);
         console.log(e);
       });
   };
@@ -127,13 +136,19 @@ export default function Messages() {
   const handleSendMessage = () => {
     if (newMessage.length === 0) return;
     console.log("Here", newMessage, receiver);
+    // TODO: how to handle message send fails
 
-    socket.emit("SEND_MESSAGE", {
+    let payload: any = {
       sender: currentUserId,
       receiver: receiver._id,
       content: newMessage,
-      chatId: chatId,
-    });
+    };
+
+    if (chatIdRef.current) {
+      payload.chatId = chatIdRef.current;
+    }
+
+    socket.emit("SEND_MESSAGE", payload);
     setNewMessage("");
   };
 
@@ -145,10 +160,15 @@ export default function Messages() {
     <>
       <MessageHeader user={receiver} />
 
-      {chatNotFound && <ChatNotFound />}
+      {chatNotFound && (!messages || messages.length < 1) && <ChatNotFound />}
       {!chatNotFound && (
         <>
-          <MessagesContainer messages={messages} />
+          <MessagesContainer
+            messages={messages}
+            loading={messagesLoading}
+            showMoreBtn={!noMoreMessages}
+            loadMore={() => getMessages(params.id ?? "")}
+          />
           <MessageInput
             text={newMessage}
             setText={handleMessageChange}

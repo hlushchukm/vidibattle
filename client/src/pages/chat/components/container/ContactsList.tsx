@@ -11,9 +11,9 @@ export default function ContactsList({ list }: { list: any[] }) {
 
   const currentUserId = getUserId();
 
-  const gotoMsgPage = (chat: any) => {
+  const gotoMsgPage = (chat: any, secondUser: any) => {
     setCurrentChat(chat);
-    navigate(chat._id);
+    navigate(secondUser._id);
   };
 
   return (
@@ -29,7 +29,7 @@ export default function ContactsList({ list }: { list: any[] }) {
               <a
                 key={i}
                 style={{ cursor: "pointer" }}
-                onClick={() => gotoMsgPage(li)}
+                onClick={() => gotoMsgPage(li, secondUser)}
               >
                 <div className="media media-50">
                   <img
