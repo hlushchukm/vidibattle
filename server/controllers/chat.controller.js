@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { Chat } = require("../models/chat.model");
 const { Message } = require("../models/message.model");
 const { User } = require("../models/user.model");
@@ -48,40 +49,83 @@ module.exports.getChatList = async (req, res, next) => {
 
 module.exports.getMessages = async (req, res, next) => {
   try {
-    const { chatId } = req.params;
-    let { pageSize, lastDate, lastMessageId } = req.query;
+    const { userId } = req.params;
+    let { pageSize = 10, lastDate, lastMessageId } = req.query;
+    const currentUserId = req.user._id;
 
-    if (!pageSize) pageSize = 10;
-
-    if (!chatId) {
-      return res.status(400).json({ message: "Chat ID is required" });
+    // Check if the current user has blocked the specified user
+    const currentUser = await User.findById(currentUserId).exec();
+    if (!currentUser) {
+      return res.status(404).json({ message: "requesting user not found" });
+    }
+    if (currentUser.blocked_users.includes(userId)) {
+      return res.status(403).json({ message: "Can't access this chat" });
     }
 
-    const messages = await Message.chatList({
-      chatId,
-      lastDate,
-      lastMessageId,
-      pageSize,
-    });
-
-    const chat = await Chat.findById(chatId, "participants");
-
-    // check if the person making the request is in the chat participants lists
-    const { _id } = req.user;
-    if (!chat?.participants?.includes(_id)) {
+    // Check if the specified user has blocked the current user
+    const specifiedUser = await User.findById(userId).exec();
+    if (!specifiedUser) {
+      return res.status(404).json({ message: "requested user not found" });
+    }
+    if (specifiedUser.blocked_users.includes(currentUserId)) {
       return res
         .status(403)
-        .json({ message: "can't access this user's chats" });
+        .json({ message: "Access denied. This user has blocked you." });
     }
 
-    // TODO: return not found if one user has blocked the other
+    // get the chat both users participate in
+    const chat = await Chat.findOne(
+      {
+        participants: { $all: [currentUserId, userId] },
+      },
+      "participants"
+    ).exec();
 
+    if (!chat) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+
+    // get the messages in the chat
+    let query = Message.find({ chat_id: chat._id }).sort({ createdAt: -1 });
+
+    // paginate the messages
+    if (lastMessageId && lastDate) {
+      query = query.or([
+        { createdAt: { $lt: new Date(lastDate) } },
+        {
+          $and: [
+            { createdAt: new Date(lastDate) },
+            { _id: { $lt: new mongoose.Types.ObjectId(lastMessageId) } },
+          ],
+        },
+      ]);
+    }
+    query = query.limit(parseInt(pageSize) || 10).exec();
+
+    const messages = await query;
+
+    // get participants info from the chat
     await chat.populate({
       path: "participants",
       select: "first_name last_name bio profile_img",
     });
 
-    res.json({ data: { messages: messages.reverse(), chat } });
+    let updatedLastDate = lastDate;
+    let updatedLastMessageId = lastMessageId;
+
+    if (messages.length > 0) {
+      updatedLastDate = messages[messages.length - 1].createdAt.toISOString();
+      updatedLastMessageId = messages[messages.length - 1]._id.toString();
+    }
+
+    res.json({
+      data: {
+        messages: messages.reverse(),
+        chat,
+        lastDate: updatedLastDate,
+        lastMessageId: updatedLastMessageId,
+      },
+    });
   } catch (e) {
     next(e);
   }
@@ -139,8 +183,6 @@ async function msgCreator({ chatId, sender, receiver, content }) {
   });
 
   await message.save();
-  await message.populate("sender", "first_name last_name profile_img");
-  await message.populate("receiver", "first_name last_name profile_img");
 
   chat.messages.push(message._id);
   await chat.save();
