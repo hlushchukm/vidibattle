@@ -73,10 +73,11 @@ export default function CreatePost() {
       formData.append("author", getUserId() ?? "");
       formData.append("caption", caption);
       formData.append("type", fileType);
+      if (thumbnail) formData.append("thumbnail", thumbnail);
 
       setUploading(true);
 
-      upload("/post", formData, onUploadProgress)
+      upload("post", formData, onUploadProgress)
         .then((response) => {
           console.log("Upload successful:", response.data);
           setUploading(false);

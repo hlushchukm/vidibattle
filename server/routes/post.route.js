@@ -10,7 +10,12 @@ router.get("/timeline/:userId", authGuard, postsController.getTimeline);
 router.get("/userPosts/:userId", adminAuthGuard, postsController.getTimeline);
 router.get("/:postId", postsController.getPost);
 //post
-router.post("/", authGuard, upload.single("file"), postsController.create);
+router.post(
+  "/",
+  authGuard,
+  upload.fields([{ name: "file" }, { name: "thumbnail" }]),
+  postsController.create
+);
 router.post("/like/:postId", authGuard, postsController.likePost);
 router.post("/unlike/:postId", authGuard, postsController.unlikePost);
 

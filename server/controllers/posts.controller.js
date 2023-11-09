@@ -115,7 +115,6 @@ module.exports.getPost = async (req, res, next) => {
         },
       },
     ]);
-    console.log(post);
 
     const responsePost = { ...post.toObject(), is_liked };
 
@@ -127,7 +126,8 @@ module.exports.getPost = async (req, res, next) => {
 
 module.exports.create = async (req, res, next) => {
   const { caption, author, type } = req.body;
-  const { filename, contentType } = req.file;
+  const mainFile = req.files["file"][0];
+  const thumbnailFile = req.files["thumbnail"]?.[0];
 
   const { _id } = req.user;
 
@@ -135,7 +135,7 @@ module.exports.create = async (req, res, next) => {
   if (_id !== author) {
     return res
       .status(403)
-      .json({ message: "can create a post for the given author" });
+      .json({ message: "can't create a post for the given author" });
   } else if (type !== "image" && type !== "video") {
     return res.status(400).json({ message: "invalid media type" });
   }
@@ -143,12 +143,24 @@ module.exports.create = async (req, res, next) => {
   try {
     // create the media document
     const media = new Media({
-      filename,
-      contentType,
+      filename: mainFile.filename,
+      contentType: mainFile.contentType,
       type,
       owner: author,
     });
-    // TODO: store thumbnail
+
+    if (thumbnailFile) {
+      const thumbnail = new Media({
+        filename: thumbnailFile.filename,
+        contentType: thumbnailFile.contentType,
+        type,
+        owner: author,
+      });
+
+      await thumbnail.save()
+
+      media.thumbnail = thumbnail._id;
+    }
 
     await media.save();
 
