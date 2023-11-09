@@ -1,3 +1,4 @@
+import { formatNumber } from "../../../../services/number-formatting";
 import timeAgo from "../../../../services/timeAndDate";
 import { getName } from "../../../../services/utils";
 
@@ -26,7 +27,9 @@ export default function Comment({
           <h6 className="font-14 mb-1">{getName(comment?.author)}</h6>
           <p className="mb-2">{comment.content}</p>
           <ul className="bottom-item">
-            <li className="text-light">{comment.likes_count} Likes</li>
+            <li className="text-light">
+              {formatNumber(comment.likes_count)} Likes
+            </li>
             <li
               className="text-light"
               style={{ cursor: "pointer" }}

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 import { useReportStore, useShareStore } from "../../../../store";
+import { formatNumber } from "../../../../services/number-formatting";
 
 export default function Post({
   post,
@@ -145,7 +146,7 @@ export default function Post({
                   <i className="fa-regular fa-heart fill-icon"></i>
                   <i className="fa-solid fa-heart fill-icon-2"></i>
                   <h6 className="font-14 mb-0 ms-2" id="value1">
-                    {post.likes_count ?? 0}
+                    {formatNumber(post.likes_count ?? 0)}
                   </h6>
                 </a>
               </li>
@@ -157,7 +158,7 @@ export default function Post({
                 >
                   <i className="fa-solid fa-comment fill-icon"></i>
                   <h6 className="font-14 mb-0 ms-2">
-                    {post.comments_count ?? 0}
+                    {formatNumber(post.comments_count ?? 0)}
                   </h6>
                 </a>
               </li>
