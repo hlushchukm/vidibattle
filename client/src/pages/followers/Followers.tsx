@@ -166,6 +166,11 @@ export default function Followers() {
 
   const handleTouchEnd = () => {
     const swipeDistance = endX - startX;
+
+    if (endX == 0) {
+      return;
+    }
+
     if (swipeDistance > 20) {
       // swiped right
       setCurrentTab("following");
@@ -208,7 +213,7 @@ export default function Followers() {
 
     create("user/" + action + "/" + id, {}).catch((e) => {
       console.log(e);
-      toast.error("Error! action failed")
+      toast.error("Error! action failed");
       setApiData(JSON.parse(originalCopy));
     });
   };
