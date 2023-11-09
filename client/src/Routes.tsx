@@ -49,7 +49,7 @@ export default function Router() {
           <Route
             path="/profile/:id"
             element={
-              <MainLayout>
+              <MainLayout active="profile">
                 <Profile />
               </MainLayout>
             }
@@ -63,7 +63,7 @@ export default function Router() {
               <Route
                 path="/home"
                 element={
-                  <MainLayout>
+                  <MainLayout active="home">
                     <Home />
                   </MainLayout>
                 }
@@ -71,7 +71,7 @@ export default function Router() {
               <Route
                 path="/timeline"
                 element={
-                  <MainLayout>
+                  <MainLayout active="timeline">
                     <Timeline />
                   </MainLayout>
                 }
@@ -79,7 +79,7 @@ export default function Router() {
               <Route
                 path="/chat"
                 element={
-                  <MainLayout>
+                  <MainLayout active="chat">
                     <ChatList />
                   </MainLayout>
                 }
@@ -89,7 +89,7 @@ export default function Router() {
               <Route
                 path="/profile"
                 element={
-                  <MainLayout>
+                  <MainLayout active="profile">
                     <Profile />
                   </MainLayout>
                 }
