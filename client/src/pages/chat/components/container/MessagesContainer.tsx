@@ -70,9 +70,13 @@ export default function MessagesContainer({
                         dangerouslySetInnerHTML={{
                           __html: formatMessageText(message.content),
                         }}
+                        style={{ lineBreak: "anywhere" }}
                       />
                     </div>
-                    <div className="message-time">
+                    <div
+                      className="message-time"
+                      style={{ paddingBottom: "10px" }}
+                    >
                       {/* {getDateAndTime(message.createdAt)} */}
                       {getTime(message.createdAt)}
                     </div>
@@ -98,9 +102,13 @@ export default function MessagesContainer({
                         dangerouslySetInnerHTML={{
                           __html: formatMessageText(message.content),
                         }}
+                        style={{ lineBreak: "anywhere" }}
                       />
                     </div>
-                    <div className="message-time">
+                    <div
+                      className="message-time"
+                      style={{ paddingBottom: "10px" }}
+                    >
                       {getTime(message.createdAt)}
                     </div>
                   </div>
