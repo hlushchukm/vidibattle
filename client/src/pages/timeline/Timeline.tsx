@@ -8,6 +8,11 @@ import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import DisplayModeBtns from "../../components/DisplayModeBtns";
 import { useNavigate } from "react-router-dom";
 import PlayBtn from "../../components/PlayBtn";
+import {
+  defaultPost,
+  defaultThumbnail,
+  handlePostImageError,
+} from "../../services/asset-paths";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -49,9 +54,13 @@ export default function Timeline() {
           if (data.media.length > 0) {
             const media = data.media[0];
             if (media?.type === "video") {
-              data.src = `${env.VITE_API_URL}/media/${media?.thumbnail?.filename}`;
+              data.src = media?.thumbnail?.filename
+                ? `${env.VITE_API_URL}/media/${media?.thumbnail?.filename}`
+                : null;
             } else {
-              data.src = `${env.VITE_API_URL}/media/${media?.filename}`;
+              data.src = media?.filename
+                ? `${env.VITE_API_URL}/media/${media?.filename}`
+                : null;
             }
           }
           return data;
@@ -116,7 +125,15 @@ export default function Timeline() {
                       style={{ cursor: "pointer", background: "#77777730" }}
                       onClick={() => navigate("/post/" + photo._id)}
                     >
-                      <img src={photo.src} />
+                      <img
+                        src={
+                          photo.src ??
+                          (photo.media?.[0]?.type === "video"
+                            ? defaultThumbnail
+                            : defaultPost)
+                        }
+                        onError={handlePostImageError}
+                      />
                       {photo.media?.[0]?.type === "video" && <PlayBtn />}
                     </a>
                   ))}
@@ -137,12 +154,16 @@ export default function Timeline() {
                       style={{ cursor: "pointer" }}
                       onClick={() => navigate("/post/" + photo._id)}
                     >
-                      <img src={photo.src} alt="image" />
-                      {photo.media?.[0]?.type === "video" && (
-                        <div style={{ minHeight: "200px" }}>
-                          <PlayBtn />
-                        </div>
-                      )}
+                      <img
+                        src={
+                          photo.src ??
+                          (photo.media?.[0]?.type === "video"
+                            ? defaultThumbnail
+                            : defaultPost)
+                        }
+                        onError={handlePostImageError}
+                      />
+                      {photo.media?.[0]?.type === "video" && <PlayBtn />}
                     </a>
                   ))}
                 </div>

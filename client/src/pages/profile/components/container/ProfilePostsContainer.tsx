@@ -2,6 +2,11 @@ import { Link } from "react-router-dom";
 import PlayBtn from "../../../../components/PlayBtn";
 import PresentationModeBtns from "../ui/PresentationModeBtns";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
+import {
+  defaultPost,
+  defaultThumbnail,
+  handlePostImageError,
+} from "../../../../services/asset-paths";
 
 export default function ProfilePostsContainer({
   posts,
@@ -46,14 +51,22 @@ export default function ProfilePostsContainer({
               <Link
                 key={post._id}
                 className="gallery-box position-relative"
-                to={"/post/" + post.src}
+                to={"/post/" + post._id}
                 style={{
                   minHeight: "110px",
                   maxWidth: "350px",
                   background: "#77777730",
                 }}
               >
-                <img src={post.src} alt="image" />
+                <img
+                  src={
+                    post.src ??
+                    (post.media?.[0]?.type === "video"
+                      ? defaultThumbnail
+                      : defaultPost)
+                  }
+                  onError={handlePostImageError}
+                />
                 {post.media?.[0]?.type === "video" && <PlayBtn />}
               </Link>
             ))}
@@ -71,10 +84,18 @@ export default function ProfilePostsContainer({
               <Link
                 key={post._id}
                 className="gallery-box position-relative"
-                to={"/post/" + post.src}
+                to={"/post/" + post._id}
                 style={{ minHeight: "200px", background: "#77777730" }}
               >
-                <img src={post.src} alt="image" />
+                <img
+                  src={
+                    post.src ??
+                    (post.media?.[0]?.type === "video"
+                      ? defaultThumbnail
+                      : defaultPost)
+                  }
+                  onError={handlePostImageError}
+                />
                 {post.media?.[0]?.type === "video" && (
                   <div>
                     <PlayBtn />
