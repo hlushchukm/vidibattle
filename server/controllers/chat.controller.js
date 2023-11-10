@@ -3,45 +3,184 @@ const { Chat } = require("../models/chat.model");
 const { Message } = require("../models/message.model");
 const { User } = require("../models/user.model");
 
+// Old code to get a list of chats
+// module.exports.getChatList = async (req, res, next) => {
+//   try {
+//     const { userId } = req.params;
+
+//     // check if the userId is the same as the person making this request
+//     const { _id } = req.user;
+//     if (_id !== userId) {
+//       return res
+//         .status(403)
+//         .json({ message: "can't access this user's chats" });
+//     }
+
+//     const user = await User.findById(userId);
+
+//     if (!user) {
+//       return res.status(400).json({ message: "User not found" });
+//     }
+
+//     const populatedUser = await user.populate({
+//       path: "chats",
+//       match: { participants: { $nin: user.blocked_users } }, // exclude chats with blocked users
+//       populate: {
+//         path: "participants",
+//         select: "first_name last_name profile_img",
+//       },
+//       options: {
+//         populate: {
+//           path: "messages",
+//           options: {
+//             limit: 1, // Limit to only retrieve the last message
+//             sort: { createdAt: -1 }, // Sort messages in descending order based on createdAt
+//           },
+//         },
+//       },
+//     });
+
+//     res.json({ data: populatedUser.chats, count: populatedUser.chats_count });
+//   } catch (e) {
+//     next(e);
+//   }
+// };
+
 module.exports.getChatList = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const searchString = req.query.searchString || "";
 
-    // check if the userId is the same as the person making this request
-    const { _id } = req.user;
-    if (_id !== userId) {
-      return res
-        .status(403)
-        .json({ message: "can't access this user's chats" });
-    }
-
-    const user = await User.findById(userId);
+    // Get the requesting user's following list
+    const user = await User.findById(userId).populate(
+      "following",
+      "first_name last_name profile_img"
+    );
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "user not found" });
     }
 
-    // TODO: currently if a user is blocked by another person, the blocked person can access the message, only the blocker can't see it
-    const populatedUser = await user.populate({
-      path: "chats",
-      match: { participants: { $nin: user.blocked_users } }, // exclude chats with blocked users
-      populate: {
+    // Get the chats of the requesting user
+    const chats = await Chat.find({ participants: { $in: [userId] } }).populate(
+      {
         path: "participants",
         select: "first_name last_name profile_img",
-      },
-      options: {
-        populate: {
-          path: "messages",
-          options: {
-            limit: 1, // Limit to only retrieve the last message
-            sort: { createdAt: -1 }, // Sort messages in descending order based on createdAt
-          },
-        },
-      },
-    });
+      }
+    );
 
-    // TODO: sort the chats and make the last updated one appear on top
-    res.json({ data: populatedUser.chats, count: populatedUser.chats_count });
+    // Create an array to store the unique contacts
+    const contacts = [];
+
+    // Iterate over the chats to find unique contacts
+    for (const chat of chats) {
+      const otherParticipants = chat.participants.filter(
+        (participant) => participant._id.toString() !== userId
+      );
+      if (
+        !user.blocked_users?.includes(otherParticipants[0]?._id) &&
+        !user.blocked_by?.includes(otherParticipants[0]?._id)
+      ) {
+        const contact = {
+          user: otherParticipants[0],
+          chatId: chat._id,
+        };
+        contacts.push(contact);
+      }
+    }
+
+    // Iterate over the following list to find unique contacts
+    for (const following of user.following) {
+      const existingContact = contacts.find(
+        (contact) => contact.user._id.toString() === following._id.toString()
+      );
+      if (
+        !existingContact &&
+        !user.blocked_users?.includes(following._id) &&
+        !user.blocked_by?.includes(following._id)
+      ) {
+        const contact = {
+          user: following,
+          chatId: null,
+        };
+        contacts.push(contact);
+      }
+    }
+
+    let filteredContacts = contacts;
+
+    if (searchString.length > 0) {
+      // Filter contacts based on search string
+      let splittedString = searchString.trim().toLowerCase().split(" ");
+      filteredContacts = contacts.filter(
+        (contact) =>
+          contact.user.first_name.toLowerCase().includes(splittedString[0]) ||
+          contact.user.last_name
+            .toLowerCase()
+            .includes(splittedString[1] ? splittedString[1] : splittedString[0])
+      );
+
+      // search non followers
+      const regex1 = new RegExp(
+        splittedString[0].replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+        "i"
+      );
+
+      let regex2;
+      if (splittedString[1]) {
+        regex2 = new RegExp(
+          splittedString[1].replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+          "i"
+        );
+      }
+
+      const query = {
+        $or: [{ first_name: regex1 }, { last_name: regex2 ? regex2 : regex1 }],
+        _id: {
+          $nin: [user._id, ...user.blocked_users, ...user.blocked_by],
+        },
+      };
+
+      const matches = await User.find(query, "first_name last_name profile_img")
+        .skip((page - 1) * limit)
+        .limit(limit);
+
+      // Iterate over the matches to find unique contacts
+      for (const person of matches) {
+        const existingContact = filteredContacts.find(
+          (contact) => contact.user._id.toString() === person._id.toString()
+        );
+        if (!existingContact) {
+          const contact = {
+            user: person,
+            chatId: null,
+          };
+          filteredContacts.push(contact);
+        }
+      }
+    }
+
+    // Sort the contacts by their last message timestamp (if chat exists)
+    for (const contact of filteredContacts) {
+      if (contact.chatId) {
+        const lastMessage = await Message.findOne({
+          chat_id: contact.chatId,
+        }).sort({ createdAt: -1 });
+        if (lastMessage) {
+          contact.lastMessage = lastMessage;
+        }
+      }
+    }
+
+    // Paginate the contacts array
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedContacts = filteredContacts.slice(startIndex, endIndex);
+
+    // Send the paginated contacts as the API response
+    res.status(200).json({ data: paginatedContacts, page: page });
   } catch (e) {
     next(e);
   }
@@ -82,7 +221,20 @@ module.exports.getMessages = async (req, res, next) => {
     ).exec();
 
     if (!chat) {
-      return res.status(404).json({ message: "Chat not found" });
+      return res.json({
+        data: {
+          messages: [],
+          chat,
+          receiver: {
+            _id: specifiedUser._id,
+            first_name: specifiedUser.first_name,
+            last_name: specifiedUser.last_name,
+            profile_img: specifiedUser.profile_img,
+          },
+          lastDate: lastDate,
+          lastMessageId: lastMessageId,
+        },
+      });
     }
 
     // get the messages in the chat
@@ -122,6 +274,12 @@ module.exports.getMessages = async (req, res, next) => {
       data: {
         messages: messages.reverse(),
         chat,
+        receiver: {
+          _id: specifiedUser._id,
+          first_name: specifiedUser.first_name,
+          last_name: specifiedUser.last_name,
+          profile_img: specifiedUser.profile_img,
+        },
         lastDate: updatedLastDate,
         lastMessageId: updatedLastMessageId,
       },

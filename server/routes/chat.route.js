@@ -7,7 +7,7 @@ const {
 const router = express.Router();
 
 // get
-router.get("/list/:userId", getChatList);
+router.get("/list", getChatList);
 router.get("/messages/:userId", getMessages);
 
 // create

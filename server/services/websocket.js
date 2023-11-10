@@ -24,6 +24,8 @@ const websocket = (server) => {
       const newMsg = await createMessage({ chatId, sender, receiver, content });
 
       io.emit("INCOMING_MESSAGE", {
+        sender,
+        receiver,
         message: newMsg.message,
         chat_id: newMsg.chat._id,
       });
