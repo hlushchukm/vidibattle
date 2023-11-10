@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { getUser, getUserId } from "../../services/auth";
 import { ProgressBarStriped } from "../../components/ProgressBar";
 import PostPreview from "./components/PostPreview";
+import { handleProfileImageError } from "../../services/asset-paths";
 
 export default function CreatePost() {
   const [postBtnDisabled, setPostBtnDisabled] = useState(true);
@@ -117,7 +118,11 @@ export default function CreatePost() {
           <div className="post-profile">
             <div className="left-content">
               <div className="media media-50 rounded-circle">
-                <img src={getUser().profile_img} alt="/" />
+                <img
+                  src={getUser().profile_img}
+                  onError={handleProfileImageError}
+                  alt="/"
+                />
               </div>
               <div className="ms-2">
                 <h6 className="mb-1">

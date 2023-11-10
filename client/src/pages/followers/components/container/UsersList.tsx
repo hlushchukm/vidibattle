@@ -3,6 +3,7 @@ import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
+import { handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function UsersList({
   listType,
@@ -57,7 +58,11 @@ export default function UsersList({
                         onClick={() => navigate("/profile/" + user._id)}
                         className="media status media-60"
                       >
-                        <img src={user?.profile_img} alt="/" />
+                        <img
+                          src={user?.profile_img}
+                          onError={handleProfileImageError}
+                          alt="/"
+                        />
                       </a>
                       <a
                         style={{ cursor: "pointer" }}
@@ -95,7 +100,11 @@ export default function UsersList({
                         className="d-flex align-items-center"
                       >
                         <div className="media status media-50">
-                          <img src={user?.profile_img} alt="/" />
+                          <img
+                            src={user?.profile_img}
+                            onError={handleProfileImageError}
+                            alt="/"
+                          />
                         </div>
                         <span className="name">{getName(user)}</span>
                       </a>

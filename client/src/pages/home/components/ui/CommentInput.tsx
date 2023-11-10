@@ -1,3 +1,4 @@
+import { handleProfileImageError } from "../../../../services/asset-paths";
 import { getUser } from "../../../../services/auth";
 
 export default function CommentInput({
@@ -16,7 +17,11 @@ export default function CommentInput({
       <div className="commnet-footer d-flex align-items-center justify-space-between w-100">
         <div className="d-flex align-items-center flex-1">
           <div className="media media-35 rounded-circle">
-            <img src={getUser().profile_img} alt="/" />
+            <img
+              src={getUser().profile_img}
+              onError={handleProfileImageError}
+              alt="/"
+            />
           </div>
           <form
             className="d-flex flex-grow-1 border-primary ms-3"

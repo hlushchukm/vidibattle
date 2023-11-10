@@ -3,6 +3,7 @@ import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 import { useReportStore, useShareStore } from "../../../../store";
 import { formatNumber } from "../../../../services/number-formatting";
+import { handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function Post({
   post,
@@ -27,8 +28,12 @@ export default function Post({
               className="media media-40"
               style={{ cursor: "pointer" }}
             >
-              {/* TODO: add default profile image incase profile image doesn't exist */}
-              <img className="rounded" src={post.author?.profile_img} alt="/" />
+              <img
+                className="rounded"
+                src={post.author?.profile_img}
+                onError={handleProfileImageError}
+                alt="/"
+              />
             </a>
             <div className="meta-content ms-3">
               <h6 className="title mb-0">

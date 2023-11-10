@@ -2,6 +2,7 @@ import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 import BackBtn from "../../../components/BackBtn";
 import { Link } from "react-router-dom";
 import { getName } from "../../../services/utils";
+import { handleProfileImageError } from "../../../services/asset-paths";
 
 export default function MessageHeader({ user }: { user: any }) {
   return (
@@ -10,7 +11,11 @@ export default function MessageHeader({ user }: { user: any }) {
         <div className="left-content">
           <BackBtn />
           <div className="media me-3 media-35 rounded-circle">
-            <img src={user?.profile_img} alt="/" />
+            <img
+              src={user?.profile_img}
+              onError={handleProfileImageError}
+              alt="/"
+            />
           </div>
           <h5 className="mb-0">{getName(user)}</h5>
         </div>

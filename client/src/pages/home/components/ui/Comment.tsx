@@ -1,3 +1,4 @@
+import { handleProfileImageError } from "../../../../services/asset-paths";
 import { formatNumber } from "../../../../services/number-formatting";
 import timeAgo from "../../../../services/timeAndDate";
 import { getName } from "../../../../services/utils";
@@ -22,7 +23,11 @@ export default function Comment({
   return (
     <>
       <div className="list-content">
-        <img src={comment?.author?.profile_img} alt="/" />
+        <img
+          src={comment?.author?.profile_img}
+          onError={handleProfileImageError}
+          alt="/"
+        />
         <div>
           <h6 className="font-14 mb-1">{getName(comment?.author)}</h6>
           <p className="mb-2">{comment.content}</p>
