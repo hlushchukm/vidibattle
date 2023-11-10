@@ -1,50 +1,46 @@
 import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
-import { useCurrentChatStore } from "../../../../store";
-import { getUserId } from "../../../../services/auth";
-import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
+import { useChatReceiverStore } from "../../../../store";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../../../services/asset-paths";
+import { getName } from "../../../../services/utils";
 
 export default function ContactsList({ list }: { list: any[] }) {
-  const setCurrentChat = useCurrentChatStore(
-    (state: any) => state.setCurrentChat
+  const setChatReceiver = useChatReceiverStore(
+    (state: any) => state.setReceiver
   );
   const navigate = useNavigate();
 
-  const currentUserId = getUserId();
-
-  const gotoMsgPage = (chat: any, secondUser: any) => {
-    setCurrentChat(chat);
-    navigate(secondUser._id);
+  const gotoMsgPage = (secondUser: any) => {
+    setChatReceiver(secondUser);
+    navigate("/chat/" + secondUser._id);
   };
 
   return (
     <>
       <ul className="dz-list message-list">
-        <li>
+        <li className="flex-column">
           {list.map((li: any, i: number) => {
-            const secondUser =
-              li.participants?.[0]?._id === currentUserId
-                ? li.participants?.[1]
-                : li.participants?.[0];
             return (
               <a
                 key={i}
+                className="py-2"
                 style={{ cursor: "pointer" }}
-                onClick={() => gotoMsgPage(li, secondUser)}
+                onClick={() => gotoMsgPage(li.user)}
               >
                 <div className="media media-50">
                   <img
                     className="rounded"
-                    src={formatResourceURL(secondUser?.profile_img)}
+                    src={formatResourceURL(li?.user?.profile_img)}
                     onError={handleProfileImageError}
                     alt="image"
                   />
                 </div>
                 <div className="media-content">
                   <div>
-                    <h6 className="name">
-                      {secondUser?.first_name + " " + secondUser?.last_name}
-                    </h6>
+                    <h6 className="name">{getName(li.user)}</h6>
                     <p
                       className="my-1"
                       style={{
@@ -54,16 +50,16 @@ export default function ContactsList({ list }: { list: any[] }) {
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {li.messages?.[0]?.content}
+                      {li.lastMessage?.content ?? "No messages"}
                     </p>
                   </div>
                   <div className="left-content" style={{ width: "auto" }}>
                     <span className="time">
-                      {timeAgo(li.messages?.[0]?.createdAt)}
+                      {timeAgo(li.lastMessage?.createdAt)}
                     </span>
-                    <div
+                    {/* <div
                       className={`seen-btn mt-2 ${
-                        li.messages?.[0]?.seen ? "active" : ""
+                        li.lastMessage?.seen ? "active" : ""
                       }`}
                     >
                       <svg
@@ -78,7 +74,7 @@ export default function ContactsList({ list }: { list: any[] }) {
                           fill="#BBB6D0"
                         />
                       </svg>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </a>

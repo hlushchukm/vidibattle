@@ -5,7 +5,7 @@ import MessagesContainer from "./components/container/MessagesContainer";
 import socket from "../../services/socket";
 import { useLocation, useParams } from "react-router-dom";
 import { get } from "../../services/crud";
-import { useCurrentChatStore, useCurrentUserStore } from "../../store";
+import { useChatReceiverStore, useCurrentUserStore } from "../../store";
 import ChatNotFound from "../../components/ChatNotFound";
 
 export default function Messages() {
@@ -17,11 +17,14 @@ export default function Messages() {
   const params = useParams();
 
   const [receiver, setReceiver] = useState<any>(null);
+  const receiverRef = useRef<any>(null);
   const [userId, setUserId] = useState<String | null>(null);
   const chatIdRef = useRef();
 
   const currentUserId = useCurrentUserStore((state: any) => state.id);
-  const currentChat = useCurrentChatStore((state: any) => state.currentChat);
+  const receiverFromStore = useChatReceiverStore(
+    (state: any) => state.receiver
+  );
 
   const [pageSize, setPageSize] = useState(25);
   const [lastDate, setLastDate] = useState();
@@ -47,12 +50,19 @@ export default function Messages() {
     if (socket.listeners("INCOMING_MESSAGE").length === 0) {
       // Listen for incoming messages from the server
       socket.on("INCOMING_MESSAGE", function (res) {
-        if (res.chat_id === chatIdRef.current) {
+        if (
+          res.chat_id === chatIdRef.current ||
+          (res.sender === currentUserId &&
+            res.receiver === receiverRef.current?._id) ||
+          (res.sender === receiverRef.current?._id &&
+            res.receiver === currentUserId)
+        ) {
           console.log("incoming message ", res.message);
           const oldMessages = [...messagesRef.current];
           oldMessages.push(res.message);
           setMessages([...oldMessages]);
           setTempMessages((s: any[]) => s.splice(1));
+          chatIdRef.current = res.chat_id;
         }
       });
     }
@@ -82,19 +92,12 @@ export default function Messages() {
   }, [messages]);
 
   useEffect(() => {
-    if (currentChat?.participants && currentChat?.participants?.length > 0) {
-      getSecondUser(currentChat.participants);
-    }
-  }, [currentChat]);
+    setReceiver(receiverFromStore);
+  }, [receiverFromStore]);
 
-  const getSecondUser = (participants: any[]) => {
-    for (let i = 0; participants.length; i++) {
-      if (participants[i]._id !== currentUserId) {
-        setReceiver(participants[i]);
-        return;
-      }
-    }
-  };
+  useEffect(() => {
+    receiverRef.current = receiver;
+  }, [receiver]);
 
   const getMessages = (cid: string) => {
     let query: any = { pageSize };
@@ -108,18 +111,12 @@ export default function Messages() {
     setMessagesLoading(true);
     get("chat/messages/" + cid, query)
       .then((res) => {
-        if (
-          res.data?.chat?.participants &&
-          res.data?.chat?.participants.length > 0
-        ) {
-          getSecondUser(res.data.chat.participants);
-        }
-
         if (res.data.messages.length < pageSize) {
           setNoMoreMessages(true);
         }
 
         setMessages((s: any) => [...res.data?.messages, ...s]);
+        setReceiver(res.data.receiver);
         setLastDate(res.data.lastDate);
         setLastMessageId(res.data.lastMessageId);
         setChatNotFound(false);
@@ -166,7 +163,7 @@ export default function Messages() {
     <>
       <MessageHeader user={receiver} />
 
-      {chatNotFound && (!messages || messages.length < 1) && <ChatNotFound />}
+      {chatNotFound && <ChatNotFound />}
       {!chatNotFound && (
         <>
           <MessagesContainer

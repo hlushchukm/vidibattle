@@ -30,6 +30,12 @@ export default function MessagesContainer({
     <>
       <div className="page-content message-content bottom-content d-flex align-items-end">
         <div className="container chat-box-area">
+          {messages.length <= 0 && tempMessages.length <= 0 && !loading && (
+            <h5 className="d-flex justify-content-center align-items-center py-5 text-secondary">
+              Start a New Chat
+            </h5>
+          )}
+
           {!loading && showMoreBtn && (
             <div className="d-flex justify-content-center align-items-center">
               <button className="btn text-primary" onClick={loadMore}>

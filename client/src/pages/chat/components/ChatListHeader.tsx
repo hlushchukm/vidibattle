@@ -9,7 +9,7 @@ export default function ChatListHeader() {
         </div>
         <div className="mid-content"></div>
         <div className="right-content">
-          <a href="notification.html" className="bell-icon">
+          {/* <a href="notification.html" className="bell-icon">
             <svg
               width="24"
               height="26"
@@ -51,7 +51,7 @@ export default function ChatListHeader() {
                 </linearGradient>
               </defs>
             </svg>
-          </a>
+          </a> */}
         </div>
       </TopNavBarWrapper>
     </>
