@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { get } from "../../../../services/crud";
-import { getUserId } from "../../../../services/auth";
+import { getUser, getUserId } from "../../../../services/auth";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { getName } from "../../../../services/utils";
@@ -51,7 +51,8 @@ export default function StoryBar() {
                     <Link to={"/profile"} className="categore-box style-1">
                       <div className="story-bx">
                         <img
-                          src="/assets/images/stories/small/pic8.jpg"
+                          src={formatResourceURL(getUser().profile_img)}
+                          onError={handleProfileImageError}
                           alt="/"
                         />
                       </div>
