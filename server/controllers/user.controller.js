@@ -464,3 +464,57 @@ module.exports.updateSelfProfile = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.searchUsers = async (req, res) => {
+  try {
+    const { name = "", page = 1, limit = 10 } = req.query;
+    const requesterId = req.user._id;
+
+    const requester = await User.findById(requesterId);
+    if (!requester) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    const splittedName = name.split(" ");
+    const regex1 = new RegExp(
+      splittedName[0].replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+      "i"
+    );
+
+    let regex2;
+    if (splittedName[1]) {
+      regex2 = new RegExp(
+        splittedName[1].replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&"),
+        "i"
+      );
+    }
+
+    // Query to exclude blocked users
+    const query = {
+      $or: [{ first_name: regex1 }, { last_name: regex2 ? regex2 : regex1 }],
+      _id: {
+        $nin: [
+          requesterId, // Exclude the requester
+          ...requester.blocked_users, // Exclude users blocked by the requester
+          ...requester.blocked_by, // Exclude users who blocked the requester
+        ],
+      },
+    };
+
+    const totalCount = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalCount / limit);
+
+    const users = await User.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({
+      data: users,
+      page: parseInt(page),
+      totalPages,
+      totalCount,
+    });
+  } catch (e) {
+    next(e);
+  }
+};

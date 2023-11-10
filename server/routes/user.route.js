@@ -15,6 +15,7 @@ const {
   updateSelfProfile,
   getFollowers,
   getFollowing,
+  searchUsers,
 } = require("../controllers/user.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const router = express.Router();
@@ -29,6 +30,7 @@ router.get("/followers/:id", getFollowers);
 router.get("/following/:id", getFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
 router.get("/list", adminAuthGuard, getUsersList);
+router.get('/search', authGuard, searchUsers)
 
 // post
 router.post("/follow/:followedId", authGuard, follow);
