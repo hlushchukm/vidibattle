@@ -41,25 +41,19 @@ export default function MessagesContainer({
 
           {loading && <BlinkingLoadingCircles />}
 
-          {messages?.[0] && messages?.[0]?.createdAt && (
-            <div className="text-center py-2">
-              {getDate(messages?.[0]?.createdAt)}
-            </div>
-          )}
-
           {messages.map((message: any, i: number) => {
             const msgDate = getDate(message.createdAt);
+            const lastDateCopy = lastDate.current;
 
             updateLastDate(msgDate);
             return (
               <span key={i}>
-                {/* TODO: date display not working */}
-                {(msgDate !== lastDate.current || !lastDate) && (
-                  <div key={i + "&" + i}>{msgDate}</div>
+                {(msgDate !== lastDateCopy || !lastDate) && (
+                  <div className="divider border-info inner-divider transparent mb-0">
+                    <span style={{ background: "#eee" }}>{msgDate}</span>
+                  </div>
                 )}
-
                 <div
-                  key={i}
                   className={`chat-content ${
                     message.sender === currentUserId ? "user" : ""
                   }`}
@@ -77,7 +71,6 @@ export default function MessagesContainer({
                       className="message-time"
                       style={{ paddingBottom: "10px" }}
                     >
-                      {/* {getDateAndTime(message.createdAt)} */}
                       {getTime(message.createdAt)}
                     </div>
                   </div>
