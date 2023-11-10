@@ -1,4 +1,4 @@
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 import { formatNumber } from "../../../../services/number-formatting";
 import timeAgo from "../../../../services/timeAndDate";
 import { getName } from "../../../../services/utils";
@@ -24,7 +24,7 @@ export default function Comment({
     <>
       <div className="list-content">
         <img
-          src={comment?.author?.profile_img}
+          src={formatResourceURL(comment?.author?.profile_img)}
           onError={handleProfileImageError}
           alt="/"
         />

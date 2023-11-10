@@ -38,7 +38,7 @@ export default function ProfilePostsContainer({
           <PresentationModeBtns />
         </div>
       </div>
-      <div className="tab-content" id="myTabContent3">
+      <div className="tab-content mb-5" id="myTabContent3">
         <div
           className="tab-pane fade show active"
           id="home-tab-pane3"

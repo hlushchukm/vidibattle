@@ -1,4 +1,4 @@
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 import { getUser } from "../../../../services/auth";
 
 export default function CommentInput({
@@ -18,7 +18,7 @@ export default function CommentInput({
         <div className="d-flex align-items-center flex-1">
           <div className="media media-35 rounded-circle">
             <img
-              src={getUser().profile_img}
+              src={formatResourceURL(getUser().profile_img)}
               onError={handleProfileImageError}
               alt="/"
             />

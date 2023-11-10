@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { getName } from "../../../../services/utils";
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function BasicInfo({
   profile,
@@ -42,7 +42,7 @@ export default function BasicInfo({
                 borderRadius: "18px",
                 border: "6px solid #FEF3ED",
               }}
-              src={profile?.profile_img}
+              src={formatResourceURL(profile?.profile_img)}
               onError={handleProfileImageError}
             />
             {isLoggedIn && isOwnProfile && (
@@ -80,7 +80,7 @@ export default function BasicInfo({
           <div className="right-content d-none d-sm-block">
             <div className="upload-box">
               <img
-                src={profile?.profile_img}
+                src={formatResourceURL(profile?.profile_img)}
                 onError={handleProfileImageError}
               />
               {isLoggedIn && isOwnProfile && (

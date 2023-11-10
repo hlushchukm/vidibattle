@@ -8,7 +8,7 @@ import ProfileHeader from "./components/ProfileHeader";
 import PageLoading from "../../components/PageLoading";
 import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
-import { env } from "../../env";
+import { formatResourceURL } from "../../services/asset-paths";
 
 export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -75,11 +75,11 @@ export default function Profile() {
             const media = data.media[0];
             if (media?.type === "video") {
               data.src = media?.thumbnail?.filename
-                ? `${env.VITE_API_URL}/media/${media?.thumbnail?.filename}`
+                ? formatResourceURL(media?.thumbnail?.filename)
                 : null;
             } else {
               data.src = media?.filename
-                ? `${env.VITE_API_URL}/media/${media?.filename}`
+                ? formatResourceURL(media?.filename)
                 : null;
             }
           }

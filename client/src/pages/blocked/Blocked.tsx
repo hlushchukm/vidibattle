@@ -5,7 +5,7 @@ import PageLoading from "../../components/PageLoading";
 import { getName } from "../../services/utils";
 import { useNavigate } from "react-router-dom";
 import DisplayModeBtns from "../../components/DisplayModeBtns";
-import { handleProfileImageError } from "../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../services/asset-paths";
 
 export default function Blocked() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -103,7 +103,7 @@ export default function Blocked() {
                           className="media status media-60"
                         >
                           <img
-                            src={user.profile_img}
+                            src={formatResourceURL(user.profile_img)}
                             onError={handleProfileImageError}
                             alt="/"
                           />
@@ -142,7 +142,7 @@ export default function Blocked() {
                         >
                           <div className="media status media-50">
                             <img
-                              src={user.profile_img}
+                              src={formatResourceURL(user.profile_img)}
                               onError={handleProfileImageError}
                               alt="/"
                             />

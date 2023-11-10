@@ -2,7 +2,7 @@ import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 import BackBtn from "../../../components/BackBtn";
 import { Link } from "react-router-dom";
 import { getName } from "../../../services/utils";
-import { handleProfileImageError } from "../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../services/asset-paths";
 
 export default function MessageHeader({ user }: { user: any }) {
   return (
@@ -12,7 +12,7 @@ export default function MessageHeader({ user }: { user: any }) {
           <BackBtn />
           <div className="media me-3 media-35 rounded-circle">
             <img
-              src={user?.profile_img}
+              src={formatResourceURL(user?.profile_img)}
               onError={handleProfileImageError}
               alt="/"
             />

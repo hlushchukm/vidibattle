@@ -5,7 +5,7 @@ import { getUserId } from "../../../../services/auth";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { getName } from "../../../../services/utils";
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function StoryBar() {
   const [users, setUsers] = useState<any>([]);
@@ -69,7 +69,7 @@ export default function StoryBar() {
                       >
                         <div className="story-bx">
                           <img
-                            src={user.profile_img}
+                            src={formatResourceURL(user.profile_img)}
                             onError={handleProfileImageError}
                             alt="/"
                           />

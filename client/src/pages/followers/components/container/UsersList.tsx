@@ -3,7 +3,7 @@ import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function UsersList({
   listType,
@@ -59,7 +59,7 @@ export default function UsersList({
                         className="media status media-60"
                       >
                         <img
-                          src={user?.profile_img}
+                          src={formatResourceURL(user?.profile_img)}
                           onError={handleProfileImageError}
                           alt="/"
                         />
@@ -101,7 +101,7 @@ export default function UsersList({
                       >
                         <div className="media status media-50">
                           <img
-                            src={user?.profile_img}
+                            src={formatResourceURL(user?.profile_img)}
                             onError={handleProfileImageError}
                             alt="/"
                           />

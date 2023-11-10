@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { env } from "../../../../env";
 import timeAgo from "../../../../services/timeAndDate";
 import { useReportStore, useShareStore } from "../../../../store";
 import { formatNumber } from "../../../../services/number-formatting";
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../../../services/asset-paths";
 
 export default function Post({
   post,
@@ -30,7 +32,7 @@ export default function Post({
             >
               <img
                 className="rounded"
-                src={post.author?.profile_img}
+                src={formatResourceURL(post.author?.profile_img)}
                 onError={handleProfileImageError}
                 alt="/"
               />
@@ -107,7 +109,7 @@ export default function Post({
                 maxHeight: "600px",
                 objectFit: "contain",
               }}
-              src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
+              src={formatResourceURL(post.media?.[0]?.filename)}
               alt="/"
             />
           )}
@@ -115,7 +117,7 @@ export default function Post({
             <video
               poster={
                 post.media?.[0]?.thumbnail?.filename
-                  ? `${env.VITE_API_URL}/media/${post.media?.[0]?.thumbnail?.filename}`
+                  ? formatResourceURL(post.media?.[0]?.thumbnail?.filename)
                   : undefined
               }
               id="videoPlayer"
@@ -130,7 +132,7 @@ export default function Post({
               controls
             >
               <source
-                src={`${env.VITE_API_URL}/media/${post.media?.[0]?.filename}`}
+                src={formatResourceURL(post.media?.[0]?.filename)}
                 type={post.media?.[0]?.contentType}
               />
             </video>

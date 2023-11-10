@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import timeAgo from "../../../../services/timeAndDate";
 import { useCurrentChatStore } from "../../../../store";
 import { getUserId } from "../../../../services/auth";
-import { handleProfileImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
 
 export default function ContactsList({ list }: { list: any[] }) {
   const setCurrentChat = useCurrentChatStore(
@@ -35,7 +35,7 @@ export default function ContactsList({ list }: { list: any[] }) {
                 <div className="media media-50">
                   <img
                     className="rounded"
-                    src={secondUser?.profile_img}
+                    src={formatResourceURL(secondUser?.profile_img)}
                     onError={handleProfileImageError}
                     alt="image"
                   />

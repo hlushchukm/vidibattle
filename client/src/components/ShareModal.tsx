@@ -8,7 +8,7 @@ import { getName } from "../services/utils";
 import { useShareStore } from "../store";
 import { env } from "../env";
 import BlinkingLoadingCircles from "./BlinkingLoadingCircles";
-import { handleProfileImageError } from "../services/asset-paths";
+import { formatResourceURL, handleProfileImageError } from "../services/asset-paths";
 
 export default function ShareModal() {
   const [shareMessage, setShareMessage] = useState("");
@@ -122,7 +122,7 @@ export default function ShareModal() {
                   <div className="left-content">
                     <Link to={"/profile/" + user._id}>
                       <img
-                        src={user.profile_img}
+                        src={formatResourceURL(user.profile_img)}
                         onError={handleProfileImageError}
                         alt="/"
                       />
