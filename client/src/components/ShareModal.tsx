@@ -8,7 +8,10 @@ import { getName } from "../services/utils";
 import { useShareStore } from "../store";
 import { env } from "../env";
 import BlinkingLoadingCircles from "./BlinkingLoadingCircles";
-import { formatResourceURL, handleProfileImageError } from "../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../services/asset-paths";
 
 export default function ShareModal() {
   const [shareMessage, setShareMessage] = useState("");
@@ -20,6 +23,9 @@ export default function ShareModal() {
   const post = useShareStore((state) => state.post);
   const [title, setTitle] = useState(shareMessage);
   const [url, setUrl] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [showingSearchResults, setShowingSearchResults] = useState(false);
+  const [searchResultCount, setSearchResultCount] = useState();
 
   useEffect(() => {
     fetchFollowings();
@@ -42,9 +48,10 @@ export default function ShareModal() {
     }
   }, [shareMessage]);
 
-  const fetchFollowings = () => {
+  const fetchFollowings = (pageNum?: number) => {
+    setShowingSearchResults(false);
     setLoading(true);
-    get("user/following/" + getUserId(), { page: page + 1, limit })
+    get("user/following/" + getUserId(), { page: pageNum ?? page + 1, limit })
       .then((res) => {
         if (res.data.length < limit) {
           setNoMorePeople(true);
@@ -60,6 +67,55 @@ export default function ShareModal() {
         setLoading(false);
       });
   };
+
+  const searchUsers = (continued = false) => {
+    if (searchText.trim().length > 0) {
+      let pageCopy = page;
+      if (!showingSearchResults || !continued) {
+        setUsers([]);
+        setPage(0);
+        pageCopy = 0;
+      }
+      setNoMorePeople(false);
+      setLoading(true);
+      get("user/search", { name: searchText, page: pageCopy + 1, limit })
+        .then((res) => {
+          if (res.data.length < limit) {
+            setNoMorePeople(true);
+          }
+
+          setUsers((s: any) => [...s, ...res.data]);
+
+          setPage(res.page);
+          setSearchResultCount(res.totalCount);
+          setShowingSearchResults(true);
+          setLoading(false);
+        })
+        .catch((e) => {
+          console.log(e);
+          toast.error(
+            e?.response?.data?.message ?? "Error while searching users"
+          );
+          setLoading(false);
+        });
+    } else if (showingSearchResults) {
+      setPage(0);
+      setUsers([]);
+      setNoMorePeople(false);
+      setShowingSearchResults(false);
+      fetchFollowings(1);
+    }
+  };
+
+  useEffect(() => {
+    const delayTimer = setTimeout(() => {
+      searchUsers(false);
+    }, 500);
+
+    return () => {
+      clearTimeout(delayTimer);
+    };
+  }, [searchText]);
 
   const navigate = useNavigate();
 
@@ -89,14 +145,25 @@ export default function ShareModal() {
           </form>
         </div>
         <div className="offcanvas-body container pb-0">
-          <form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              searchUsers(false);
+            }}
+          >
             <div className="input-group">
               <input
                 type="text"
                 className="form-control"
                 placeholder="Search.."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
               />
-              <span className="input-group-text">
+              <span
+                onClick={() => searchUsers(false)}
+                className="input-group-text"
+                style={{cursor: "pointer"}}
+              >
                 <svg
                   width="18"
                   height="18"
@@ -117,6 +184,9 @@ export default function ShareModal() {
           </div>
           <div className="canvas-height mt-4 dz-scroll">
             <ul className="share-list">
+              {showingSearchResults && !loading && (
+                <div className="py-2">{searchResultCount} total results</div>
+              )}
               {users.map((user: any, i: number) => (
                 <li key={i}>
                   <div className="left-content">
@@ -159,7 +229,11 @@ export default function ShareModal() {
                 <div className="d-flex justify-content-center align-items-center">
                   <button
                     className="btn text-primary"
-                    onClick={fetchFollowings}
+                    onClick={() =>
+                      showingSearchResults
+                        ? searchUsers(true)
+                        : fetchFollowings()
+                    }
                   >
                     <i className="fa fa-refresh me-2"></i>
                     <span>Show More</span>
