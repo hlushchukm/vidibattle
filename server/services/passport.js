@@ -6,6 +6,7 @@ const passport = require("passport");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models/user.model");
 const { Admin } = require("../models/admin.model");
+const { storeProfile } = require("../controllers/media.controller");
 
 passport.use(
   new GoogleStrategy(
@@ -34,6 +35,9 @@ passport.use(
         return done(null, existingUser);
       }
 
+      // make a copy of the profile image and store it on db
+      const profileImg = await storeProfile(user.profile_img);
+      user.profile_img = profileImg;
       const newUser = new User(user);
 
       try {
@@ -74,6 +78,9 @@ passport.use(
         return done(null, existingUser);
       }
 
+      // make a copy of the profile image and store it on db
+      const profileImg = await storeProfile(user.profile_img);
+      user.profile_img = profileImg;
       const newUser = new User(user);
 
       try {
