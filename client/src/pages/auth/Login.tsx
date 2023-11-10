@@ -58,10 +58,10 @@ export default function Login() {
                       {isCreate}
                       {!isCreate ? "Sign in" : "Create Account"}
                     </h1>
-                    <p>
+                    {/* <p>
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit,
                       sed do eiusmod tempor
-                    </p>
+                    </p> */}
                   </div>
                   <div className="social-box">
                     {/* <span>Or sign in with</span> */}
