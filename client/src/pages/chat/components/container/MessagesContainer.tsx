@@ -6,11 +6,13 @@ import { formatMessageText } from "../../../../services/text-formatting";
 
 export default function MessagesContainer({
   messages,
+  tempMessages,
   loading,
   showMoreBtn,
   loadMore,
 }: {
   messages: any[];
+  tempMessages: any[];
   loading: boolean;
   showMoreBtn: boolean;
   loadMore: () => void;
@@ -72,6 +74,33 @@ export default function MessagesContainer({
                     </div>
                     <div className="message-time">
                       {/* {getDateAndTime(message.createdAt)} */}
+                      {getTime(message.createdAt)}
+                    </div>
+                  </div>
+                </div>
+              </span>
+            );
+          })}
+
+          {/* Show Temporary Messages */}
+          {tempMessages.map((message: any, i: number) => {
+            return (
+              <span key={i}>
+                <div
+                  key={i}
+                  className={`chat-content ${
+                    message.sender === currentUserId ? "user" : ""
+                  }`}
+                >
+                  <div className="message-item">
+                    <div className="bubble">
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: formatMessageText(message.content),
+                        }}
+                      />
+                    </div>
+                    <div className="message-time">
                       {getTime(message.createdAt)}
                     </div>
                   </div>

@@ -11,6 +11,7 @@ import ChatNotFound from "../../components/ChatNotFound";
 export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState<any>([]);
+  const [tempMessages, setTempMessages] = useState<any>([]);
   const messagesRef = useRef<any>(); // to access messages within socket event listener. States are not accessible
   const [chatNotFound, setChatNotFound] = useState(false);
   const params = useParams();
@@ -30,8 +31,6 @@ export default function Messages() {
 
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
-
-  // TODO: sending indicator
 
   useEffect(() => {
     // start with the page scrolled to the bottom
@@ -53,6 +52,7 @@ export default function Messages() {
           const oldMessages = [...messagesRef.current];
           oldMessages.push(res.message);
           setMessages([...oldMessages]);
+          setTempMessages((s: any[]) => s.splice(1));
         }
       });
     }
@@ -149,7 +149,13 @@ export default function Messages() {
     }
 
     socket.emit("SEND_MESSAGE", payload);
+    addTempMessage(payload);
     setNewMessage("");
+  };
+
+  const addTempMessage = (payload: any) => {
+    payload.createdAt = new Date();
+    setTempMessages((s: any) => [...s, payload]);
   };
 
   const handleMessageChange = (e: any) => {
@@ -165,6 +171,7 @@ export default function Messages() {
         <>
           <MessagesContainer
             messages={messages}
+            tempMessages={tempMessages}
             loading={messagesLoading}
             showMoreBtn={!noMoreMessages}
             loadMore={() => getMessages(params.id ?? "")}
