@@ -15,9 +15,9 @@ export const useCurrentUserStore = create((set) => ({
 //   setChats: (chatsList: any[]) => set(() => ({ chats: chatsList })),
 // }));
 
-export const useCurrentChatStore = create((set) => ({
-  currentChat: null,
-  setCurrentChat: (chat: any) => set({ currentChat: chat }),
+export const useChatReceiverStore = create((set) => ({
+  receiver: null,
+  setReceiver: (user: any) => set({ receiver: user }),
 }));
 
 export const useShareStore = create<ShareState>((set) => ({
