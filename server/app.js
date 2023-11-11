@@ -28,7 +28,7 @@ const connect = mongoose
       app.use(logger);
     }
 
-    const cookie = {
+    let cookie = {
       maxAge: 1000 * 60 * 60 * 24, // 1 day,
     };
 
