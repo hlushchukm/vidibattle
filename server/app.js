@@ -39,7 +39,7 @@ const connect = mongoose
           maxAge: 1000 * 60 * 60 * 24, // 1 day,
           secure: "auto",
           sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
-          domain: process.env.CLIENT_URL,
+          domain: process.env.API_URL,
           path: "/"
         },
       })
