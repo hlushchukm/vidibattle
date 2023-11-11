@@ -28,32 +28,18 @@ const connect = mongoose
       app.use(logger);
     }
 
-    let cookie = {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day,
-    };
-
-    if (process.env.NODE_ENV === "production") {
-      cookie = {
-        ...cookie,
-        secure: true,
-        sameSite: "none",
-      };
-    }
-
     // middlewares
     app.use(
       session({
         secret: process.env.SESSION_SECRET || "twinphy",
         resave: false,
         store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
-        name: 'twinphy',
         saveUninitialized: true,
-        // cookie: {
-        //   maxAge: 1000 * 60 * 60 * 24, // 1 day,
-        //   secure: true,
-        //   sameSite: "none",
-        // },
-        cookie,
+        cookie: {
+          maxAge: 1000 * 60 * 60 * 24, // 1 day,
+          secure: "auto",
+          sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+        },
       })
     );
     app.use(passport.initialize());
