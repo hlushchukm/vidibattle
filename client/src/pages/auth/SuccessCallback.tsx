@@ -20,7 +20,8 @@ export default function SuccessCallback() {
         window.location.replace("/home");
       })
       .catch(() => {
-        window.location.replace("/auth/login");
+        // TODO: uncomment letter
+        // window.location.replace("/auth/login");
       });
   }, []);
 
