@@ -11,7 +11,7 @@ export default function HomeHeader() {
         </div>
         <div className="mid-content"></div>
         <div className="right-content d-flex align-items-center">
-          <a href="reels" className="bell-icon me-2">
+          {/* <a href="reels" className="bell-icon me-2">
             <svg
               id="Layer_3"
               height="24"
@@ -84,7 +84,7 @@ export default function HomeHeader() {
               <path d="M13,5v4c0,1.1,0.9,2,2,2h4c1.1,0,2-0.9,2-2V5c0-1.1-0.9-2-2-2h-4C13.9,3,13,3.9,13,5z" />
               <path d="M15,21h4c1.1,0,2-0.9,2-2v-4c0-1.1-0.9-2-2-2h-4c-1.1,0-2,0.9-2,2v4C13,20.1,13.9,21,15,21z" />
             </svg>
-          </a>
+          </a> */}
         </div>
       </TopNavBarWrapper>
       <div className="dark-overlay"></div>
