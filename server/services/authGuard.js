@@ -1,6 +1,5 @@
 // Middleware to check if user is authenticated
 module.exports.authGuard = (req, res, next) => {
-  console.log("auth guard ", req.user)
   if (req.isAuthenticated() && !req.user?.is_admin) return next();
 
   return res.status(401).json({ message: "unauthorized" });

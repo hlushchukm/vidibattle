@@ -27,7 +27,6 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/login/failed" }),
   (req, res) => {
     // Successful login, redirect or send a response
-    console.log("Successfull Login");
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
   }
 );
@@ -65,7 +64,6 @@ router.get(
   passport.authenticate("facebook", { failureRedirect: "/login/failed" }),
   (req, res) => {
     // Successful login, redirect or send a response
-    console.log("Successfull Facebook Login");
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
   }
 );
