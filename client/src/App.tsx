@@ -8,15 +8,15 @@ import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   useEffect(() => {
-    if (getUser() !== null && getUserId() !== null && !socket.connected) {
-      // create socket connection for logged in users
-      initializeSocket();
+    // if (getUser() !== null && getUserId() !== null && !socket.connected) {
+    //   // create socket connection for logged in users
+    //   initializeSocket();
 
-      return () => {
-        // Clean up the socket connection if necessary
-        socket.disconnect();
-      };
-    }
+    //   return () => {
+    //     // Clean up the socket connection if necessary
+    //     socket.disconnect();
+    //   };
+    // }
   }, []);
 
   return (
