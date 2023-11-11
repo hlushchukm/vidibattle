@@ -3,7 +3,10 @@ import { getName } from "../../../../services/utils";
 import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "../ui/FollowUnfollowBtn";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
-import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../../../services/asset-paths";
 
 export default function UsersList({
   listType,
@@ -39,7 +42,7 @@ export default function UsersList({
           <div className="title-bar m-0">
             <h6 className="mb-0"></h6>
             <div className="dz-tab style-2">
-              <DisplayModeBtns />
+              <DisplayModeBtns listMode={true} />
             </div>
           </div>
           <div className="tab-content" id="myTabContent4">

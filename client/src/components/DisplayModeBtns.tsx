@@ -1,4 +1,14 @@
-export default function DisplayModeBtns() {
+import { useEffect } from "react";
+
+export default function DisplayModeBtns({ listMode }: { listMode?: boolean }) {
+  useEffect(() => {
+    if (listMode) {
+      document.getElementById("list2-tab")?.classList.add("active");
+    } else {
+      document.getElementById("grid2-tab")?.classList.add("active");
+    }
+  }, []);
+
   return (
     <ul className="nav nav-tabs" id="myTab2" role="tablist">
       <li className="nav-item" role="presentation">
@@ -56,7 +66,7 @@ export default function DisplayModeBtns() {
       </li>
       <li className="nav-item" role="presentation">
         <button
-          className="nav-link active"
+          className="nav-link"
           id="list2-tab"
           data-bs-toggle="tab"
           data-bs-target="#list2"

@@ -81,8 +81,8 @@ export default function Timeline() {
   // Fetch more posts when the user reaches the bottom of the page
   const handleScroll = async () => {
     if (
-      window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight &&
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 5 &&
       !loadingAdditionalPosts.current
     ) {
       loadingAdditionalPosts.current = true;
@@ -99,7 +99,7 @@ export default function Timeline() {
     <>
       <TimelineHeader />
 
-      <div className="page-content vh-100">
+      <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
             <div className="title-bar my-2">
@@ -168,9 +168,9 @@ export default function Timeline() {
                   ))}
                 </div>
               </div>
+              {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
             </div>
           </div>
-          {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
         </div>
       </div>
     </>

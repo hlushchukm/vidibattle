@@ -5,7 +5,10 @@ import PageLoading from "../../components/PageLoading";
 import { getName } from "../../services/utils";
 import { useNavigate } from "react-router-dom";
 import DisplayModeBtns from "../../components/DisplayModeBtns";
-import { formatResourceURL, handleProfileImageError } from "../../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../services/asset-paths";
 
 export default function Blocked() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -83,7 +86,7 @@ export default function Blocked() {
             <div className="title-bar m-0">
               <h6 className="mb-0"></h6>
               <div className="dz-tab style-2">
-                <DisplayModeBtns />
+                <DisplayModeBtns listMode={true} />
               </div>
             </div>
             <div className="tab-content" id="myTab3Content">

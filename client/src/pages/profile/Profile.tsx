@@ -164,7 +164,7 @@ export default function Profile() {
             toggleBlock={() => toggleBlock(!profileData.is_blocked)}
             toggleFollow={() => toggleFollow(!profileData.is_followed)}
           />
-          <div className="contant-section">
+          <div className="contant-section pb-5">
             {/* Posts, followers and following buttons */}
             <NavTabs
               posts={profileData?.posts_count}
