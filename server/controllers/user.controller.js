@@ -1,4 +1,5 @@
 const { User } = require("../models/user.model");
+const { deleteProfileImg } = require("./media.controller");
 
 module.exports.searchUser = async (req, res, next) => {};
 
@@ -419,6 +420,7 @@ module.exports.updateSelfProfile = async (req, res, next) => {
   try {
     const { first_name, last_name, email, whatsapp, bio } = req.body;
     const { _id } = req.user;
+    const profileImg = req.file;
 
     if (!first_name) {
       return res.status(400).json({ message: "first name is required" });
@@ -444,6 +446,12 @@ module.exports.updateSelfProfile = async (req, res, next) => {
 
     if (!user) {
       return res.status(404).json({ message: "user not found" });
+    }
+
+    if (profileImg) {
+      // change profile pic
+      await deleteProfileImg(user.profile_img);
+      user.profile_img = profileImg.filename;
     }
 
     user.first_name = first_name;

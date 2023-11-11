@@ -72,6 +72,20 @@ module.exports.storeProfile = async (url) => {
 
     return file.filename;
   } catch (e) {
-    throw e;
+    throw new Error(e);
+  }
+};
+
+module.exports.deleteProfileImg = async (filename) => {
+  try {
+    const file = await gfs.files.findOne({
+      filename,
+    });
+
+    if (file) {
+      await gridfsBucket.delete(file._id);
+    }
+  } catch (e) {
+    throw new Error(e);
   }
 };

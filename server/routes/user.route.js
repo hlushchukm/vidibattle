@@ -18,6 +18,7 @@ const {
   searchUsers,
 } = require("../controllers/user.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
+const { upload } = require("../services/storage");
 const router = express.Router();
 
 // get
@@ -30,7 +31,7 @@ router.get("/followers/:id", getFollowers);
 router.get("/following/:id", getFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
 router.get("/list", adminAuthGuard, getUsersList);
-router.get('/search', authGuard, searchUsers)
+router.get("/search", authGuard, searchUsers);
 
 // post
 router.post("/follow/:followedId", authGuard, follow);
@@ -40,6 +41,6 @@ router.post("/unblock/:blockedId", authGuard, unblock);
 router.post("/status", adminAuthGuard, changeUserStatus);
 
 // put
-router.put("/", authGuard, updateSelfProfile)
+router.put("/", authGuard, upload.single("file"), updateSelfProfile);
 
 module.exports = router;
