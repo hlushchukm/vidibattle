@@ -35,6 +35,7 @@ const connect = mongoose
         resave: false,
         store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
         saveUninitialized: true,
+        name: "test-session-name", // TODO: change later
         cookie: {
           maxAge: 1000 * 60 * 60 * 24, // 1 day,
           secure: "auto",
