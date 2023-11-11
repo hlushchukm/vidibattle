@@ -28,8 +28,8 @@ const connect = mongoose
       app.use(logger);
     }
 
-    // app.set("trust proxy", 1);
     // middlewares
+    app.set("trust proxy", 1);
     app.use(
       session({
         secret: process.env.SESSION_SECRET || "twinphy",
