@@ -38,9 +38,10 @@ const connect = mongoose
         cookie: {
           maxAge: 1000 * 60 * 60 * 24, // 1 day,
           secure: true,
-          sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
-          domain: process.env.API_URL,
-          path: "/"
+          sameSite: "none",
+          // sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+          // domain: process.env.API_URL,
+          // path: "/"
         },
       })
     );
