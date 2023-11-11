@@ -46,6 +46,7 @@ const connect = mongoose
         secret: process.env.SESSION_SECRET || "twinphy",
         resave: false,
         store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
+        name: 'twinphy',
         saveUninitialized: true,
         // cookie: {
         //   maxAge: 1000 * 60 * 60 * 24, // 1 day,
