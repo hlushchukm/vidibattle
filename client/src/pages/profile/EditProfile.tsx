@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PageLoading from "../../components/PageLoading";
 import EditProfileHeader from "./components/EditProfileHeader";
-import { get, update } from "../../services/crud";
+import { get, update, upload } from "../../services/crud";
 import { toast } from "react-toastify";
 import { updateUserData } from "../../services/auth";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../services/asset-paths";
 
 export default function EditProfile() {
   const [pageLoading, setPageLoading] = useState(false);
@@ -15,11 +19,16 @@ export default function EditProfile() {
   const [profile, setProfile] = useState<any>();
   const [errors, setErrors] = useState<any>();
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [newProfileImg, setNewProfileImg] = useState<any>();
+  const profileImgInputRef = useRef<any>();
 
   useEffect(() => {
     fetchUserProfile();
   }, []);
-  // TODO: profile image changing
+
+  useEffect(() => {
+    if (profileImgInputRef.current) profileImgInputRef.current.value = null;
+  }, [newProfileImg]);
 
   const fetchUserProfile = () => {
     setPageLoading(true);
@@ -33,6 +42,7 @@ export default function EditProfile() {
         setBio(data.bio ?? "");
         setWhatsapp(data.whatsapp ?? "");
         setPageLoading(false);
+        setNewProfileImg(null);
       })
       .catch((e) => {
         console.log(e);
@@ -45,6 +55,11 @@ export default function EditProfile() {
 
   const onSave = () => {
     if (!validateForm() || updateLoading) {
+      return;
+    }
+
+    if (newProfileImg) {
+      saveWithProfileImg();
       return;
     }
 
@@ -64,6 +79,7 @@ export default function EditProfile() {
         }
         toast.success(res.message);
         setUpdateLoading(false);
+        setNewProfileImg(null);
       })
       .catch((e) => {
         console.log(e);
@@ -112,6 +128,43 @@ export default function EditProfile() {
     return valid;
   };
 
+  const saveWithProfileImg = () => {
+    const formData = new FormData();
+    formData.append("file", newProfileImg);
+    formData.append("first_name", first_name);
+    formData.append("last_name", last_name);
+    formData.append("email", email);
+    formData.append("whatsapp", whatsapp);
+    formData.append("bio", bio);
+
+    setUpdateLoading(true);
+    upload("user/", formData, () => {}, "put")
+      .then((res) => {
+        setProfile(res.data);
+        if (res.data) {
+          updateUserData(res.data);
+        }
+        toast.success(res.message);
+        setUpdateLoading(false);
+        setNewProfileImg(null)
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't update user data"
+        );
+        setUpdateLoading(false);
+      });
+  };
+
+  const openProfileImgDialog = () => {
+    if (profileImgInputRef.current) profileImgInputRef.current.click();
+  };
+
+  const handleProfileImgChange = (event: any) => {
+    setNewProfileImg(event.target.files[0]);
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -124,10 +177,39 @@ export default function EditProfile() {
         <div className="container">
           <div className="edit-profile">
             <div className="profile-image">
-              <div className="media media-100 rounded-circle">
-                <img src="/assets/images/stories/pic3.png" alt="/" />
+              <div className="media media-100 rounded-circle position-relative">
+                <img
+                  src={
+                    newProfileImg
+                      ? URL.createObjectURL(newProfileImg)
+                      : formatResourceURL(profile?.profile_img)
+                  }
+                  onError={handleProfileImageError}
+                />
+
+                {newProfileImg && (
+                  <div
+                    onClick={() => setNewProfileImg(null)}
+                    className="position-absolute rounded-circle bg-secondary d-flex justify-content-center align-items-center"
+                    style={{
+                      background: "#777",
+                      height: "30px",
+                      width: "30px",
+                      top: "-15px",
+                      right: "-15px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i
+                      className="fa fa-x text-white"
+                      style={{ fontSize: "14px" }}
+                    ></i>
+                  </div>
+                )}
               </div>
-              <a>Change profile photo</a>
+              <a onClick={openProfileImgDialog} style={{ cursor: "pointer" }}>
+                Change profile photo
+              </a>
               {profile && (
                 <span>
                   {profile.is_complete ? (
@@ -217,6 +299,15 @@ export default function EditProfile() {
           </div>
         </div>
       </div>
+
+      {/* Hidden Input Elements for profile_img upload */}
+      <input
+        type="file"
+        accept="image/*"
+        ref={profileImgInputRef}
+        onChange={handleProfileImgChange}
+        style={{ display: "none" }}
+      />
     </>
   );
 }
