@@ -28,8 +28,7 @@ const connect = mongoose
       app.use(logger);
     }
 
-    // TODO: remove if not necessary
-    app.set("trust proxy", 1);
+    // app.set("trust proxy", 1);
     // middlewares
     app.use(
       session({
@@ -39,11 +38,8 @@ const connect = mongoose
         saveUninitialized: true,
         cookie: {
           maxAge: 1000 * 60 * 60 * 24, // 1 day,
-          secure: process.env.NODE_ENV === "production" ? true : false,
-          sameSite: "none",
-          // sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
-          // domain: process.env.API_URL,
-          // path: "/"
+          secure: process.env.NODE_ENV === "development" ? false : true,
+          sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
         },
       })
     );
