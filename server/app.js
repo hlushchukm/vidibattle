@@ -37,7 +37,7 @@ const connect = mongoose
         saveUninitialized: true,
         cookie: {
           maxAge: 1000 * 60 * 60 * 24, // 1 day,
-          secure: "auto",
+          secure: true,
           sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
           domain: process.env.API_URL,
           path: "/"
