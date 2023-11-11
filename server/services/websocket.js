@@ -7,6 +7,7 @@ const websocket = (server) => {
       origin: process.env.CLIENT_URL,
       methods: ["GET", "POST"],
       credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization"],
     },
   });
 
