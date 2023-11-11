@@ -28,6 +28,18 @@ const connect = mongoose
       app.use(logger);
     }
 
+    const cookie = {
+      maxAge: 1000 * 60 * 60 * 24, // 1 day,
+    };
+
+    if (process.env.NODE_ENV === "production") {
+      cookie = {
+        ...cookie,
+        secure: true,
+        sameSite: "none",
+      };
+    }
+
     // middlewares
     app.use(
       session({
@@ -35,9 +47,12 @@ const connect = mongoose
         resave: false,
         store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
         saveUninitialized: true,
-        cookie: {
-          maxAge: 1000 * 60 * 60 * 24, // 1 day
-        },
+        // cookie: {
+        //   maxAge: 1000 * 60 * 60 * 24, // 1 day,
+        //   secure: true,
+        //   sameSite: "none",
+        // },
+        cookie,
       })
     );
     app.use(passport.initialize());
