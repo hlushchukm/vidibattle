@@ -12,9 +12,6 @@ export default function CreatePost() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
   const [caption, setCaption] = useState("");
-  const [allowedType, setAllowedType] = useState<"video" | "image" | "both">(
-    "both"
-  );
   const [fileType, setFileType] = useState<"video" | "image">("image");
   const photoInputRef = useRef<any>(null);
   const videoInputRef = useRef<any>(null);

@@ -13,7 +13,7 @@ export default function WhatsAppLogin() {
     password?: string;
   }>({});
 
-  const [submitted, setSubmitted] = useState(false);
+  // const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -47,7 +47,7 @@ export default function WhatsAppLogin() {
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       // You can send the data to the server for authentication here
-      setSubmitted(true);
+      // setSubmitted(true);
       console.log(formData);
     }
   };

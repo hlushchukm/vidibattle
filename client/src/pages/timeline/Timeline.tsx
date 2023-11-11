@@ -20,7 +20,7 @@ export default function Timeline() {
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
   const loadingAdditionalPosts = useRef<boolean>(false);
-  const [showLoading, setShowLoading] = useState(false);
+  // const [showLoading, setShowLoading] = useState(false);
   const navigate = useNavigate();
 
   // TODO:
@@ -38,7 +38,7 @@ export default function Timeline() {
   }, []);
 
   const getTimeline = async () => {
-    setShowLoading(true);
+    // setShowLoading(true);
     const pageSize = 15;
     return get("post/timeline/" + getUserId(), {
       pageSize,
@@ -69,12 +69,12 @@ export default function Timeline() {
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
         setPageLoading(false);
-        setShowLoading(false);
+        // setShowLoading(false);
       })
       .catch((e) => {
         console.log(e);
         setPageLoading(false);
-        setShowLoading(false);
+        // setShowLoading(false);
       });
   };
 

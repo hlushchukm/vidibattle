@@ -10,7 +10,7 @@ export default function ChatList() {
   const [loading, setLoading] = useState(true);
   const [chatsList, setChatsList] = useState<any>([]);
   const [page, setPage] = useState(0);
-  const [limit, setLimit] = useState(15);
+  const [limit] = useState(15);
   const [searchText, setSearchText] = useState("");
   const [noMoreChats, setNoMoreChats] = useState(false);
 

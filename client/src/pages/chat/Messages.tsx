@@ -18,7 +18,6 @@ export default function Messages() {
 
   const [receiver, setReceiver] = useState<any>(null);
   const receiverRef = useRef<any>(null);
-  const [userId, setUserId] = useState<String | null>(null);
   const chatIdRef = useRef();
 
   const currentUserId = useCurrentUserStore((state: any) => state.id);
@@ -26,7 +25,7 @@ export default function Messages() {
     (state: any) => state.receiver
   );
 
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize] = useState(25);
   const [lastDate, setLastDate] = useState();
   const [lastMessageId, setLastMessageId] = useState();
   const [messagesLoading, setMessagesLoading] = useState(false);
@@ -42,7 +41,6 @@ export default function Messages() {
 
     // TODO: check if we have socket connection
     if (params.id) {
-      setUserId(params.id);
       getMessages(params.id);
     }
 
