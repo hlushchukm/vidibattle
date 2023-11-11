@@ -55,10 +55,12 @@ export const remove = async (url: string) => {
 export const upload = async (
   url: string,
   formData: FormData,
-  onUploadProgress: (e: any) => void
+  onUploadProgress: (e: any) => void,
+  method?: "post" | "put"
 ) => {
   try {
-    const response = await axios.post(`${BASE_URL}/${url}`, formData, {
+    const req = method && method === 'put' ? axios.put : axios.post 
+    const response = await req(`${BASE_URL}/${url}`, formData, {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
