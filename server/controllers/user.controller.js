@@ -65,6 +65,7 @@ module.exports.getProfileInfo = async (req, res, next) => {
 
 module.exports.getAuthenticatedUser = async (req, res, next) => {
   try {
+    console.log(req.user)
     const { _id, first_name, last_name, profile_img } = req.user;
     res.json({ data: { _id, first_name, last_name, profile_img } });
   } catch (e) {
