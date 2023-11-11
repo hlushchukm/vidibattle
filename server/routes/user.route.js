@@ -25,7 +25,7 @@ const router = express.Router();
 router.get("/basicInfo/:id", authGuard, getBasicUserInfo);
 router.get("/profileInfo/:id", getProfileInfo);
 router.get("/selfInfo", authGuard, getSelfInfo);
-router.get("/authenticated", getAuthenticatedUser);
+router.get("/authenticated", authGuard, getAuthenticatedUser);
 router.get("/followers-following/:id", getFollowersAndFollowing);
 router.get("/followers/:id", getFollowers);
 router.get("/following/:id", getFollowing);
