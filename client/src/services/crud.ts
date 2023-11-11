@@ -77,6 +77,7 @@ export const upload = async (
 function handleStatusCodes(status: number) {
   switch (status) {
     case 401:
-      window.location.replace("/auth");
+      // TODO: uncomment this
+      // window.location.replace("/auth");
   }
 }
