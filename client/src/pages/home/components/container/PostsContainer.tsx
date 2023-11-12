@@ -48,8 +48,6 @@ export default function PostsContainer({ feed }: PostContainerProps) {
   };
 
   const reportPost = (comment: string) => {
-    console.log("the comment is ", comment);
-    console.log("the post to be reported is ", postToReport);
     if (postToReport && comment) {
       create("report", { post: postToReport._id, comment })
         .then(() => {

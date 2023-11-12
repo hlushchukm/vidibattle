@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BottomModalContainer from "./BottomModalContainer";
 
 export default function ReportModal({
@@ -7,10 +7,6 @@ export default function ReportModal({
   reportPost: (comment: string) => void;
 }) {
   const [comment, setComment] = useState("");
-
-  useEffect(() => {
-    console.log("hi ", comment);
-  }, []);
 
   return (
     <BottomModalContainer

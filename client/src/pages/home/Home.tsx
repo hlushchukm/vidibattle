@@ -13,6 +13,7 @@ export default function Home() {
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
   const loadingAdditionalPosts = useRef<boolean>(false);
+  const [postsLoading, setPostsLoading] = useState(false);
 
   const posts = usePostStore((state) => state.posts);
   const addToFeed = usePostStore((state) => state.addToFeed);
@@ -33,8 +34,8 @@ export default function Home() {
   // Fetch more posts when the user reaches the bottom of the page
   const handleScroll = async () => {
     if (
-      window.innerHeight + document.documentElement.scrollTop ===
-        document.documentElement.offsetHeight &&
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 5 &&
       !loadingAdditionalPosts.current
     ) {
       loadingAdditionalPosts.current = true;
@@ -44,6 +45,7 @@ export default function Home() {
   };
 
   const getFeed = async () => {
+    setPostsLoading(true);
     return get("post/feed", {
       pageSize: 10,
       lastDate: lastDate.current,
@@ -58,10 +60,12 @@ export default function Home() {
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
         setPageLoading(false);
+        setPostsLoading(false);
       })
       .catch((e) => {
         console.log(e);
         setPageLoading(false);
+        setPostsLoading(false);
       });
   };
 
@@ -87,7 +91,7 @@ export default function Home() {
             {/* POSTS */}
             <PostsContainer feed={posts} />
 
-            {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
+            {postsLoading && <BlinkingLoadingCircles />}
 
             <ShareModal />
           </div>
