@@ -27,8 +27,41 @@ module.exports.getMedia = async (req, res, next) => {
       return res.status(404).json({ message: "file not found" });
     }
 
-    const readStream = gridfsBucket.openDownloadStreamByName(filename);
-    readStream.pipe(res);
+    const range = req.headers.range;
+    if (range && typeof range === "string") {
+      // Create response headers
+      const videoSize = file.length;
+      const start = Number(range.replace(/\D/g, ""));
+      const end = videoSize - 1;
+      const contentLength = end - start + 1;
+
+      const headers = {
+        "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": contentLength,
+        "Content-Type": file.contentType,
+      };
+
+      // HTTP Status 206 for Partial Content
+      res.writeHead(206, headers);
+
+      const readStream = gridfsBucket.openDownloadStreamByName(filename, {
+        start,
+        end: end + 1,
+      });
+
+      readStream.on("error", (err) => {
+        console.log("error while streaming", err);
+        res.end();
+      });
+
+      readStream.pipe(res);
+    } else {
+      const readStream = gridfsBucket.openDownloadStreamByName(filename);
+      res.setHeader("Content-Length", file.length);
+      res.setHeader("Content-Type", file.contentType);
+      readStream.pipe(res);
+    }
   } catch (e) {
     next(e);
   }
