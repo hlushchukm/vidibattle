@@ -80,6 +80,7 @@ module.exports.getChatList = async (req, res, next) => {
         (participant) => participant._id.toString() !== userId
       );
       if (
+        otherParticipants[0] &&
         !user.blocked_users?.includes(otherParticipants[0]?._id) &&
         !user.blocked_by?.includes(otherParticipants[0]?._id)
       ) {

@@ -266,6 +266,7 @@ module.exports.getUsersList = async (req, res, next) => {
     const selectedFields =
       "first_name last_name profile_img email whatsapp provider is_complete status createdAt";
     const users = await User.find(filter, selectedFields)
+      .setOptions({ includeDeleted: true })
       .sort({ first_name: 1, last_name: 1, createdAt: -1 }) // Sort by name and createdAt
       .skip((page - 1) * limit)
       .limit(parseInt(limit))

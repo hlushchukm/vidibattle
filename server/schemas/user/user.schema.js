@@ -49,7 +49,9 @@ const userSchema = Schema(
 );
 
 userSchema.pre("find", function () {
-  this.where({ status: { $ne: "deleted" } });
+  if (!this.getOptions().includeDeleted) {
+    this.where({ status: { $ne: "deleted" } });
+  }
 });
 
 userSchema.pre("findById", function () {
