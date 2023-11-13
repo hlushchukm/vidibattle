@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SocialMediaShareBtns from "./SocialMediaShareBtns";
 import { get } from "../services/crud";
-import { getUserId } from "../services/auth";
+import { getUserId, isLoggedIn } from "../services/auth";
 import { toast } from "react-toastify";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { getName } from "../services/utils";
@@ -28,7 +28,7 @@ export default function ShareModal() {
   const [searchResultCount, setSearchResultCount] = useState();
 
   useEffect(() => {
-    fetchFollowings();
+    if (isLoggedIn()) fetchFollowings();
   }, []);
 
   useEffect(() => {
@@ -162,7 +162,7 @@ export default function ShareModal() {
               <span
                 onClick={() => searchUsers(false)}
                 className="input-group-text"
-                style={{cursor: "pointer"}}
+                style={{ cursor: "pointer" }}
               >
                 <svg
                   width="18"
