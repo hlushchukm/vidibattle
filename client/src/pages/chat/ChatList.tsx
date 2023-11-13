@@ -94,7 +94,7 @@ export default function ChatList() {
             )}
 
             {loading && !noMoreChats && <BlinkingLoadingCircles />}
-            {!noMoreChats && !loading && (
+            {!noMoreChats && !loading && chatsList.length > 0 && (
               <div className="d-flex justify-content-center align-items-center">
                 <button
                   className="btn text-primary"
