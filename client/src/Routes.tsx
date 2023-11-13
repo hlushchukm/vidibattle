@@ -19,6 +19,7 @@ import Followers from "./pages/followers/Followers";
 import Setting from "./pages/setting/Setting";
 import Blocked from "./pages/blocked/Blocked";
 import SinglePost from "./pages/home/SinglePost";
+import Logout from "./pages/logout";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -45,6 +46,7 @@ export default function Router() {
               <Route path="whatsapp/" element={<WhatsAppLogin />} />
             </Route>
           </Route>
+          <Route path="/logout" element={<Logout />}></Route>
           <Route path="/" element={<Navigate to="/home" />}></Route>
           <Route
             path="/profile/:id"

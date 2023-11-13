@@ -28,3 +28,8 @@ export const updateUserData = (user: any) => {
   setUser({ _id, first_name, last_name, profile_img });
   setUserId(_id);
 };
+
+export const clearAuth = () => {
+  localStorage.removeItem("user");
+  localStorage.removeItem("userId");
+};
