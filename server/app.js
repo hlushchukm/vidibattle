@@ -30,8 +30,10 @@ const connect = mongoose
 
     // middlewares
     app.set("trust proxy", 1);
-    app.use(
+
+    const sessionMiddleware = (cookieName) =>
       session({
+        name: cookieName,
         secret: process.env.SESSION_SECRET || "twinphy",
         resave: false,
         store: MongoStore.create({ mongoUrl: process.env.ATLAS_URI ?? "" }),
@@ -41,10 +43,16 @@ const connect = mongoose
           secure: process.env.NODE_ENV === "development" ? false : true,
           sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
         },
-      })
-    );
-    app.use(passport.initialize());
-    app.use(passport.session());
+      });
+
+    app.use("/api", sessionMiddleware("userSession"));
+    app.use("/api", passport.initialize());
+    app.use("/api", passport.session());
+
+    app.use("/admin/api", sessionMiddleware("adminSession"));
+    app.use("/admin/api", passport.initialize());
+    app.use("/admin/api", passport.session());
+
     app.use(
       cors({
         origin: [process.env.CLIENT_URL, process.env.ADMIN_URL],
@@ -55,6 +63,7 @@ const connect = mongoose
     app.use(express.json());
 
     app.use("/api", routes);
+    app.use("/admin/api", routes);
 
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
