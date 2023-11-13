@@ -20,11 +20,7 @@ function loginSuccess(req, res) {
 }
 
 function loginFail(req, res) {
-  console.log("Fail");
-  res.status(401).json({
-    error: true,
-    message: "Log in failure",
-  });
+  res.redirect(process.env.CLIENT_URL + "/auth/login");
 }
 
 module.exports = {

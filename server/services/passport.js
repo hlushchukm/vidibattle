@@ -32,6 +32,9 @@ passport.use(
       });
 
       if (existingUser) {
+        if (existingUser.status === "deleted") {
+          return done(null, false);
+        }
         return done(null, existingUser);
       }
 
@@ -75,6 +78,9 @@ passport.use(
       });
 
       if (existingUser) {
+        if (existingUser.status === "deleted") {
+          return done(null, false);
+        }
         return done(null, existingUser);
       }
 

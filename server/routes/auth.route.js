@@ -24,9 +24,28 @@ router.get("/instagram", passport.authenticate("instagram"));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login/failed" }),
+  passport.authenticate("google", { failureRedirect: "/api/auth/login/failed" }),
   (req, res) => {
     // Successful login, redirect or send a response
+    res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
+  }
+);
+
+router.get(
+  "/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/api/auth/login/failed" }),
+  (req, res) => {
+    // Successful login, redirect or send a response
+    res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
+  }
+);
+
+router.get(
+  "/instagram/callback",
+  passport.authenticate("instagram", { failureRedirect: "/api/auth/login/failed" }),
+  (req, res) => {
+    // Successful login, redirect or send a response
+    console.log("Successfull Instagram Login");
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
   }
 );
@@ -55,25 +74,6 @@ router.post("/admin/login", function (req, res, next) {
     });
   })(req, res, next);
 });
-
-router.get(
-  "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/login/failed" }),
-  (req, res) => {
-    // Successful login, redirect or send a response
-    res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
-  }
-);
-
-router.get(
-  "/instagram/callback",
-  passport.authenticate("instagram", { failureRedirect: "/login/failed" }),
-  (req, res) => {
-    // Successful login, redirect or send a response
-    console.log("Successfull Instagram Login");
-    res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
-  }
-);
 
 // Logout route
 router.get("/logout", (req, res, next) => {
