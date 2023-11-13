@@ -49,11 +49,11 @@ const userSchema = Schema(
 );
 
 userSchema.pre("find", function () {
-  this.where({ is_deleted: false });
+  this.where({ status: { $ne: "deleted" } });
 });
 
 userSchema.pre("findById", function () {
-  this.where({ is_deleted: false });
+  this.where({ is_deleted: { $ne: "deleted" } });
 });
 
 // Methods
