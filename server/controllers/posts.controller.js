@@ -125,18 +125,11 @@ module.exports.getPost = async (req, res, next) => {
 };
 
 module.exports.create = async (req, res, next) => {
-  console.log("inside the post create api");
   const { caption, author, type } = req.body;
   const mainFile = req.files["file"][0];
   const thumbnailFile = req.files["thumbnail"]?.[0];
 
-  console.log("file is ", mainFile);
-  console.log("thumbnail file is ", thumbnailFile);
-
   const { _id } = req.user;
-
-  console.log("requester is ", _id);
-  console.log("author is ", author);
 
   // match author with the person making the request
   if (_id !== author) {
@@ -156,8 +149,6 @@ module.exports.create = async (req, res, next) => {
       owner: author,
     });
 
-    console.log("the media created is ", media);
-
     if (thumbnailFile) {
       const thumbnail = new Media({
         filename: thumbnailFile.filename,
@@ -165,7 +156,6 @@ module.exports.create = async (req, res, next) => {
         type,
         owner: author,
       });
-      console.log("the thumbnail created is ", thumbnail);
 
       await thumbnail.save();
 
@@ -180,15 +170,11 @@ module.exports.create = async (req, res, next) => {
       author,
     });
 
-    console.log("the new post created is ", post);
-
     // update the user's post array
     await User.addPost(author, post._id);
-    console.log("the user data has been updated");
 
     await post.save();
 
-    console.log("api finished");
     res.status(201).json({ message: "post created successfully", data: post });
   } catch (error) {
     next(error);

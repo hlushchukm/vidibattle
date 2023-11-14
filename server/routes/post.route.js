@@ -9,6 +9,7 @@ router.get("/feed", authGuard, postsController.getFeed);
 router.get("/timeline/:userId", authGuard, postsController.getTimeline);
 router.get("/userPosts/:userId", adminAuthGuard, postsController.getTimeline);
 router.get("/:postId", postsController.getPost);
+
 //post
 router.post(
   "/",
