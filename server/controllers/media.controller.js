@@ -83,7 +83,9 @@ storeImageInGridFS = (imageData, contentType) => {
   return new Promise((resolve, reject) => {
     const filename =
       crypto.randomBytes(16).toString("hex") + "." + contentType.split("/")[1];
-    const writestream = gridfsBucket.openUploadStream(filename);
+    const writestream = gridfsBucket.openUploadStream(filename, {
+      contentType,
+    });
 
     writestream.on("finish", (file) => {
       resolve(file);
