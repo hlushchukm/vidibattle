@@ -87,7 +87,7 @@ export default function Setting() {
               </li>
               <li>
                 <a
-                  onClick={() => navigate("/terms")}
+                  onClick={() => navigate("/terms-and-conditions")}
                   style={{ cursor: "pointer" }}
                   className="item-content item-link filter m-0"
                 >
@@ -102,7 +102,7 @@ export default function Setting() {
                     </svg>
                   </div>
                   <div className="dz-inner">
-                    <h6 className="mb-0">Terms</h6>
+                    <h6 className="mb-0">Terms And Conditions</h6>
                   </div>
                 </a>
               </li>

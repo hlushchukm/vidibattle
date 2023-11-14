@@ -20,6 +20,7 @@ import Setting from "./pages/setting/Setting";
 import Blocked from "./pages/blocked/Blocked";
 import SinglePost from "./pages/home/SinglePost";
 import Logout from "./pages/Logout";
+import StaticPage from "./pages/static-pages/StaticPage";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -46,8 +47,8 @@ export default function Router() {
               <Route path="whatsapp/" element={<WhatsAppLogin />} />
             </Route>
           </Route>
-          <Route path="/logout" element={<Logout />}></Route>
-          <Route path="/" element={<Navigate to="/home" />}></Route>
+          <Route path="/logout" element={<Logout />} />
+          <Route path="/" element={<Navigate to="/home" />} />
           <Route
             path="/profile/:id"
             element={
@@ -58,6 +59,14 @@ export default function Router() {
           />
           <Route path="/followers/:id" element={<Followers />} />
           <Route path="/post/:id" element={<SinglePost />} />
+          <Route
+            path="/privacy-policy"
+            element={<StaticPage pagename="privacy-policy" />}
+          />
+          <Route
+            path="/terms-and-conditions"
+            element={<StaticPage pagename="terms-and-conditions" />}
+          />
 
           {/* Private Routes */}
           {loggedIn ? (
@@ -85,7 +94,7 @@ export default function Router() {
                     <ChatList />
                   </MainLayout>
                 }
-              ></Route>
+              />
               <Route path="chat/:id" element={<Messages />} />
               <Route path="chat/new/:userId" element={<Messages />} />
               <Route
