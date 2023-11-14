@@ -19,7 +19,7 @@ import Followers from "./pages/followers/Followers";
 import Setting from "./pages/setting/Setting";
 import Blocked from "./pages/blocked/Blocked";
 import SinglePost from "./pages/home/SinglePost";
-import Logout from "./pages/logout";
+import Logout from "./pages/Logout";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
