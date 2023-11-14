@@ -24,9 +24,9 @@ const connect = mongoose
     const app = express();
 
     // Middleware to log requests in development mode
-    if (process.env.NODE_ENV === "development") {
+    // if (process.env.NODE_ENV === "development") {
       app.use(logger);
-    }
+    // }
 
     // middlewares
     app.set("trust proxy", 1);
