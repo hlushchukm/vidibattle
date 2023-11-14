@@ -8,6 +8,7 @@ const storage = new GridFsStorage({
   url: process.env.ATLAS_URI ?? "",
   file: (req, file) => {
     return new Promise((resolve, reject) => {
+      console.log("inside multer file upload")
       crypto.randomBytes(16, (err, buf) => {
         if (err) {
           return reject(err);
@@ -17,6 +18,7 @@ const storage = new GridFsStorage({
           filename: filename,
           bucketName: "media",
         };
+        console.log("file info to be uploaded is ", fileInfo)
         resolve(fileInfo);
       });
     });
