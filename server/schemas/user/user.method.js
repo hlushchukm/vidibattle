@@ -25,7 +25,7 @@ module.exports.addFollower = function (userId, followerId) {
 
     if (!user.followers.includes(followerId)) {
       user.followers.push(followerId);
-      user.followers_count += 1;
+      user.followers_count = user.followers.length;
       return user.save();
     } else {
       throw createHttpError(400, "user is already a follower");
@@ -43,7 +43,7 @@ module.exports.removeFollower = function (userId, followerId) {
     const followerIndex = user.followers.indexOf(followerId);
     if (followerIndex > -1) {
       user.followers.splice(followerIndex, 1);
-      user.followers_count -= 1;
+      user.followers_count = user.followers.length;
       return user.save();
     } else {
       throw createHttpError(400, "user is not a follower");

@@ -176,7 +176,7 @@ module.exports.getFollowing = async (req, res, next) => {
         skip: (page - 1) * limit,
         limit,
       },
-      select: "first_name last_name profile_img",
+      select: "first_name last_name profile_img username",
     });
 
     if (
@@ -223,7 +223,7 @@ module.exports.getSuggestedUsersToFollow = async (req, res, next) => {
     ]);
 
     const results = await query.exec();
-    return res.status(200).json({ data: results });
+    return res.status(200).json({ data: results, page, limit });
   } catch (e) {
     next(e);
   }
