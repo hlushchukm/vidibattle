@@ -65,8 +65,16 @@ module.exports.getProfileInfo = async (req, res, next) => {
 
 module.exports.getAuthenticatedUser = async (req, res, next) => {
   try {
-    const { _id, first_name, last_name, profile_img } = req.user;
-    res.json({ data: { _id, first_name, last_name, profile_img } });
+    const { _id } = req.user;
+
+    const user = await User.findById(
+      _id,
+      "first_name last_name username profile_img is_complete status"
+    );
+
+    res.json({
+      data: user,
+    });
   } catch (e) {
     next(e);
   }
@@ -179,6 +187,43 @@ module.exports.getFollowing = async (req, res, next) => {
     }
 
     res.status(200).json({ data: user.following, page, limit });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getSuggestedUsersToFollow = async (req, res, next) => {
+  try {
+    const { _id: requesterId } = req.user;
+    const { page = 1, limit = 10 } = req.query;
+
+    const requester = await User.findById(requesterId);
+
+    if (!requester) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    const query = User.aggregate([
+      { $match: { _id: { $ne: requester._id } } },
+      { $match: { _id: { $nin: requester.blocked_by } } },
+      { $match: { _id: { $nin: requester.blocked_users } } },
+      { $match: { _id: { $nin: requester.following } } },
+      { $sort: { followers_count: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: parseInt(limit) },
+      {
+        $project: {
+          first_name: 1,
+          last_name: 1,
+          username: 1,
+          profile_img: 1,
+          followers_count: 1,
+        },
+      },
+    ]);
+
+    const results = await query.exec();
+    return res.status(200).json({ data: results });
   } catch (e) {
     next(e);
   }

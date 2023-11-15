@@ -16,6 +16,7 @@ const {
   getFollowers,
   getFollowing,
   searchUsers,
+  getSuggestedUsersToFollow,
 } = require("../controllers/user.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const { upload } = require("../services/storage");
@@ -32,6 +33,7 @@ router.get("/following/:id", getFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
 router.get("/list", adminAuthGuard, getUsersList);
 router.get("/search", authGuard, searchUsers);
+router.get("/suggestion", authGuard, getSuggestedUsersToFollow);
 
 // post
 router.post("/follow/:followedId", authGuard, follow);

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 const {
   addPost,
   removePost,
@@ -19,6 +20,11 @@ const userSchema = Schema(
     first_name: { type: String },
     last_name: { type: String },
     email: { type: String },
+    username: {
+      type: String,
+      unique: true,
+      uniqueCaseInsensitive: true,
+    },
     whatsapp: { type: String },
     bio: { type: String },
     password: { type: String },
@@ -47,6 +53,8 @@ const userSchema = Schema(
   },
   { timestamps: true }
 );
+
+userSchema.plugin(uniqueValidator);
 
 userSchema.pre("find", function () {
   if (!this.getOptions().includeDeleted) {
