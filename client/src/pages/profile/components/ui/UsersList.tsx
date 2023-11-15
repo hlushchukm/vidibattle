@@ -1,6 +1,5 @@
 import DisplayModeBtns from "../../../../components/DisplayModeBtns";
 import { getName } from "../../../../services/utils";
-import { useNavigate } from "react-router-dom";
 import FollowUnfollowBtn from "./FollowUnfollowBtn";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 import {
@@ -29,8 +28,6 @@ export default function UsersList({
   loading: boolean;
   showMoreClicked: () => void;
 }) {
-  const navigate = useNavigate();
-
   if (users.length === 0) {
     return <h3 className="text-muted py-5 text-center">No Data</h3>;
   }
@@ -58,7 +55,9 @@ export default function UsersList({
                     <div className="user-grid">
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => window.location.replace("/profile/" + user._id)}
+                        onClick={() =>
+                          window.location.replace("/profile/" + user._id)
+                        }
                         className="media status media-60"
                       >
                         <img
@@ -69,7 +68,9 @@ export default function UsersList({
                       </a>
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => window.location.replace("/profile/" + user._id)}
+                        onClick={() =>
+                          window.location.replace("/profile/" + user._id)
+                        }
                         className="name"
                       >
                         {getName(user)}
@@ -99,7 +100,9 @@ export default function UsersList({
                     <div className="user-grid style-2">
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => window.location.replace("/profile/" + user._id)}
+                        onClick={() =>
+                          window.location.replace("/profile/" + user._id)
+                        }
                         className="d-flex align-items-center"
                       >
                         <div className="media status media-50">
