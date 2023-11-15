@@ -9,6 +9,7 @@ import {
   formatResourceURL,
   handleProfileImageError,
 } from "../../services/asset-paths";
+import { toast } from "react-toastify";
 
 export default function Blocked() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -39,6 +40,9 @@ export default function Blocked() {
       })
       .catch((e) => {
         console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't load suggested users"
+        );
         setPageLoading(false);
         setDataLoading(false);
       });
