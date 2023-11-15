@@ -8,8 +8,13 @@ import {
   formatResourceURL,
   handleProfileImageError,
 } from "../../services/asset-paths";
+import { useNavigate } from "react-router-dom";
 
-export default function EditProfile() {
+export default function EditProfile({
+  isAccountSetup,
+}: {
+  isAccountSetup?: boolean;
+}) {
   const [pageLoading, setPageLoading] = useState(false);
   const [first_name, setFirstName] = useState("");
   const [last_name, setLastName] = useState("");
@@ -21,6 +26,7 @@ export default function EditProfile() {
   const [updateLoading, setUpdateLoading] = useState(false);
   const [newProfileImg, setNewProfileImg] = useState<any>();
   const profileImgInputRef = useRef<any>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -80,6 +86,9 @@ export default function EditProfile() {
         toast.success(res.message);
         setUpdateLoading(false);
         setNewProfileImg(null);
+        if (isAccountSetup) {
+          navigate("/account-setup/suggestion");
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -146,7 +155,7 @@ export default function EditProfile() {
         }
         toast.success(res.message);
         setUpdateLoading(false);
-        setNewProfileImg(null)
+        setNewProfileImg(null);
       })
       .catch((e) => {
         console.log(e);
@@ -171,7 +180,11 @@ export default function EditProfile() {
 
   return (
     <>
-      <EditProfileHeader saveClicked={onSave} loading={updateLoading} />
+      <EditProfileHeader
+        saveClicked={onSave}
+        loading={updateLoading}
+        disableCancel={isAccountSetup || false}
+      />
 
       <div className="page-content vh-100">
         <div className="container">

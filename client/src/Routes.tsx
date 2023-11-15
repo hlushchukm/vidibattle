@@ -20,6 +20,7 @@ import Blocked from "./pages/blocked/Blocked";
 import SinglePost from "./pages/home/SinglePost";
 import Logout from "./pages/Logout";
 import StaticPage from "./pages/static-pages/StaticPage";
+import SuggestUsersToFollow from "./pages/followers/SuggestUsersToFollow";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -65,6 +66,14 @@ export default function Router() {
             path="/terms-and-conditions"
             element={<StaticPage pagename="terms-and-conditions" />}
           />
+          <Route path="/account-setup/">
+            <Route index element={<Navigate to={"profile"} />} />
+            <Route
+              path="profile"
+              element={<EditProfile isAccountSetup={true} />}
+            />
+            <Route path="suggestion" element={<SuggestUsersToFollow />} />
+          </Route>
 
           {/* Private Routes */}
           {loggedIn ? (
