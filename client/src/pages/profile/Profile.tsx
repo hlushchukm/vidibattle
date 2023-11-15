@@ -1,27 +1,21 @@
 import { useEffect, useState } from "react";
 import { getUserId } from "../../services/auth";
 import { useParams } from "react-router-dom";
-import NavTabs from "./components/ui/NavTabs";
-import ProfilePostsContainer from "./components/container/ProfilePostsContainer";
 import BasicInfo from "./components/container/BasicInfo";
 import ProfileHeader from "./components/ProfileHeader";
 import PageLoading from "../../components/PageLoading";
 import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
-import { formatResourceURL } from "../../services/asset-paths";
+import SwiperContainer from "./components/container/SwiperContainer";
 
 export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [userId, setUserId] = useState("");
-  const [posts, setPosts] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<any>(null);
   const [noUserFound, setNoUserFound] = useState(false);
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [lastDate, setLastDate] = useState();
-  const [lastPostId, setLastPostId] = useState();
-  const [noMorePosts, setNoMorePosts] = useState(false);
+
   const params = useParams();
 
   useEffect(() => {
@@ -39,7 +33,6 @@ export default function Profile() {
   useEffect(() => {
     if (userId) {
       fetchProfileInfo(userId);
-      fetchPosts(userId);
     }
   }, [userId]);
 
@@ -54,45 +47,6 @@ export default function Profile() {
           setNoUserFound(true);
         }
         setPageLoading(false);
-      });
-  };
-
-  const fetchPosts = (id: string) => {
-    setPostsLoading(true);
-    const pageSize = 15;
-    return get("post/timeline/" + id, {
-      pageSize,
-      lastDate,
-      lastPostId,
-    })
-      .then((res) => {
-        if (res.data.length === 0 || res.data.length < pageSize) {
-          setPostsLoading(false);
-          setNoMorePosts(true);
-        }
-        const photos = res.data.map((data: any) => {
-          if (data.media.length > 0) {
-            const media = data.media[0];
-            if (media?.type === "video") {
-              data.src = media?.thumbnail?.filename
-                ? formatResourceURL(media?.thumbnail?.filename)
-                : null;
-            } else {
-              data.src = media?.filename
-                ? formatResourceURL(media?.filename)
-                : null;
-            }
-          }
-          return data;
-        });
-        setPosts((p) => [...p, ...photos]);
-        setLastDate(res.lastDate);
-        setLastPostId(res.lastPostId);
-        setPostsLoading(false);
-      })
-      .catch((e) => {
-        console.log(e);
-        setPostsLoading(false);
       });
   };
 
@@ -165,19 +119,11 @@ export default function Profile() {
             toggleFollow={() => toggleFollow(!profileData.is_followed)}
           />
           <div className="contant-section pb-5">
-            {/* Posts, followers and following buttons */}
-            <NavTabs
-              posts={profileData?.posts_count}
-              followers={profileData?.followers_count}
-              following={profileData?.following_count}
-              userId={isOwnProfile ? null : userId}
-            />
-
-            <ProfilePostsContainer
-              posts={posts}
-              loading={postsLoading}
-              showMoreBtn={!noMorePosts}
-              loadMore={() => fetchPosts(userId)}
+            <SwiperContainer
+              profileData={profileData}
+              isOwnProfile={isOwnProfile}
+              userId={userId}
+              isLoggedIn={isLoggedIn}
             />
           </div>
         </div>

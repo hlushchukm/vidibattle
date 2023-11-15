@@ -1,6 +1,12 @@
 import { useEffect } from "react";
 
-export default function DisplayModeBtns({ listMode }: { listMode?: boolean }) {
+export default function DisplayModeBtns({
+  listMode,
+  customId,
+}: {
+  listMode?: boolean;
+  customId?: string;
+}) {
   useEffect(() => {
     if (listMode) {
       document.getElementById("list2-tab")?.classList.add("active");
@@ -16,7 +22,7 @@ export default function DisplayModeBtns({ listMode }: { listMode?: boolean }) {
           className="nav-link"
           id="grid2-tab"
           data-bs-toggle="tab"
-          data-bs-target="#grid2"
+          data-bs-target={customId ? "#grid2" + customId : "#grid2"}
           type="button"
           role="tab"
           aria-controls="grid2"
@@ -69,7 +75,7 @@ export default function DisplayModeBtns({ listMode }: { listMode?: boolean }) {
           className="nav-link"
           id="list2-tab"
           data-bs-toggle="tab"
-          data-bs-target="#list2"
+          data-bs-target={customId ? "#list2" + customId : "#list2"}
           type="button"
           role="tab"
           aria-controls="list2"

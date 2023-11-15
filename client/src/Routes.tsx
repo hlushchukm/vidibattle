@@ -15,7 +15,6 @@ import Messages from "./pages/chat/Messages";
 import SuccessCallback from "./pages/auth/SuccessCallback";
 import { isLoggedIn } from "./services/auth";
 import EditProfile from "./pages/profile/EditProfile";
-import Followers from "./pages/followers/Followers";
 import Setting from "./pages/setting/Setting";
 import Blocked from "./pages/blocked/Blocked";
 import SinglePost from "./pages/home/SinglePost";
@@ -57,7 +56,6 @@ export default function Router() {
               </MainLayout>
             }
           />
-          <Route path="/followers/:id" element={<Followers />} />
           <Route path="/post/:id" element={<SinglePost />} />
           <Route
             path="/privacy-policy"
@@ -107,7 +105,6 @@ export default function Router() {
               />
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/edit-profile" element={<EditProfile />} />
-              <Route path="/followers" element={<Followers />} />
               <Route path="/setting" element={<Setting />} />
               <Route path="/blocked" element={<Blocked />} />
               <Route path="*" element={<NotFound />} />
