@@ -9,6 +9,9 @@ import {
   handleProfileImageError,
 } from "../../services/asset-paths";
 import { useNavigate } from "react-router-dom";
+import { Profile, emptyProfileData } from "./ProfileInterface";
+import AddressForm from "./components/container/AddressForm";
+import SocialMediaLinksForm from "./components/container/SocialMediaLinksForm";
 
 export default function EditProfile({
   isAccountSetup,
@@ -16,12 +19,8 @@ export default function EditProfile({
   isAccountSetup?: boolean;
 }) {
   const [pageLoading, setPageLoading] = useState(false);
-  const [first_name, setFirstName] = useState("");
-  const [last_name, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [bio, setBio] = useState("");
-  const [profile, setProfile] = useState<any>();
+  const [fullProfileData, setFullProfileData] = useState<any>({});
+  const [formData, setFormData] = useState<Profile>(emptyProfileData);
   const [errors, setErrors] = useState<any>();
   const [updateLoading, setUpdateLoading] = useState(false);
   const [newProfileImg, setNewProfileImg] = useState<any>();
@@ -36,17 +35,15 @@ export default function EditProfile({
     if (profileImgInputRef.current) profileImgInputRef.current.value = null;
   }, [newProfileImg]);
 
+  // TODO: should whatsapp and email be removed
+  // TODO: handle username not unique error
+
   const fetchUserProfile = () => {
     setPageLoading(true);
     get("user/selfInfo")
       .then((res) => {
-        setProfile(res.data);
-        const data = res.data;
-        setFirstName(data.first_name ?? "");
-        setLastName(data.last_name ?? "");
-        setEmail(data.email ?? "");
-        setBio(data.bio ?? "");
-        setWhatsapp(data.whatsapp ?? "");
+        setFullProfileData(res.data);
+        assignDataToFormData(res.data as Profile);
         setPageLoading(false);
         setNewProfileImg(null);
       })
@@ -70,16 +67,11 @@ export default function EditProfile({
     }
 
     setUpdateLoading(true);
-    const payload = {
-      first_name,
-      last_name,
-      email,
-      whatsapp,
-      bio,
-    };
+    const payload: Profile = { ...formData };
     update("user/", payload)
       .then((res) => {
-        setProfile(res.data);
+        setFullProfileData(res.data);
+        assignDataToFormData(res.data);
         if (res.data) {
           updateUserData(res.data);
         }
@@ -101,22 +93,29 @@ export default function EditProfile({
 
   const validateForm = () => {
     let valid = true;
-    if (!first_name) {
+    if (!formData.first_name) {
       setErrors((e: any) => ({ ...e, first_name: "First Name is Required" }));
       valid = false;
     } else {
       setErrors((e: any) => ({ ...e, first_name: null }));
     }
 
-    if (!last_name) {
+    if (!formData.last_name) {
       setErrors((e: any) => ({ ...e, last_name: "Last Name is Required" }));
       valid = false;
     } else {
       setErrors((e: any) => ({ ...e, last_name: null }));
     }
 
+    if (!formData.username) {
+      setErrors((e: any) => ({ ...e, username: "User Name is Required" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, username: null }));
+    }
+
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(formData.email)) {
       setErrors((e: any) => ({ ...e, email: "invalid email pattern" }));
       valid = false;
     } else {
@@ -124,7 +123,10 @@ export default function EditProfile({
     }
 
     let whatsappRegex = /^[0-9]{7,15}$/;
-    if (whatsapp.length > 0 && !whatsappRegex.test(whatsapp)) {
+    if (
+      formData.whatsapp.length > 0 &&
+      !whatsappRegex.test(formData.whatsapp)
+    ) {
       setErrors((e: any) => ({
         ...e,
         whatsapp: "Invalid WhatsApp number length",
@@ -138,18 +140,15 @@ export default function EditProfile({
   };
 
   const saveWithProfileImg = () => {
-    const formData = new FormData();
-    formData.append("file", newProfileImg);
-    formData.append("first_name", first_name);
-    formData.append("last_name", last_name);
-    formData.append("email", email);
-    formData.append("whatsapp", whatsapp);
-    formData.append("bio", bio);
+    const fd = new FormData();
+    fd.append("file", newProfileImg);
+    fd.append("data", JSON.stringify(formData));
 
     setUpdateLoading(true);
-    upload("user/", formData, () => {}, "put")
+    upload("user/", fd, () => {}, "put")
       .then((res) => {
-        setProfile(res.data);
+        setFullProfileData(res.data);
+        assignDataToFormData(res.data);
         if (res.data) {
           updateUserData(res.data);
         }
@@ -174,6 +173,67 @@ export default function EditProfile({
     setNewProfileImg(event.target.files[0]);
   };
 
+  const updateFormData = (key: string, value: any) => {
+    setFormData((data) => ({ ...data, [key]: value }));
+  };
+
+  const updateAddressData = (key: string, value: any) => {
+    setFormData((data) => ({
+      ...data,
+      address: { ...data.address, [key]: value },
+    }));
+  };
+  const updateAddressAsGroup = ({
+    country,
+    state,
+    city,
+  }: {
+    country: string;
+    state: string;
+    city: string;
+  }) => {
+    setFormData((data) => ({
+      ...data,
+      address: { ...data.address, country, city, state },
+    }));
+  };
+
+  const updateSocialMediaData = (key: string, value: any) => {
+    setFormData((data) => ({
+      ...data,
+      social_links: { ...data.social_links, [key]: value },
+    }));
+  };
+
+  const assignDataToFormData = (data: any) => {
+    const obj: Profile = {
+      first_name: data.first_name ?? "",
+      last_name: data.last_name ?? "",
+      email: data.email ?? "",
+      username: data.username ?? "",
+      whatsapp: data.whatsapp ?? "",
+      bio: data.bio ?? "",
+      address: {
+        country: data.address?.country ?? "",
+        state: data.address?.state ?? "",
+        city: data.address?.city ?? "",
+        address_line: data.address?.address_line ?? "",
+        zip_code: data.address?.zip_code ?? "",
+      },
+      social_links: {
+        facebook: data.social_links?.facebook ?? "",
+        instagram: data.social_links?.instagram ?? "",
+        twitter: data.social_links?.twitter ?? "",
+        linkedin: data.social_links?.linkedin ?? "",
+        snapchat: data.social_links?.snapchat ?? "",
+        whatsapp: data.social_links?.whatsapp ?? "",
+      },
+      interested_to_earn: data?.interested_to_earn ?? false,
+    };
+
+    setFormData(obj);
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -195,7 +255,7 @@ export default function EditProfile({
                   src={
                     newProfileImg
                       ? URL.createObjectURL(newProfileImg)
-                      : formatResourceURL(profile?.profile_img)
+                      : formatResourceURL(fullProfileData?.profile_img)
                   }
                   onError={handleProfileImageError}
                 />
@@ -203,9 +263,8 @@ export default function EditProfile({
                 {newProfileImg && (
                   <div
                     onClick={() => setNewProfileImg(null)}
-                    className="position-absolute rounded-circle bg-secondary d-flex justify-content-center align-items-center"
+                    className="position-absolute rounded-circle bg-danger d-flex justify-content-center align-items-center"
                     style={{
-                      background: "#777",
                       height: "30px",
                       width: "30px",
                       top: "-15px",
@@ -215,7 +274,7 @@ export default function EditProfile({
                   >
                     <i
                       className="fa fa-x text-white"
-                      style={{ fontSize: "14px" }}
+                      style={{ fontSize: "14px", lineHeight: "0" }}
                     ></i>
                   </div>
                 )}
@@ -223,9 +282,9 @@ export default function EditProfile({
               <a onClick={openProfileImgDialog} style={{ cursor: "pointer" }}>
                 Change profile photo
               </a>
-              {profile && (
+              {fullProfileData && (
                 <span>
-                  {profile.is_complete ? (
+                  {fullProfileData.is_complete ? (
                     <div className="badge badge-success me-1 mb-1">
                       Complete
                     </div>
@@ -239,13 +298,15 @@ export default function EditProfile({
             </div>
             <form>
               <div className="mb-3 input-group input-mini">
-                {first_name && <div className="w-100 small">First Name:</div>}
+                {formData.first_name && (
+                  <div className="w-100 small">First Name:</div>
+                )}
                 <input
                   type="text"
                   className="form-control"
                   placeholder="First Name"
-                  value={first_name}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  value={formData.first_name}
+                  onChange={(e) => updateFormData("first_name", e.target.value)}
                 />
                 {errors?.first_name && (
                   <div className="small text-danger w-100 py-1">
@@ -254,13 +315,15 @@ export default function EditProfile({
                 )}
               </div>
               <div className="mb-3 input-group input-mini">
-                {last_name && <div className="w-100 small">Last Name:</div>}
+                {formData.last_name && (
+                  <div className="w-100 small">Last Name:</div>
+                )}
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Last Name"
-                  value={last_name}
-                  onChange={(e) => setLastName(e.target.value)}
+                  value={formData.last_name}
+                  onChange={(e) => updateFormData("last_name", e.target.value)}
                 />
                 {errors?.last_name && (
                   <div className="small text-danger w-100 py-1">
@@ -269,13 +332,36 @@ export default function EditProfile({
                 )}
               </div>
               <div className="mb-3 input-group input-mini">
-                {email && <div className="w-100 small">Email:</div>}
+                {formData.username && (
+                  <div className="w-100 small">User Name:</div>
+                )}
+                <span
+                  className="input-group-text"
+                  style={{ paddingLeft: "0px", paddingRight: "0px" }}
+                >
+                  <i className="fa fa-at"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="User Name"
+                  value={formData.username}
+                  onChange={(e) => updateFormData("username", e.target.value)}
+                />
+                {errors?.username && (
+                  <div className="small text-danger w-100 py-1">
+                    {errors.username}
+                  </div>
+                )}
+              </div>
+              <div className="mb-3 input-group input-mini">
+                {formData.email && <div className="w-100 small">Email:</div>}
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) => updateFormData("email", e.target.value)}
                 />
                 {errors?.email && (
                   <div className="small text-danger w-100 py-1">
@@ -284,13 +370,15 @@ export default function EditProfile({
                 )}
               </div>
               <div className="mb-3 input-group input-mini">
-                {whatsapp && <div className="w-100 small">WhatsApp:</div>}
+                {formData.whatsapp && (
+                  <div className="w-100 small">WhatsApp:</div>
+                )}
                 <input
-                  type="text"
-                  className="form-control"
+                  type="number"
+                  className="form-control numberInput"
                   placeholder="WhatsApp number"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
+                  value={formData.whatsapp}
+                  onChange={(e) => updateFormData("whatsapp", e.target.value)}
                 />
                 {errors?.whatsapp && (
                   <div className="small text-danger w-100 py-1">
@@ -299,15 +387,56 @@ export default function EditProfile({
                 )}
               </div>
               <div className="mb-3 input-group input-mini">
-                {bio && <div className="w-100 small">Bio:</div>}
+                {formData.bio && <div className="w-100 small">Bio:</div>}
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Bio"
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  value={formData.bio}
+                  onChange={(e) => updateFormData("bio", e.target.value)}
                 />
               </div>
+              <div className="mb-3 d-flex form-check align-items-center">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="interestedToEarn"
+                  checked={formData.interested_to_earn}
+                  onChange={() => {
+                    updateFormData(
+                      "interested_to_earn",
+                      !formData.interested_to_earn
+                    );
+                  }}
+                />
+                <label
+                  className="form-check-label"
+                  style={{ lineHeight: "0" }}
+                  htmlFor="interestedToEarn"
+                >
+                  Interested to Earning
+                </label>
+              </div>
+
+              {/* Address Info */}
+              <div className="divider mt-4"></div>
+              <h3 className="text-primary">Address Information</h3>
+              <div className="divider"></div>
+              <AddressForm
+                addressData={formData.address}
+                onAddressChange={updateAddressData}
+                updateAddressAsGroup={updateAddressAsGroup}
+              />
+
+              {/* Social Media Links */}
+              <div className="divider mt-4"></div>
+              <h3 className="text-primary">Social Media Links</h3>
+              <div className="divider"></div>
+
+              <SocialMediaLinksForm
+                socialMediaData={formData.social_links}
+                onSocialMediaLinkChange={updateSocialMediaData}
+              />
             </form>
           </div>
         </div>
