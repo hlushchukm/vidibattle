@@ -14,6 +14,25 @@ const {
 //define schema
 const Schema = mongoose.Schema;
 
+// address schema
+const addressSchema = Schema({
+  country: { type: String },
+  state: { type: String },
+  city: { type: String },
+  address_line: { type: String },
+  zip_code: { type: String },
+});
+
+// social media links schema
+const socialMediaLinksSchema = Schema({
+  facebook: { type: String },
+  instagram: { type: String },
+  twitter: { type: String },
+  linkedin: { type: String },
+  snapchat: { type: String },
+  whatsapp: { type: String },
+});
+
 const userSchema = Schema(
   {
     profile_id: { type: String, required: true },
@@ -50,6 +69,9 @@ const userSchema = Schema(
     blocked_users: [{ type: Schema.Types.ObjectId, ref: "User" }],
     blocked_by: [{ type: Schema.Types.ObjectId, ref: "User" }],
     is_complete: { type: Boolean, default: false },
+    address: { type: addressSchema },
+    social_links: { type: socialMediaLinksSchema },
+    interested_to_earn: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
