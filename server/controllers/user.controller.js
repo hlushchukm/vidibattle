@@ -464,25 +464,36 @@ module.exports.getSelfInfo = async (req, res, next) => {
 
 module.exports.updateSelfProfile = async (req, res, next) => {
   try {
-    const { first_name, last_name, email, whatsapp, bio } = req.body;
+    const { data: strData } = req.body;
+    const data = JSON.parse(strData);
+
     const { _id } = req.user;
     const profileImg = req.file;
 
-    if (!first_name) {
+    if (!data.first_name) {
       return res.status(400).json({ message: "first name is required" });
     }
 
-    if (!last_name) {
+    if (!data.last_name) {
       return res.status(400).json({ message: "last name is required" });
     }
 
+    if (!data.username) {
+      return res.status(400).json({ message: "user name is required" });
+    }
+    // TODO: validate if username is unique
+
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(data.email)) {
       return res.status(400).json({ message: "invalid email pattern" });
     }
 
     let whatsappRegex = /^[0-9]{7,15}$/;
-    if (whatsapp && whatsapp.length > 0 && !whatsappRegex.test(whatsapp)) {
+    if (
+      data.whatsapp &&
+      data.whatsapp.length > 0 &&
+      !whatsappRegex.test(data.whatsapp)
+    ) {
       return res
         .status(400)
         .json({ message: "invalid WhatsApp number length" });
@@ -500,12 +511,18 @@ module.exports.updateSelfProfile = async (req, res, next) => {
       user.profile_img = profileImg.filename;
     }
 
-    user.first_name = first_name;
-    user.last_name = last_name;
-    user.email = email;
-    user.whatsapp = whatsapp;
-    user.bio = bio;
-    if (first_name && last_name && email && whatsapp && bio) {
+    user.first_name = data.first_name;
+    user.last_name = data.last_name;
+    user.email = data.email;
+    user.whatsapp = data.whatsapp;
+    user.bio = data.bio;
+    if (
+      data.first_name &&
+      data.last_name &&
+      data.username &&
+      data.bio &&
+      user.profile_img
+    ) {
       user.is_complete = true;
     } else {
       user.is_complete = false;
