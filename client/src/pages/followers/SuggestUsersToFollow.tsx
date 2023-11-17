@@ -117,6 +117,15 @@ export default function SuggestUsersToFollow() {
                         <a href="user-profile.html" className="name">
                           {getName(user)}
                         </a>
+                        <div className="small mb-3">
+                          <span style={{ color: "#555" }}>
+                            @{user.username}
+                          </span>
+                          <span className="text-black">{" | "}</span>
+                          <span style={{ color: "#555" }}>
+                            {user.followers_count} Followers
+                          </span>
+                        </div>
                         <a
                           onClick={() =>
                             toggleFollow(user._id, user.followed ? false : true)
@@ -152,7 +161,30 @@ export default function SuggestUsersToFollow() {
                               alt="/"
                             />
                           </div>
-                          <span className="name">{getName(user)}</span>
+                          <div className="d-flex justify-content-start flex-column">
+                            <span
+                              className="name"
+                              style={{
+                                paddingLeft: "0px",
+                                paddingRight: "0px",
+                                textAlign: "left",
+                              }}
+                            >
+                              {getName(user)}
+                            </span>
+                            <div
+                              className="small"
+                              style={{ textAlign: "left", marginLeft: "15px" }}
+                            >
+                              <span style={{ color: "#555" }}>
+                                @{user.username}
+                              </span>
+                              <span className="text-black">{" | "}</span>
+                              <span style={{ color: "#555" }}>
+                                {user.followers_count} Followers
+                              </span>
+                            </div>
+                          </div>
                         </a>
                         <a
                           onClick={() =>
