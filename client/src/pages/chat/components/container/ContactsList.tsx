@@ -15,7 +15,7 @@ export default function ContactsList({ list }: { list: any[] }) {
 
   const gotoMsgPage = (secondUser: any) => {
     setChatReceiver(secondUser);
-    navigate("/chat/" + secondUser._id);
+    navigate("/chat/" + secondUser.username);
   };
 
   return (

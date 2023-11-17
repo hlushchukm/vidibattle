@@ -8,7 +8,7 @@ const router = express.Router();
 
 // get
 router.get("/list", getChatList);
-router.get("/messages/:userId", getMessages);
+router.get("/messages/:username", getMessages);
 
 // create
 router.post("/send", sendMessage);

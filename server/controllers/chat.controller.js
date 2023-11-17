@@ -192,24 +192,27 @@ module.exports.getChatList = async (req, res, next) => {
 
 module.exports.getMessages = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const { username } = req.params;
     let { pageSize = 10, lastDate, lastMessageId } = req.query;
     const currentUserId = req.user._id;
+
+    const specifiedUser = await User.findOne({ username }).exec();
+    if (!specifiedUser) {
+      return res.status(404).json({ message: "requested user not found" });
+    }
+
+    console.log(specifiedUser)
 
     // Check if the current user has blocked the specified user
     const currentUser = await User.findById(currentUserId).exec();
     if (!currentUser) {
       return res.status(404).json({ message: "requesting user not found" });
     }
-    if (currentUser.blocked_users.includes(userId)) {
+    if (currentUser.blocked_users.includes(specifiedUser._id)) {
       return res.status(403).json({ message: "Can't access this chat" });
     }
 
     // Check if the specified user has blocked the current user
-    const specifiedUser = await User.findById(userId).exec();
-    if (!specifiedUser) {
-      return res.status(404).json({ message: "requested user not found" });
-    }
     if (specifiedUser.blocked_users.includes(currentUserId)) {
       return res
         .status(403)
@@ -219,7 +222,7 @@ module.exports.getMessages = async (req, res, next) => {
     // get the chat both users participate in
     const chat = await Chat.findOne(
       {
-        participants: { $all: [currentUserId, userId] },
+        participants: { $all: [currentUserId, specifiedUser._id] },
       },
       "participants"
     ).exec();
