@@ -111,6 +111,13 @@ export default function EditProfile({
       setErrors((e: any) => ({ ...e, username: null }));
     }
 
+    if (!formData.bio) {
+      setErrors((e: any) => ({ ...e, bio: "Bio is Required" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, bio: null }));
+    }
+
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
     if (!emailRegex.test(formData.email)) {
       setErrors((e: any) => ({ ...e, email: "invalid email pattern" }));
@@ -465,6 +472,11 @@ export default function EditProfile({
                   value={formData.bio}
                   onChange={(e) => updateFormData("bio", e.target.value)}
                 />
+                {errors?.bio && (
+                  <div className="small text-danger w-100 py-1">
+                    {errors.bio}
+                  </div>
+                )}
               </div>
               <div className="mb-3 d-flex form-check align-items-center">
                 <input

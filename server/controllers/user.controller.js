@@ -482,6 +482,10 @@ module.exports.updateSelfProfile = async (req, res, next) => {
       return res.status(400).json({ message: "user name is required" });
     }
 
+    if (!data.bio) {
+      return res.status(400).json({ message: "bio is required" });
+    }
+
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
     if (!emailRegex.test(data.email)) {
       return res.status(400).json({ message: "invalid email pattern" });
