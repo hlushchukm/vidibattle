@@ -1,8 +1,6 @@
 const { User } = require("../models/user.model");
 const { deleteProfileImg } = require("./media.controller");
 
-module.exports.searchUser = async (req, res, next) => {};
-
 module.exports.getBasicUserInfo = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -567,12 +565,16 @@ module.exports.updateSelfProfile = async (req, res, next) => {
 
 module.exports.searchUsers = async (req, res) => {
   try {
-    const { name = "", page = 1, limit = 10 } = req.query;
+    let { name = "", page = 1, limit = 10 } = req.query;
     const requesterId = req.user._id;
 
     const requester = await User.findById(requesterId);
     if (!requester) {
       return res.status(404).json({ message: "user not found" });
+    }
+
+    if (name?.[0] === "@") {
+      name = name.slice(1);
     }
 
     const splittedName = name.split(" ");
@@ -591,7 +593,11 @@ module.exports.searchUsers = async (req, res) => {
 
     // Query to exclude blocked users
     const query = {
-      $or: [{ first_name: regex1 }, { last_name: regex2 ? regex2 : regex1 }],
+      $or: [
+        { first_name: regex1 },
+        { last_name: regex2 ? regex2 : regex1 },
+        { username: regex1 },
+      ],
       _id: {
         $nin: [
           requesterId, // Exclude the requester
