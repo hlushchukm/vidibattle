@@ -29,6 +29,18 @@ export default function AddressForm({
     setOldZipCodeValue(addressData.zip_code);
   }, []);
 
+  useEffect(() => {
+    if (addressData.zip_code) {
+      const delayTimer = setTimeout(() => {
+        fetchAddressData(addressData.zip_code);
+      }, 500);
+
+      return () => {
+        clearTimeout(delayTimer);
+      };
+    }
+  }, [addressData.zip_code]);
+
   const onBlur = (e: any) => {
     const val = e.target.value;
     if (addressData.zip_code && val !== oldZipCodeValue) {
@@ -40,7 +52,7 @@ export default function AddressForm({
     setOldZipCodeValue(zip_code);
     setZipCodeMathces([]);
     setLoadingAddress(true);
-    setShowMatches(true)
+    setShowMatches(true);
 
     const url = `https://thezipcodes.com/api/v1/search?zipCode=${zip_code}&apiKey=${env.VITE_ZIP_CODE_API_KEY}`;
     axios
