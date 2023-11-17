@@ -88,6 +88,10 @@ userSchema.pre("findById", function () {
   this.where({ is_deleted: { $ne: "deleted" } });
 });
 
+userSchema.pre("findOne", function () {
+  this.where({ is_deleted: { $ne: "deleted" } });
+});
+
 // Methods
 userSchema.statics.addPost = addPost;
 userSchema.statics.removePost = removePost;

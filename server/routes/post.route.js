@@ -6,8 +6,8 @@ const { authGuard, adminAuthGuard } = require("../services/authGuard");
 
 //get
 router.get("/feed", authGuard, postsController.getFeed);
-router.get("/timeline/:userId", authGuard, postsController.getTimeline);
-router.get("/userPosts/:userId", adminAuthGuard, postsController.getTimeline);
+router.get("/timeline/:username", authGuard, postsController.getTimeline);
+router.get("/userPosts/:username", adminAuthGuard, postsController.getTimeline);
 router.get("/:postId", postsController.getPost);
 
 //post

@@ -16,7 +16,7 @@ module.exports.getReports = async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const reports = await Report.find({ status })
-      .populate("reported_by", "first_name last_name profile_img")
+      .populate("reported_by", "first_name last_name profile_img username")
       .skip(skip)
       .limit(limit)
       .exec();

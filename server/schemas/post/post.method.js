@@ -1,5 +1,6 @@
 const createHttpError = require("http-errors");
 const { default: mongoose } = require("mongoose");
+const { User } = require("../../models/user.model");
 
 // generate feed for a user
 module.exports.feed = function ({
@@ -28,7 +29,7 @@ module.exports.feed = function ({
   });
 
   if (unblockedFollowings.length > 0) {
-    unblockedFollowings.push(currentUser._id)
+    unblockedFollowings.push(currentUser._id);
     query.author = { $in: unblockedFollowings };
   }
 
@@ -65,13 +66,14 @@ module.exports.feed = function ({
 };
 
 // generate a timeline for a user
-module.exports.timeline = function ({
+module.exports.timeline = async function ({
   author,
   lastDate,
   lastPostId,
   pageSize,
 }) {
-  let query = { is_deleted: false, author };
+  const authorId = await User.findOne({ username: author });
+  let query = { is_deleted: false, author: authorId };
   if (lastDate) {
     query.$or = [
       { createdAt: { $lt: new Date(lastDate) } },

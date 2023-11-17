@@ -52,7 +52,7 @@ module.exports.getComments = async function (
     throw createHttpError(400, "invalid comment_for value provided");
   }
 
-  query.is_deleted = false
+  query.is_deleted = false;
 
   if (lastDate) {
     if (comment_for === "post") {
@@ -83,8 +83,8 @@ module.exports.getComments = async function (
       // comments for post must be from newest to oldest, but replies should be from oldest to newest
       .sort({ createdAt: comment_for === "comment" ? 1 : -1, _id: -1 })
       .limit(parseInt(pageSize))
-      .populate("reply_for", "first_name last_name")
-      .populate("author", "first_name last_name profile_img")
+      .populate("reply_for", "first_name last_name username")
+      .populate("author", "first_name last_name profile_img username")
       .populate({
         // get if the current user has liked the comment
         path: "likes",

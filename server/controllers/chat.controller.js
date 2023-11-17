@@ -56,7 +56,7 @@ module.exports.getChatList = async (req, res, next) => {
     // Get the requesting user's following list
     const user = await User.findById(userId).populate(
       "following",
-      "first_name last_name profile_img"
+      "first_name last_name profile_img username"
     );
 
     if (!user) {
@@ -67,7 +67,7 @@ module.exports.getChatList = async (req, res, next) => {
     const chats = await Chat.find({ participants: { $in: [userId] } }).populate(
       {
         path: "participants",
-        select: "first_name last_name profile_img",
+        select: "first_name last_name profile_img username",
       }
     );
 
@@ -144,7 +144,10 @@ module.exports.getChatList = async (req, res, next) => {
         },
       };
 
-      const matches = await User.find(query, "first_name last_name profile_img")
+      const matches = await User.find(
+        query,
+        "first_name last_name profile_img username"
+      )
         .skip((page - 1) * limit)
         .limit(limit);
 
@@ -260,7 +263,7 @@ module.exports.getMessages = async (req, res, next) => {
     // get participants info from the chat
     await chat.populate({
       path: "participants",
-      select: "first_name last_name bio profile_img",
+      select: "first_name last_name bio profile_img username",
     });
 
     let updatedLastDate = lastDate;
@@ -280,6 +283,7 @@ module.exports.getMessages = async (req, res, next) => {
           first_name: specifiedUser.first_name,
           last_name: specifiedUser.last_name,
           profile_img: specifiedUser.profile_img,
+          username: specifiedUser.username,
         },
         lastDate: updatedLastDate,
         lastMessageId: updatedLastMessageId,

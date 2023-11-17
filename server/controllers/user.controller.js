@@ -6,7 +6,10 @@ module.exports.searchUser = async (req, res, next) => {};
 module.exports.getBasicUserInfo = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id, "first_name last_name profile_img");
+    const user = await User.findById(
+      id,
+      "first_name last_name profile_img username"
+    );
 
     res.json({ data: user });
   } catch (e) {
@@ -16,20 +19,20 @@ module.exports.getBasicUserInfo = async (req, res, next) => {
 
 module.exports.getProfileInfo = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { username } = req.params;
     let requestingUserId;
     if (req.user) {
       requestingUserId = req.user._id;
     }
 
     let fields =
-      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users";
+      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users username";
 
     if (req.user.is_admin) {
       fields += " status is_complete provider createdAt";
     }
 
-    const user = await User.findById(id, fields);
+    const user = await User.findOne({ username }, fields);
 
     // if user doesn't exist or has blocked the person making the request
     if (
@@ -92,7 +95,7 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
     // if requesting user is blocked by the requested user, return not found
     const user = await User.findById(
       id,
-      "first_name last_name profile_img followers followers_count following following_count followers blocked_users"
+      "first_name last_name profile_img followers followers_count following following_count followers blocked_users username"
     );
 
     if (
@@ -105,7 +108,7 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
     await user.populate([
       {
         path: "followers",
-        select: "first_name last_name profile_img",
+        select: "first_name last_name profile_img username",
         options: {
           skip: (page - 1) * limit,
           limit,
@@ -113,7 +116,7 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
       },
       {
         path: "following",
-        select: "first_name last_name profile_img",
+        select: "first_name last_name profile_img username",
         options: {
           skip: (page - 1) * limit,
           limit,
@@ -132,20 +135,20 @@ module.exports.getFollowersAndFollowing = async (req, res, next) => {
 
 module.exports.getFollowers = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { username } = req.params;
     const { page = 1, limit = 10 } = req.query;
     let requestingUserId;
     if (req.user) {
       requestingUserId = req.user._id;
     }
 
-    const user = await User.findById(id).populate({
+    const user = await User.findOne({ username }).populate({
       path: "followers",
       options: {
         skip: (page - 1) * limit,
         limit,
       },
-      select: "first_name last_name profile_img",
+      select: "first_name last_name profile_img username",
     });
 
     if (
@@ -163,14 +166,14 @@ module.exports.getFollowers = async (req, res, next) => {
 
 module.exports.getFollowing = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { username } = req.params;
     const { page = 1, limit = 10 } = req.query;
     let requestingUserId;
     if (req.user) {
       requestingUserId = req.user._id;
     }
 
-    const user = await User.findById(id).populate({
+    const user = await User.findOne({ username }).populate({
       path: "following",
       options: {
         skip: (page - 1) * limit,
@@ -237,7 +240,7 @@ module.exports.getBlockedUsers = async (req, res, next) => {
     // Find the requesting user
     const requestingUser = await User.findById(
       requestingUserId,
-      "first_name last_name blocked_users"
+      "first_name last_name blocked_users username"
     );
 
     if (!requestingUser) {
@@ -248,7 +251,7 @@ module.exports.getBlockedUsers = async (req, res, next) => {
     const blockedUsers = await User.find({
       _id: { $in: requestingUser.blocked_users },
     })
-      .select("first_name last_name profile_img")
+      .select("first_name last_name profile_img username")
       .skip((page - 1) * limit)
       .limit(limit)
       .lean();
@@ -309,7 +312,7 @@ module.exports.getUsersList = async (req, res, next) => {
 
     // Apply pagination, sorting, and retrieve the users
     const selectedFields =
-      "first_name last_name profile_img email whatsapp provider is_complete status createdAt";
+      "first_name last_name profile_img email whatsapp provider is_complete status createdAt username";
     const users = await User.find(filter, selectedFields)
       .setOptions({ includeDeleted: true })
       .sort({ first_name: 1, last_name: 1, createdAt: -1 }) // Sort by name and createdAt

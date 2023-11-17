@@ -21,6 +21,6 @@ module.exports.chatList = function ({
   return this.find(query)
     .sort({ createdAt: -1, _id: -1 })
     .limit(parseInt(pageSize))
-    .populate("receiver", "first_name last_name profile_img")
-    .populate("sender", "first_name last_name profile_img");
+    .populate("receiver", "first_name last_name profile_img username")
+    .populate("sender", "first_name last_name profile_img username");
 };

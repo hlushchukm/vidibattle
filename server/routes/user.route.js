@@ -24,12 +24,12 @@ const router = express.Router();
 
 // get
 router.get("/basicInfo/:id", authGuard, getBasicUserInfo);
-router.get("/profileInfo/:id", getProfileInfo);
+router.get("/profileInfo/:username", getProfileInfo);
 router.get("/selfInfo", authGuard, getSelfInfo);
 router.get("/authenticated", authGuard, getAuthenticatedUser);
 router.get("/followers-following/:id", getFollowersAndFollowing);
-router.get("/followers/:id", getFollowers);
-router.get("/following/:id", getFollowing);
+router.get("/followers/:username", getFollowers);
+router.get("/following/:username", getFollowing);
 router.get("/blocked", authGuard, getBlockedUsers);
 router.get("/list", adminAuthGuard, getUsersList);
 router.get("/search", authGuard, searchUsers);

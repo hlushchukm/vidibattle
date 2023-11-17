@@ -41,13 +41,13 @@ module.exports.getFeed = async (req, res, next) => {
 
 module.exports.getTimeline = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const { username } = req.params;
     let { pageSize, lastDate, lastPostId } = req.query;
 
     if (!pageSize) pageSize = 10;
 
     const posts = await Post.timeline({
-      author: userId,
+      author: username,
       lastDate,
       lastPostId,
       pageSize,
