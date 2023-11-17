@@ -565,7 +565,12 @@ module.exports.updateSelfProfile = async (req, res, next) => {
 
 module.exports.searchUsers = async (req, res) => {
   try {
-    let { name = "", page = 1, limit = 10 } = req.query;
+    let {
+      name = "",
+      page = 1,
+      limit = 10,
+      excludeFollowing = false,
+    } = req.query;
     const requesterId = req.user._id;
 
     const requester = await User.findById(requesterId);
@@ -592,6 +597,16 @@ module.exports.searchUsers = async (req, res) => {
     }
 
     // Query to exclude blocked users
+    let excludeList = [
+      requesterId, // Exclude the requester
+      ...requester.blocked_users, // Exclude users blocked by the requester
+      ...requester.blocked_by, // Exclude users who blocked the requester
+    ];
+
+    if (excludeFollowing) {
+      excludeList = [...excludeList, ...requester.following];
+    }
+
     const query = {
       $or: [
         { first_name: regex1 },
@@ -599,11 +614,7 @@ module.exports.searchUsers = async (req, res) => {
         { username: regex1 },
       ],
       _id: {
-        $nin: [
-          requesterId, // Exclude the requester
-          ...requester.blocked_users, // Exclude users blocked by the requester
-          ...requester.blocked_by, // Exclude users who blocked the requester
-        ],
+        $nin: excludeList,
       },
     };
 
