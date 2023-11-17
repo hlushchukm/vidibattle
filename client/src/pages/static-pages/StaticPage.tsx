@@ -48,7 +48,7 @@ export default function StaticPage({ pagename }: { pagename: string }) {
       <StaticPageHeader pageTitle={pageTitle} />
       <div className="bg-gradient-2 min-vh-100">
         <div className=" container">
-          <div>{content}</div>
+          <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
     </>

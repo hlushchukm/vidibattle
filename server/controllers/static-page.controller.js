@@ -34,11 +34,8 @@ module.exports.getPage = async (req, res, next) => {
 
     const page = await StaticPage.findOne({ pagename });
 
-    if (!page) {
-      return res.status(404).json({ message: "requested page not found" });
-    }
 
-    return res.status(200).json({ data: page });
+    return res.status(200).json({ data: page ?? "" });
   } catch (e) {
     next(e);
   }
