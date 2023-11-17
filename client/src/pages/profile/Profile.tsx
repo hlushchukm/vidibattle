@@ -7,6 +7,7 @@ import PageLoading from "../../components/PageLoading";
 import { create, get } from "../../services/crud";
 import UserNotFound from "../../components/UserNotFound";
 import SwiperContainer from "./components/container/SwiperContainer";
+import SocialMediaLinks from "./components/ui/SocialMediaLinks";
 
 export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -118,6 +119,9 @@ export default function Profile() {
             toggleBlock={() => toggleBlock(!profileData.is_blocked)}
             toggleFollow={() => toggleFollow(!profileData.is_followed)}
           />
+          <div className="w-100 d-flex justify-content-center">
+            <SocialMediaLinks social_links={profileData.social_links} />
+          </div>
           <div className="contant-section pb-5">
             <SwiperContainer
               profileData={profileData}

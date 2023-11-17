@@ -26,7 +26,7 @@ module.exports.getProfileInfo = async (req, res, next) => {
     }
 
     let fields =
-      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users username";
+      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users username address social_links";
 
     if (req.user.is_admin) {
       fields += " status is_complete provider createdAt";

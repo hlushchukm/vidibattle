@@ -1,6 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { getName } from "../../../../services/utils";
-import { formatResourceURL, handleProfileImageError } from "../../../../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../../../services/asset-paths";
 
 export default function BasicInfo({
   profile,
@@ -16,6 +19,29 @@ export default function BasicInfo({
   toggleFollow: () => void;
 }) {
   const navigate = useNavigate();
+
+  const getAddress = () => {
+    const address = profile.address;
+    let res = "";
+
+    if (address.country) {
+      res += address.country;
+    }
+
+    if (address.state) {
+      res += ", " + address.state;
+    }
+
+    if (address.city) {
+      res += ", " + address.city;
+    }
+
+    if (address.address_line) {
+      res += ", " + address.address_line;
+    }
+
+    return res.trim();
+  };
 
   return (
     <>
@@ -73,7 +99,10 @@ export default function BasicInfo({
           <div className="left-content">
             <h5 className="mt-1">{getName(profile)}</h5>
             <div className="info pe-sm-5 text-justify">
-              <p>{profile?.bio} </p>
+              <p className="mb-0">{profile?.bio} </p>
+            </div>
+            <div className="info pe-sm-5 text-justify">
+              <p>{getAddress()} </p>
             </div>
           </div>
           {/* Profile icon for large screens */}
