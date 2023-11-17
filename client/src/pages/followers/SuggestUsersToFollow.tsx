@@ -9,6 +9,8 @@ import {
   handleProfileImageError,
 } from "../../services/asset-paths";
 import { getName } from "../../services/utils";
+import SearchBar from "../../components/SearchBar";
+import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 
 export default function SuggestUsersToFollow() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -17,16 +19,34 @@ export default function SuggestUsersToFollow() {
   const [limit, setLimit] = useState(10);
   const [hideMoreBtn, setHideMoreBtn] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [isSearch, setIsSearch] = useState(false);
 
   useEffect(() => {
-    fetchSuggestedUsers();
-  }, []);
+    const delayTimer = setTimeout(() => {
+      setPage(0);
+      setSuggestedUsers([]);
+      if (searchText.length === 0) {
+        fetchSuggestedUsers(0);
+      } else {
+        searchUsers(0);
+      }
+    }, 500);
 
-  const fetchSuggestedUsers = () => {
+    return () => {
+      clearTimeout(delayTimer);
+    };
+  }, [searchText]);
+
+  const fetchSuggestedUsers = (pageCopy?: number) => {
+    setIsSearch(false);
     setDataLoading(true);
-    get("user/suggestion", { page: page + 1, limit: limit })
+    get("user/suggestion", {
+      page: (pageCopy !== undefined ? pageCopy : page) + 1,
+      limit,
+    })
       .then((res) => {
-        if (res.data.length === 0 || res.data.length < limit) {
+        if (res.data.length < limit) {
           setHideMoreBtn(true);
         }
         setSuggestedUsers((s: any) => [...s, ...res.data]);
@@ -67,15 +87,61 @@ export default function SuggestUsersToFollow() {
     setSuggestedUsers(usersCopy);
   };
 
+  const searchUsers = (page: number) => {
+    if (searchText.trim().length > 0) {
+      setIsSearch(true);
+      setHideMoreBtn(false);
+      setDataLoading(true);
+      get("user/search", {
+        name: searchText,
+        page: page + 1,
+        limit,
+        excludeFollowing: true,
+      })
+        .then((res) => {
+          if (res.data.length < limit) {
+            setHideMoreBtn(true);
+          }
+          setSuggestedUsers((s: any) => [...s, ...res.data]);
+          setPage(res.page);
+          setDataLoading(false);
+        })
+        .catch((e) => {
+          console.log(e);
+          toast.error(
+            e?.response?.data?.message ?? "Error while searching users"
+          );
+          setDataLoading(false);
+        });
+    } else {
+      fetchSuggestedUsers(0);
+    }
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
 
-  if (suggestedUsers.length === 0) {
+  if (suggestedUsers.length === 0 && !dataLoading) {
     return (
       <>
         <SuggestedUsersHeader />
-        <h3 className="text-muted py-5 text-center">No Users to Suggest</h3>;
+        <div className="bg-gradient-2">
+          <div className="container profile-area pt-0 pb-0  vh-100">
+            <div className="contant-section style-2 h-100">
+              <div className="pt-3 px-4">
+                <SearchBar
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  placeholder="Search Users"
+                />
+              </div>
+              <h3 className="text-muted py-5 text-center">
+                No Users to Suggest
+              </h3>
+            </div>
+          </div>
+        </div>
       </>
     );
   }
@@ -87,6 +153,13 @@ export default function SuggestUsersToFollow() {
       <div className="page-content bg-gradient-2 vh-100">
         <div className="container profile-area pt-0 pb-0 h-100">
           <div className="contant-section style-2 h-100">
+            <div className="pt-3 px-4">
+              <SearchBar
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search Users"
+              />
+            </div>
             <div className="title-bar m-0">
               <h6 className="mb-0"></h6>
               <div className="dz-tab style-2">
@@ -207,16 +280,21 @@ export default function SuggestUsersToFollow() {
                 aria-labelledby="list-tab"
               >
                 <div className="dz-user-list row g-3 py-3">
-                  {!hideMoreBtn && (
+                  {!hideMoreBtn && suggestedUsers.length > 0 && (
                     <button
                       className={`btn light btn-primary ${
                         dataLoading && "disabled"
                       }`}
-                      onClick={fetchSuggestedUsers}
+                      onClick={() => {
+                        isSearch ? searchUsers(page) : fetchSuggestedUsers();
+                      }}
                     >
                       {!dataLoading && <span>show more</span>}
                       {dataLoading && <i className="fa fa-spinner fa-spin"></i>}
                     </button>
+                  )}
+                  {suggestedUsers.length === 0 && dataLoading && (
+                    <BlinkingLoadingCircles />
                   )}
                 </div>
               </div>
