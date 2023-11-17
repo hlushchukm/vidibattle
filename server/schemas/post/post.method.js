@@ -50,7 +50,7 @@ module.exports.feed = function ({
   )
     .sort({ createdAt: -1, _id: -1 })
     .limit(parseInt(pageSize))
-    .populate("author", "first_name last_name profile_img")
+    .populate("author", "first_name last_name profile_img username address")
     .populate({
       path: "media",
       populate: {

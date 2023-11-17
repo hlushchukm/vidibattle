@@ -106,7 +106,7 @@ module.exports.getPost = async (req, res, next) => {
     await post.populate([
       {
         path: "author",
-        select: "first_name last_name profile_img",
+        select: "first_name last_name profile_img username",
       },
       {
         path: "media",

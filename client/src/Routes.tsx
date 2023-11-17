@@ -57,7 +57,14 @@ export default function Router() {
               </MainLayout>
             }
           />
-          <Route path="/post/:id" element={<SinglePost />} />
+          <Route
+            path="/post/:id"
+            element={
+              <MainLayout>
+                <SinglePost />
+              </MainLayout>
+            }
+          />
           <Route
             path="/privacy-policy"
             element={<StaticPage pagename="privacy-policy" />}
