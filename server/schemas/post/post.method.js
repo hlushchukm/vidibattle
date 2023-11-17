@@ -16,6 +16,22 @@ module.exports.feed = function ({
     ],
   }; // undeleted posts and posts by unblocked people
 
+  const unblockedFollowings = [];
+
+  currentUser.following.map((f) => {
+    if (
+      !currentUser?.blocked_users?.includes(f._id) &&
+      !currentUser?.blocked_by?.includes(f._id)
+    ) {
+      unblockedFollowings.push(f._id);
+    }
+  });
+
+  if (unblockedFollowings.length > 0) {
+    unblockedFollowings.push(currentUser._id)
+    query.author = { $in: unblockedFollowings };
+  }
+
   if (lastDate) {
     query.$or = [
       { createdAt: { $lt: new Date(lastDate) } },
