@@ -58,7 +58,7 @@ export default function UsersList({
                     <div className="user-grid">
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => navigate("/profile/" + user._id)}
+                        onClick={() => navigate("/profile/" + user.username)}
                         className="media status media-60"
                       >
                         <img
@@ -69,7 +69,7 @@ export default function UsersList({
                       </a>
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => navigate("/profile/" + user._id)}
+                        onClick={() => navigate("/profile/" + user.username)}
                         className="name"
                       >
                         {getName(user)}
@@ -99,7 +99,7 @@ export default function UsersList({
                     <div className="user-grid style-2">
                       <a
                         style={{ cursor: "pointer" }}
-                        onClick={() => navigate("/profile/" + user._id)}
+                        onClick={() => navigate("/profile/" + user.username)}
                         className="d-flex align-items-center"
                       >
                         <div className="media status media-50">

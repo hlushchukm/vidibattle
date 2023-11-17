@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { get } from "../../../../services/crud";
-import { getUser, getUserId } from "../../../../services/auth";
+import { getUser, getUsername } from "../../../../services/auth";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { getName } from "../../../../services/utils";
@@ -23,7 +23,7 @@ export default function StoryBar() {
 
   const fetchFollowings = () => {
     setLoading(true);
-    get("user/following/" + getUserId(), { page: page + 1, limit })
+    get("user/following/" + getUsername(), { page: page + 1, limit })
       .then((res) => {
         if (res.data.length < limit) {
           setNoMorePeople(true);
@@ -68,7 +68,7 @@ export default function StoryBar() {
                   <SwiperSlide key={i}>
                     <div className="swiper-slide">
                       <Link
-                        to={"/profile/" + user._id}
+                        to={"/profile/" + user.username}
                         className="categore-box"
                         style={{ width: "68px" }}
                       >

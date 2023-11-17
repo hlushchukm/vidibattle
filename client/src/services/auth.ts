@@ -8,6 +8,12 @@ export const getUserId = () => {
     : null;
 };
 
+export const getUsername = () => {
+  return localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user") ?? "")?.username
+    : null;
+};
+
 export const setUser = (user: any) => {
   localStorage.setItem("user", JSON.stringify(user));
 };
@@ -23,10 +29,16 @@ export const isLoggedIn = () => {
 };
 
 export const updateUserData = (user: any) => {
-  const { _id, first_name, last_name, profile_img } = user;
-
-  setUser({ _id, first_name, last_name, profile_img });
-  setUserId(_id);
+  setUser({
+    _id: user._id,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    profile_img: user.profile_img,
+    username: user.username,
+    status: user.status,
+    is_complete: user.is_complete,
+  });
+  setUserId(user._id);
 };
 
 export const clearAuth = () => {

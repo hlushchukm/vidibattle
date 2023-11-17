@@ -10,12 +10,12 @@ import { toast } from "react-toastify";
 export default function SwiperContainer({
   profileData,
   isOwnProfile,
-  userId,
+  username,
   isLoggedIn,
 }: {
   profileData: any;
   isOwnProfile: boolean;
-  userId: string;
+  username: string;
   isLoggedIn: boolean;
 }) {
   const [posts, setPosts] = useState<any[]>([]);
@@ -39,10 +39,10 @@ export default function SwiperContainer({
   const swiperRef = useRef<SwiperRef>(null);
 
   useEffect(() => {
-    if (userId) {
-      fetchPosts(userId);
+    if (username) {
+      fetchPosts(username);
     }
-  }, [userId]);
+  }, [username]);
 
   useEffect(() => {
     const hash: { [key: string]: boolean } = {};
@@ -55,11 +55,11 @@ export default function SwiperContainer({
     setFollowingsHash(hash);
   }, [followersAndFollowingData.following]);
 
-  const fetchPosts = async (id: string) => {
+  const fetchPosts = async (username: string) => {
     setPostsLoading(true);
     const pageSize = 15;
     try {
-      const res = await get("post/timeline/" + id, {
+      const res = await get("post/timeline/" + username, {
         pageSize,
         lastDate,
         lastPostId,
@@ -167,13 +167,13 @@ export default function SwiperContainer({
             posts={posts}
             loading={postsLoading}
             showMoreBtn={!noMorePosts}
-            loadMore={() => fetchPosts(userId)}
+            loadMore={() => fetchPosts(username)}
           />
         </SwiperSlide>
         <SwiperSlide>
           <UsersListContainer
             users={followersAndFollowingData}
-            userId={userId}
+            username={username}
             listType="following"
             followingsHash={followingsHash}
             isLoggedIn={isLoggedIn}
@@ -185,7 +185,7 @@ export default function SwiperContainer({
         <SwiperSlide>
           <UsersListContainer
             users={followersAndFollowingData}
-            userId={userId}
+            username={username}
             listType="followers"
             followingsHash={followingsHash}
             isLoggedIn={isLoggedIn}

@@ -27,7 +27,7 @@ export default function Post({
         <div className="top-meta">
           <div className="d-flex justify-content-between align-items-start">
             <a
-              onClick={() => navigate("/profile/" + post.author._id)}
+              onClick={() => navigate("/profile/" + post.author.username)}
               className="media media-40"
               style={{ cursor: "pointer" }}
             >
@@ -41,7 +41,7 @@ export default function Post({
             <div className="meta-content ms-3">
               <h6 className="title mb-0">
                 <a
-                  onClick={() => navigate("/profile/" + post.author._id)}
+                  onClick={() => navigate("/profile/" + post.author.username)}
                   style={{ cursor: "pointer" }}
                 >
                   {post.author?.first_name + " " + post.author?.last_name}

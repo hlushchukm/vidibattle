@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getUserId } from "../../services/auth";
+import { getUser, getUserId, getUsername } from "../../services/auth";
 import { useParams } from "react-router-dom";
 import BasicInfo from "./components/container/BasicInfo";
 import ProfileHeader from "./components/ProfileHeader";
@@ -12,29 +12,29 @@ export default function Profile() {
   const [pageLoading, setPageLoading] = useState(true);
   const [isLoggedIn, setLoggedIn] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [userId, setUserId] = useState("");
+  const [username, setUsername] = useState("");
   const [profileData, setProfileData] = useState<any>(null);
   const [noUserFound, setNoUserFound] = useState(false);
 
   const params = useParams();
 
   useEffect(() => {
-    setLoggedIn(getUserId() !== null && getUserId() !== null);
+    setLoggedIn(getUserId() !== null && getUser() !== null);
 
-    if (params.id && params.id !== getUserId()) {
+    if (params.username && params.username !== getUsername()) {
       setIsOwnProfile(false);
-      setUserId(params.id);
+      setUsername(params.username);
     } else {
       setIsOwnProfile(true);
-      setUserId(getUserId() ?? "");
+      setUsername(getUsername() ?? "");
     }
   }, []);
 
   useEffect(() => {
-    if (userId) {
-      fetchProfileInfo(userId);
+    if (username) {
+      fetchProfileInfo(username);
     }
-  }, [userId]);
+  }, [username]);
 
   const fetchProfileInfo = (id: string) => {
     get("user/profileInfo/" + id)
@@ -122,7 +122,7 @@ export default function Profile() {
             <SwiperContainer
               profileData={profileData}
               isOwnProfile={isOwnProfile}
-              userId={userId}
+              username={username}
               isLoggedIn={isLoggedIn}
             />
           </div>

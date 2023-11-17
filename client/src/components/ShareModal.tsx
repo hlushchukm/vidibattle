@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SocialMediaShareBtns from "./SocialMediaShareBtns";
 import { get } from "../services/crud";
-import { getUserId, isLoggedIn } from "../services/auth";
+import { getUsername, isLoggedIn } from "../services/auth";
 import { toast } from "react-toastify";
 import { Link, createSearchParams, useNavigate } from "react-router-dom";
 import { getName } from "../services/utils";
@@ -51,7 +51,7 @@ export default function ShareModal() {
   const fetchFollowings = (pageNum?: number) => {
     setShowingSearchResults(false);
     setLoading(true);
-    get("user/following/" + getUserId(), { page: pageNum ?? page + 1, limit })
+    get("user/following/" + getUsername(), { page: pageNum ?? page + 1, limit })
       .then((res) => {
         if (res.data.length < limit) {
           setNoMorePeople(true);
@@ -190,14 +190,14 @@ export default function ShareModal() {
               {users.map((user: any, i: number) => (
                 <li key={i}>
                   <div className="left-content">
-                    <Link to={"/profile/" + user._id}>
+                    <Link to={"/profile/" + user.username}>
                       <img
                         src={formatResourceURL(user.profile_img)}
                         onError={handleProfileImageError}
                         alt="/"
                       />
                     </Link>
-                    <Link to={"/profile/" + user._id}>
+                    <Link to={"/profile/" + user.username}>
                       <h6 className="name">{getName(user)}</h6>
                       <span
                         className="username"

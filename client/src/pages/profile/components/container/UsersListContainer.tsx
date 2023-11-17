@@ -6,7 +6,7 @@ import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircle
 
 export default function UsersListContainer({
   users,
-  userId,
+  username,
   listType,
   isLoggedIn,
   isOwnProfile,
@@ -15,7 +15,7 @@ export default function UsersListContainer({
   toggleFollow,
 }: {
   users: { followers: any[]; following: any[] };
-  userId: string;
+  username: string;
   listType: "followers" | "following";
   isLoggedIn: boolean;
   isOwnProfile: boolean;
@@ -29,12 +29,12 @@ export default function UsersListContainer({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (userId) fetchUsers();
-  }, [userId]);
+    if (username) fetchUsers();
+  }, [username]);
 
   const fetchUsers = () => {
     setLoading(true);
-    get("user/" + listType + "/" + userId, { page: page + 1, limit })
+    get("user/" + listType + "/" + username, { page: page + 1, limit })
       .then((res) => {
         if (res.data.length < limit) {
           setNoMoreUsers(true);

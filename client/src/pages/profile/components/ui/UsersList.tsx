@@ -56,7 +56,7 @@ export default function UsersList({
                       <a
                         style={{ cursor: "pointer" }}
                         onClick={() =>
-                          window.location.replace("/profile/" + user._id)
+                          window.location.replace("/profile/" + user.username)
                         }
                         className="media status media-60"
                       >
@@ -69,7 +69,7 @@ export default function UsersList({
                       <a
                         style={{ cursor: "pointer" }}
                         onClick={() =>
-                          window.location.replace("/profile/" + user._id)
+                          window.location.replace("/profile/" + user.username)
                         }
                         className="name"
                       >
@@ -101,7 +101,7 @@ export default function UsersList({
                       <a
                         style={{ cursor: "pointer" }}
                         onClick={() =>
-                          window.location.replace("/profile/" + user._id)
+                          window.location.replace("/profile/" + user.username)
                         }
                         className="d-flex align-items-center"
                       >

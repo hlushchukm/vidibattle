@@ -50,7 +50,7 @@ export default function Router() {
           <Route path="/logout" element={<Logout />} />
           <Route path="/" element={<Navigate to="/home" />} />
           <Route
-            path="/profile/:id"
+            path="/profile/:username"
             element={
               <MainLayout active="profile">
                 <Profile />

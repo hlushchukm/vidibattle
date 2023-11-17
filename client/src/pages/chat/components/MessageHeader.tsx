@@ -26,7 +26,7 @@ export default function MessageHeader({ user }: { user: any }) {
         <div className="right-content">
           {user && (
             <Link
-              to={"/profile/" + user._id}
+              to={"/profile/" + user.username}
               className="nav-link text-secondary"
               title="view profile"
             >
