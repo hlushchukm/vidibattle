@@ -481,7 +481,6 @@ module.exports.updateSelfProfile = async (req, res, next) => {
     if (!data.username) {
       return res.status(400).json({ message: "user name is required" });
     }
-    // TODO: validate if username is unique
 
     let emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;
     if (!emailRegex.test(data.email)) {
@@ -499,6 +498,11 @@ module.exports.updateSelfProfile = async (req, res, next) => {
         .json({ message: "invalid WhatsApp number length" });
     }
 
+    const usernameMathch = await User.findOne({ username: data.username });
+    if (usernameMathch && usernameMathch._id.toString() !== _id) {
+      return res.status(400).json({ message: "username is already taken" });
+    }
+
     const user = await User.findById(_id);
 
     if (!user) {
@@ -514,8 +518,12 @@ module.exports.updateSelfProfile = async (req, res, next) => {
     user.first_name = data.first_name;
     user.last_name = data.last_name;
     user.email = data.email;
+    user.username = data.username;
     user.whatsapp = data.whatsapp;
     user.bio = data.bio;
+    user.interested_to_earn = data.interested_to_earn;
+    user.address = data.address;
+    user.social_links = data.social_links;
     if (
       data.first_name &&
       data.last_name &&
