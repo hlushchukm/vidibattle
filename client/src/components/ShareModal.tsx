@@ -199,12 +199,7 @@ export default function ShareModal() {
                     </Link>
                     <Link to={"/profile/" + user.username}>
                       <h6 className="name">{getName(user)}</h6>
-                      <span
-                        className="username"
-                        style={{ visibility: "hidden" }}
-                      >
-                        _
-                      </span>
+                      <span className="username">@{user.username}</span>
                     </Link>
                   </div>
                   <button
