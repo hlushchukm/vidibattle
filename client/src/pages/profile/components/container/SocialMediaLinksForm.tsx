@@ -2,9 +2,11 @@ import { SocialLinks } from "../../ProfileInterface";
 
 export default function SocialMediaLinksForm({
   socialMediaData,
+  errors,
   onSocialMediaLinkChange,
 }: {
   socialMediaData: SocialLinks;
+  errors: any;
   onSocialMediaLinkChange: (key: string, value: string) => void;
 }) {
   return (
@@ -30,6 +32,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.facebook}
           onChange={(e) => onSocialMediaLinkChange("facebook", e.target.value)}
         />
+        {errors?.facebook && (
+          <div className="small text-danger w-100 py-1">{errors.facebook}</div>
+        )}
       </div>
       <div className="mb-3 input-group">
         <span className="mt-2">
@@ -55,6 +60,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.instagram}
           onChange={(e) => onSocialMediaLinkChange("instagram", e.target.value)}
         />
+        {errors?.instagram && (
+          <div className="small text-danger w-100 py-1">{errors.instagram}</div>
+        )}
       </div>
       <div className="mb-3 input-group">
         <span className="mt-2">
@@ -77,6 +85,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.twitter}
           onChange={(e) => onSocialMediaLinkChange("twitter", e.target.value)}
         />
+        {errors?.twitter && (
+          <div className="small text-danger w-100 py-1">{errors.twitter}</div>
+        )}
       </div>
       <div className="mb-3 input-group">
         <span className="mt-2">
@@ -100,6 +111,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.linkedin}
           onChange={(e) => onSocialMediaLinkChange("linkedin", e.target.value)}
         />
+        {errors?.linkedin && (
+          <div className="small text-danger w-100 py-1">{errors.linkedin}</div>
+        )}
       </div>
       <div className="mb-3 input-group">
         <span className="mt-2" style={{ width: "48px" }}>
@@ -141,6 +155,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.snapchat}
           onChange={(e) => onSocialMediaLinkChange("snapchat", e.target.value)}
         />
+        {errors?.snapchat && (
+          <div className="small text-danger w-100 py-1">{errors.snapchat}</div>
+        )}
       </div>
       <div className="mb-3 input-group">
         <span className="mt-2">
@@ -164,6 +181,9 @@ export default function SocialMediaLinksForm({
           value={socialMediaData.whatsapp}
           onChange={(e) => onSocialMediaLinkChange("whatsapp", e.target.value)}
         />
+        {errors?.whatsapp_link && (
+          <div className="small text-danger w-100 py-1">{errors.whatsapp_link}</div>
+        )}
       </div>
     </>
   );

@@ -67,7 +67,7 @@ export default function EditProfile({
     }
 
     setUpdateLoading(true);
-    const payload: Profile = { ...formData };
+    const payload = { data: JSON.stringify(formData) };
     update("user/", payload)
       .then((res) => {
         setFullProfileData(res.data);
@@ -136,8 +136,78 @@ export default function EditProfile({
       setErrors((e: any) => ({ ...e, whatsapp: null }));
     }
 
+    // Social Media Links Validations
+    if (
+      formData.social_links.facebook &&
+      !validateURL(formData.social_links.facebook)
+    ) {
+      setErrors((e: any) => ({ ...e, facebook: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, facebook: null }));
+    }
+
+    if (
+      formData.social_links.instagram &&
+      !validateURL(formData.social_links.instagram)
+    ) {
+      setErrors((e: any) => ({ ...e, instagram: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, instagram: null }));
+    }
+
+    if (
+      formData.social_links.twitter &&
+      !validateURL(formData.social_links.twitter)
+    ) {
+      setErrors((e: any) => ({ ...e, twitter: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, twitter: null }));
+    }
+
+    if (
+      formData.social_links.linkedin &&
+      !validateURL(formData.social_links.linkedin)
+    ) {
+      setErrors((e: any) => ({ ...e, linkedin: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, linkedin: null }));
+    }
+
+    if (
+      formData.social_links.snapchat &&
+      !validateURL(formData.social_links.snapchat)
+    ) {
+      setErrors((e: any) => ({ ...e, snapchat: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, snapchat: null }));
+    }
+
+    if (
+      formData.social_links.whatsapp &&
+      !validateURL(formData.social_links.whatsapp)
+    ) {
+      setErrors((e: any) => ({ ...e, whatsapp_link: "invalid url pattern" }));
+      valid = false;
+    } else {
+      setErrors((e: any) => ({ ...e, whatsapp_link: null }));
+    }
+
     return valid;
   };
+
+  function validateURL(url: string) {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
 
   const saveWithProfileImg = () => {
     const fd = new FormData();
@@ -436,6 +506,7 @@ export default function EditProfile({
               <SocialMediaLinksForm
                 socialMediaData={formData.social_links}
                 onSocialMediaLinkChange={updateSocialMediaData}
+                errors={errors}
               />
             </form>
           </div>
