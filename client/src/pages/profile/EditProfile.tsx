@@ -35,9 +35,6 @@ export default function EditProfile({
     if (profileImgInputRef.current) profileImgInputRef.current.value = null;
   }, [newProfileImg]);
 
-  // TODO: should whatsapp and email be removed
-  // TODO: handle username not unique error
-
   const fetchUserProfile = () => {
     setPageLoading(true);
     get("user/selfInfo")
@@ -225,6 +222,9 @@ export default function EditProfile({
         toast.success(res.message);
         setUpdateLoading(false);
         setNewProfileImg(null);
+        if (isAccountSetup) {
+          navigate("/account-setup/suggestion");
+        }
       })
       .catch((e) => {
         console.log(e);
