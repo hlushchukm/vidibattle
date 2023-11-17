@@ -142,8 +142,14 @@ module.exports.getFollowers = async (req, res, next) => {
       requestingUserId = req.user._id;
     }
 
-    const user = await User.findOne({ username }).populate({
+    const user = await User.findOne({ username });
+    const blockedUsers = [...user.blocked_users, ...user.blocked_by];
+
+    await user.populate({
       path: "followers",
+      match: {
+        _id: { $nin: blockedUsers },
+      },
       options: {
         skip: (page - 1) * limit,
         limit,
@@ -173,8 +179,14 @@ module.exports.getFollowing = async (req, res, next) => {
       requestingUserId = req.user._id;
     }
 
-    const user = await User.findOne({ username }).populate({
+    const user = await User.findOne({ username });
+    const blockedUsers = [...user.blocked_users, ...user.blocked_by];
+
+    await user.populate({
       path: "following",
+      match: {
+        _id: { $nin: blockedUsers },
+      },
       options: {
         skip: (page - 1) * limit,
         limit,
