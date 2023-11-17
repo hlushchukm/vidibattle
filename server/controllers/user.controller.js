@@ -282,6 +282,7 @@ module.exports.getUsersList = async (req, res, next) => {
       limit = 10,
       first_name,
       last_name,
+      username,
       email,
       whatsapp,
       provider,
@@ -292,6 +293,7 @@ module.exports.getUsersList = async (req, res, next) => {
 
     // Construct the filter query based on the provided filter parameters
     const filter = {};
+    if (username) filter.username = { $regex: username, $options: "i" };
     if (first_name) filter.first_name = { $regex: first_name, $options: "i" };
     if (last_name) filter.last_name = { $regex: last_name, $options: "i" };
     if (email) filter.email = { $regex: email, $options: "i" };
