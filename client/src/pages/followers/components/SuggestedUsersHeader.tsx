@@ -1,8 +1,6 @@
-import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function SuggestedUsersHeader() {
-  const navigate = useNavigate();
   return (
     <TopNavBarWrapper>
       <div className="left-content">
@@ -10,7 +8,10 @@ export default function SuggestedUsersHeader() {
       </div>
       <div className="mid-content"></div>
       <div className="right-content">
-        <button className="btn post-btn" onClick={() => navigate("/home")}>
+        <button
+          className="btn post-btn"
+          onClick={() => window.location.replace("/home")}
+        >
           Skip
         </button>
       </div>
