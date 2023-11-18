@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import PageLoading from "../../components/PageLoading";
 import TimelineHeader from "./components/TimelineHeader";
 import { get } from "../../services/crud";
-import { getUserId } from "../../services/auth";
+import { getUsername } from "../../services/auth";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import DisplayModeBtns from "../../components/DisplayModeBtns";
 import { useNavigate } from "react-router-dom";
@@ -40,7 +40,7 @@ export default function Timeline() {
   const getTimeline = async () => {
     // setShowLoading(true);
     const pageSize = 15;
-    return get("post/timeline/" + getUserId(), {
+    return get("post/timeline/" + getUsername(), {
       pageSize,
       lastDate: lastDate.current,
       lastPostId: lastPostId.current,
