@@ -85,11 +85,11 @@ userSchema.pre("find", function () {
 });
 
 userSchema.pre("findById", function () {
-  this.where({ is_deleted: { $ne: "deleted" } });
+  this.where({ status: { $ne: "deleted" } });
 });
 
 userSchema.pre("findOne", function () {
-  this.where({ is_deleted: { $ne: "deleted" } });
+  this.where({ status: { $ne: "deleted" } });
 });
 
 // Methods

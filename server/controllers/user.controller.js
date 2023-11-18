@@ -147,6 +147,7 @@ module.exports.getFollowers = async (req, res, next) => {
       path: "followers",
       match: {
         _id: { $nin: blockedUsers },
+        status: { $ne: "deleted" },
       },
       options: {
         skip: (page - 1) * limit,
@@ -184,6 +185,7 @@ module.exports.getFollowing = async (req, res, next) => {
       path: "following",
       match: {
         _id: { $nin: blockedUsers },
+        status: { $ne: "deleted" },
       },
       options: {
         skip: (page - 1) * limit,
@@ -221,6 +223,7 @@ module.exports.getSuggestedUsersToFollow = async (req, res, next) => {
       { $match: { _id: { $nin: requester.blocked_by } } },
       { $match: { _id: { $nin: requester.blocked_users } } },
       { $match: { _id: { $nin: requester.following } } },
+      { $match: { status: { $ne: "deleted" } } },
       { $sort: { followers_count: -1 } },
       { $skip: (page - 1) * limit },
       { $limit: parseInt(limit) },
@@ -572,6 +575,8 @@ module.exports.searchUsers = async (req, res) => {
       excludeFollowing = false,
     } = req.query;
     const requesterId = req.user._id;
+    const allUsers = await User.find({}, "first_name last_name username");
+    console.log(allUsers);
 
     const requester = await User.findById(requesterId);
     if (!requester) {
