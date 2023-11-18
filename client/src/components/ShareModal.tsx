@@ -190,22 +190,46 @@ export default function ShareModal() {
               {users.map((user: any, i: number) => (
                 <li key={i}>
                   <div className="left-content">
-                    <Link to={"/profile/" + user.username}>
+                    <a
+                      onClick={() =>
+                        navigate({
+                          pathname: "/chat/" + user.username,
+                          search: createSearchParams({
+                            share: "true",
+                            url,
+                            title,
+                          }).toString(),
+                        })
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
                       <img
                         src={formatResourceURL(user.profile_img)}
                         onError={handleProfileImageError}
                         alt="/"
                       />
-                    </Link>
-                    <Link to={"/profile/" + user.username}>
+                    </a>
+                    <a
+                      onClick={() =>
+                        navigate({
+                          pathname: "/chat/" + user.username,
+                          search: createSearchParams({
+                            share: "true",
+                            url,
+                            title,
+                          }).toString(),
+                        })
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
                       <h6 className="name">{getName(user)}</h6>
                       <span className="username">@{user.username}</span>
-                    </Link>
+                    </a>
                   </div>
                   <button
                     onClick={() =>
                       navigate({
-                        pathname: "/chat/" + user._id,
+                        pathname: "/chat/" + user.username,
                         search: createSearchParams({
                           share: "true",
                           url,
