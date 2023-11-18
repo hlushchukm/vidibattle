@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "./styles.module.css";
 import { env } from "../../env";
 
 export default function Login() {
   const navigate = useNavigate();
   const [forgotPassword, setForgotPassword] = useState(false);
-  const [isCreate, setIsCreate] = useState(false);
+  const [isCreate] = useState(false);
 
   // TODO: handle forgotPassword
 
   useEffect(() => {
     const queryParameters = new URLSearchParams(window.location.search);
     setForgotPassword(queryParameters.get("forgotPassword") === "true");
-    setIsCreate(queryParameters.get("create") === "true");
+    // setIsCreate(queryParameters.get("create") === "true");
 
     // remove a css class from the parent element that causes style problem
     const parentElement = document.getElementById("root") as HTMLElement;
@@ -107,7 +107,7 @@ export default function Login() {
                     </div>
                   </div>
                   <div className="d-flex align-items-center justify-content-center">
-                    {!isCreate && (
+                    {/* {!isCreate && (
                       <>
                         <div className="text-light text-center d-block">
                           Don't have an account?
@@ -132,7 +132,7 @@ export default function Login() {
                           Sign In Here
                         </Link>
                       </>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>

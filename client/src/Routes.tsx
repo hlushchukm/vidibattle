@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import SplashScreen from "./components/SplashScreen";
 import Login from "./pages/auth/Login";
 import WhatsAppLogin from "./pages/auth/WhatsAppLogin";
-import Welcome from "./pages/auth/Welcome";
 import Home from "./pages/home/Home";
 import NotFound from "./pages/NotFound";
 import Timeline from "./pages/timeline/Timeline";
@@ -40,7 +39,8 @@ export default function Router() {
       <BrowserRouter>
         <Routes>
           <Route path="auth/">
-            <Route index element={<Welcome />} />
+            {/* <Route index element={<Welcome />} /> */}
+            <Route index element={<Navigate to="login" />} />
             <Route path="login/">
               <Route index element={<Login />} />
               <Route path="successfull" element={<SuccessCallback />} />
