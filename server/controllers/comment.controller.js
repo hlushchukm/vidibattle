@@ -21,13 +21,14 @@ module.exports.getComments = async (req, res, next) => {
       parentId,
       lastDate,
       lastCommentId,
-      pageSize
+      pageSize,
+      req.user?._id ? req.user._id : null
     );
 
     const comments = comments_list.map((c) => {
       const temp = { ...c.toObject() };
       temp.has_reply = c.comments.length > 0;
-      temp.is_liked = c.likes.length > 0;
+      temp.is_liked = req.user?._id ? c.likes?.length > 0 : false;
       delete temp.comments;
       delete temp.likes;
       return temp;
