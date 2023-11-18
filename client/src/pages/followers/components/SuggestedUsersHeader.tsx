@@ -12,7 +12,7 @@ export default function SuggestedUsersHeader() {
           className="btn post-btn"
           onClick={() => window.location.replace("/home")}
         >
-          Skip
+          Finish
         </button>
       </div>
     </TopNavBarWrapper>
