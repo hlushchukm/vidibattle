@@ -4,9 +4,10 @@ import MessageInput from "./components/container/MessageInput";
 import MessagesContainer from "./components/container/MessagesContainer";
 import socket from "../../services/socket";
 import { useLocation, useParams } from "react-router-dom";
-import { get } from "../../services/crud";
+import { create, get } from "../../services/crud";
 import { useChatReceiverStore, useCurrentUserStore } from "../../store";
 import ChatNotFound from "../../components/ChatNotFound";
+import { toast } from "react-toastify";
 
 export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
@@ -41,7 +42,6 @@ export default function Messages() {
   useEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
 
-    // TODO: check if we have socket connection
     if (params.username) {
       getMessages(params.username);
     }
@@ -145,7 +145,6 @@ export default function Messages() {
   const handleSendMessage = () => {
     if (newMessage.length === 0) return;
     console.log("Here", newMessage, receiver);
-    // TODO: how to handle message send fails
 
     let payload: any = {
       sender: currentUserId,
@@ -157,9 +156,28 @@ export default function Messages() {
       payload.chatId = chatIdRef.current;
     }
 
-    socket.emit("SEND_MESSAGE", payload);
+    if (socket.connected) {
+      socket.emit("SEND_MESSAGE", payload);
+    } else {
+      sendMessageWithAPI(payload);
+    }
+
     addTempMessage(payload);
     setNewMessage("");
+  };
+
+  const sendMessageWithAPI = (payload: any) => {
+    create("chat/send", payload)
+      .then((res) => {
+        setTempMessages((s: any[]) => s.splice(1));
+        setMessages((s: any) => [...s, res.data]);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't send message"
+        );
+      });
   };
 
   const addTempMessage = (payload: any) => {
