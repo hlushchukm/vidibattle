@@ -19,7 +19,7 @@ export default function ProfilePostsContainer({
   showMoreBtn: boolean;
   loadMore: () => void;
 }) {
-  if (posts.length === 0) {
+  if (posts.length === 0 && !loading) {
     return (
       <div
         className="d-flex justify-content-center align-items-center bg-light my-4 h1 text-secondary rounded"
