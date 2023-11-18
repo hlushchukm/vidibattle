@@ -9,12 +9,16 @@ export default function MessagesContainer({
   tempMessages,
   loading,
   showMoreBtn,
+  messageComponentsRef,
   loadMore,
 }: {
   messages: any[];
   tempMessages: any[];
   loading: boolean;
   showMoreBtn: boolean;
+  messageComponentsRef: React.MutableRefObject<{
+    [key: string]: HTMLElement;
+  }>;
   loadMore: () => void;
 }) {
   const currentUserId = useCurrentUserStore((s: any) => s.id);
@@ -36,12 +40,19 @@ export default function MessagesContainer({
             </h5>
           )}
 
-          {!loading && showMoreBtn && (
+          {!loading && messages.length > 0 && (
             <div className="d-flex justify-content-center align-items-center">
-              <button className="btn text-primary" onClick={loadMore}>
-                <i className="fa fa-refresh me-2"></i>
-                <span>Show More</span>
-              </button>
+              {showMoreBtn && (
+                <button className="btn text-primary" onClick={loadMore}>
+                  <i className="fa fa-refresh me-2"></i>
+                  <span>Show More</span>
+                </button>
+              )}
+              {!showMoreBtn && (
+                <div className="divider divider-dashed border-warning inner-divider transparent mb-0">
+                  <span style={{ background: "#eee" }}>Start of Chat</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -53,7 +64,13 @@ export default function MessagesContainer({
 
             updateLastDate(msgDate);
             return (
-              <span key={i}>
+              <span
+                key={i}
+                ref={(el) =>
+                  (messageComponentsRef.current[message._id] =
+                    el as HTMLElement)
+                }
+              >
                 {(msgDate !== lastDateCopy || !lastDate) && (
                   <div className="divider border-info inner-divider transparent mb-0">
                     <span style={{ background: "#eee" }}>{msgDate}</span>

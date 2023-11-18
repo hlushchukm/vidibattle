@@ -31,12 +31,14 @@ export default function Messages() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [noMoreMessages, setNoMoreMessages] = useState(false);
 
+  const [firstTimeLoad, setFirstTimeLoad] = useState(true);
+  const [lastMessageToScrollTo, setLastMessageToScrollTo] = useState("");
+  const messagesComponentRef = useRef<{ [key: string]: HTMLElement }>({});
+
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
   useEffect(() => {
-    // start with the page scrolled to the bottom
-    // TODO: scroll not working on coming from share page, and it should scroll after fetching the data
     window.scrollTo(0, document.body.scrollHeight);
 
     // TODO: check if we have socket connection
@@ -87,6 +89,18 @@ export default function Messages() {
   useEffect(() => {
     // update messages ref whenever messages change
     messagesRef.current = messages;
+
+    // scroll to bottom after loading the messages for the first time
+    if (firstTimeLoad && messages.length > 0) {
+      window.scrollTo(0, document.body.scrollHeight);
+      setFirstTimeLoad(false);
+    } else {
+      // scroll to last message before loading when loading more messages
+      messagesComponentRef.current[lastMessageToScrollTo]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -169,7 +183,11 @@ export default function Messages() {
             tempMessages={tempMessages}
             loading={messagesLoading}
             showMoreBtn={!noMoreMessages}
-            loadMore={() => getMessages(params.username ?? "")}
+            loadMore={() => {
+              setLastMessageToScrollTo(lastMessageId ?? "");
+              getMessages(params.username ?? "");
+            }}
+            messageComponentsRef={messagesComponentRef}
           />
           <MessageInput
             text={newMessage}
