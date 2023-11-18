@@ -40,8 +40,8 @@ export default function Messages() {
     window.scrollTo(0, document.body.scrollHeight);
 
     // TODO: check if we have socket connection
-    if (params.id) {
-      getMessages(params.id);
+    if (params.username) {
+      getMessages(params.username);
     }
 
     // check if we already have a listener, if so skip
@@ -169,7 +169,7 @@ export default function Messages() {
             tempMessages={tempMessages}
             loading={messagesLoading}
             showMoreBtn={!noMoreMessages}
-            loadMore={() => getMessages(params.id ?? "")}
+            loadMore={() => getMessages(params.username ?? "")}
           />
           <MessageInput
             text={newMessage}
