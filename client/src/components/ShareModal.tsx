@@ -3,7 +3,7 @@ import SocialMediaShareBtns from "./SocialMediaShareBtns";
 import { get } from "../services/crud";
 import { getUsername, isLoggedIn } from "../services/auth";
 import { toast } from "react-toastify";
-import { Link, createSearchParams, useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import { getName } from "../services/utils";
 import { useShareStore } from "../store";
 import { env } from "../env";
