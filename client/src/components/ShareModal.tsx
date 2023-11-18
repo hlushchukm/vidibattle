@@ -202,6 +202,7 @@ export default function ShareModal() {
                         })
                       }
                       style={{ cursor: "pointer" }}
+                      data-bs-toggle="offcanvas"
                     >
                       <img
                         src={formatResourceURL(user.profile_img)}
@@ -221,6 +222,7 @@ export default function ShareModal() {
                         })
                       }
                       style={{ cursor: "pointer" }}
+                      data-bs-toggle="offcanvas"
                     >
                       <h6 className="name">{getName(user)}</h6>
                       <span className="username">@{user.username}</span>
@@ -238,6 +240,7 @@ export default function ShareModal() {
                       })
                     }
                     className="btn btn-primary btn-sm"
+                    data-bs-toggle="offcanvas"
                   >
                     Send
                   </button>
