@@ -114,9 +114,16 @@ module.exports.getChatList = async (req, res, next) => {
 
     if (searchString.length > 0) {
       // Filter contacts based on search string
-      let splittedString = searchString.trim().toLowerCase().split(" ");
+
+      let splittedString = searchString;
+      if (splittedString[0] === "@") {
+        splittedString = splittedString.slice(1);
+      }
+      splittedString = splittedString.trim().toLowerCase().split(" ");
+
       filteredContacts = contacts.filter(
         (contact) =>
+          contact.user.username.toLowerCase().includes(splittedString[0]) ||
           contact.user.first_name.toLowerCase().includes(splittedString[0]) ||
           contact.user.last_name
             .toLowerCase()
@@ -138,7 +145,11 @@ module.exports.getChatList = async (req, res, next) => {
       }
 
       const query = {
-        $or: [{ first_name: regex1 }, { last_name: regex2 ? regex2 : regex1 }],
+        $or: [
+          { username: regex1 },
+          { first_name: regex1 },
+          { last_name: regex2 ? regex2 : regex1 },
+        ],
         _id: {
           $nin: [user._id, ...user.blocked_users, ...user.blocked_by],
         },
@@ -200,8 +211,6 @@ module.exports.getMessages = async (req, res, next) => {
     if (!specifiedUser) {
       return res.status(404).json({ message: "requested user not found" });
     }
-
-    console.log(specifiedUser)
 
     // Check if the current user has blocked the specified user
     const currentUser = await User.findById(currentUserId).exec();
