@@ -24,19 +24,19 @@ export default function BasicInfo({
     const address = profile.address;
     let res = "";
 
-    if (address.country) {
+    if (address?.country) {
       res += address.country;
     }
 
-    if (address.state) {
+    if (address?.state) {
       res += ", " + address.state;
     }
 
-    if (address.city) {
+    if (address?.city) {
       res += ", " + address.city;
     }
 
-    if (address.address_line) {
+    if (address?.address_line) {
       res += ", " + address.address_line;
     }
 

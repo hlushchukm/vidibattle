@@ -13,7 +13,7 @@ export default function SocialMediaLinks({
         spaceBetween={"0px"}
         slidesPerView={"auto"}
       >
-        {social_links.facebook && (
+        {social_links?.facebook && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.facebook}
@@ -27,7 +27,7 @@ export default function SocialMediaLinks({
             </a>
           </SwiperSlide>
         )}
-        {social_links.instagram && (
+        {social_links?.instagram && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.instagram}
@@ -39,7 +39,7 @@ export default function SocialMediaLinks({
             </a>
           </SwiperSlide>
         )}
-        {social_links.twitter && (
+        {social_links?.twitter && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.twitter}
@@ -50,7 +50,7 @@ export default function SocialMediaLinks({
             </a>
           </SwiperSlide>
         )}
-        {social_links.snapchat && (
+        {social_links?.snapchat && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.snapchat}
@@ -85,7 +85,7 @@ export default function SocialMediaLinks({
             </a>
           </SwiperSlide>
         )}
-        {social_links.linkedin && (
+        {social_links?.linkedin && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.linkedin}
@@ -96,7 +96,7 @@ export default function SocialMediaLinks({
             </a>
           </SwiperSlide>
         )}
-        {social_links.whatsapp && (
+        {social_links?.whatsapp && (
           <SwiperSlide style={{ width: "60px" }}>
             <a
               href={social_links.whatsapp}
