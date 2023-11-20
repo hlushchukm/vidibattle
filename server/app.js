@@ -4,12 +4,17 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const createError = require("http-errors");
 const cors = require("cors");
+const cron = require("node-cron");
 require("dotenv").config({ path: "./config.env" });
 const routes = require("./routes/api");
 const passport = require("passport");
 const passportStrategy = require("./services/passport");
 const { logger } = require("./services/logger");
 const websocket = require("./services/websocket");
+const {
+  updateCompetitionStartsForToday,
+  updateCompetitionEndsForToday,
+} = require("./controllers/competition.controller");
 // const https = require("https");
 // const fs = require("fs");
 
@@ -79,6 +84,12 @@ const connect = mongoose
       return;
     });
 
+    // Schedule the cron job to run every day at midnight (00:00)
+    cron.schedule("0 0 * * *", async () => {
+      await updateCompetitionStartsForToday();
+      await updateCompetitionEndsForToday();
+    });
+
     const port = process.env.PORT || 5000;
 
     // https
@@ -97,8 +108,15 @@ const connect = mongoose
 
     const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
+      runOnServerStart();
     });
 
     websocket(server);
   })
   .catch((err) => console.log("MongoDB Connection Error:", err));
+
+// functions to run on server start
+const runOnServerStart = async () => {
+  await updateCompetitionStartsForToday();
+  await updateCompetitionEndsForToday();
+};
