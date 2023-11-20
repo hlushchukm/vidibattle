@@ -79,10 +79,6 @@ export default function Home() {
     <>
       <HomeHeader />
 
-      {/* Sidebar  */}
-      {/* TODO: figure out the sidebar - it shows on home page header btn click */}
-      {/* Sidebar End  */}
-
       {/* Page Content  */}
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
