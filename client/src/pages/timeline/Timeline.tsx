@@ -13,6 +13,7 @@ import {
   formatResourceURL,
   handlePostImageError,
 } from "../../services/asset-paths";
+import { toast } from "react-toastify";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -73,6 +74,7 @@ export default function Timeline() {
       })
       .catch((e) => {
         console.log(e);
+        toast.error(e.response?.data?.message ?? "Error fetching posts");
         setPageLoading(false);
         // setShowLoading(false);
       });

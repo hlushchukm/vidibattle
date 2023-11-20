@@ -7,6 +7,7 @@ import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import { usePostStore } from "../../store";
 import ShareModal from "../../components/ShareModal";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -66,6 +67,7 @@ export default function Home() {
         console.log(e);
         setPageLoading(false);
         setPostsLoading(false);
+        toast.error(e.response?.data?.message ?? "Error fetching posts");
       });
   };
 

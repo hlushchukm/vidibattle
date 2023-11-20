@@ -5,7 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { getUser, getUserId } from "../../services/auth";
 import { ProgressBarStriped } from "../../components/ProgressBar";
 import PostPreview from "./components/PostPreview";
-import { formatResourceURL, handleProfileImageError } from "../../services/asset-paths";
+import {
+  formatResourceURL,
+  handleProfileImageError,
+} from "../../services/asset-paths";
+import { toast } from "react-toastify";
 
 export default function CreatePost() {
   const [postBtnDisabled, setPostBtnDisabled] = useState(true);
@@ -83,6 +87,9 @@ export default function CreatePost() {
         })
         .catch((error) => {
           setUploading(false);
+          toast.error(
+            error.response?.data?.message ?? "Error uploading file"
+          );
           console.error("Error uploading file:", error);
         });
     }
