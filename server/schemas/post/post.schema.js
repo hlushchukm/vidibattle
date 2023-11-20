@@ -16,6 +16,8 @@ const postSchema = new Schema(
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     comments_count: { type: Number, default: 0 },
     is_deleted: { type: Boolean, default: false },
+    competition: { type: Schema.Types.ObjectId, ref: "Competition" },
+    sticker: { type: Schema.Types.ObjectId, ref: "Media" },
   },
   { timestamps: true }
 );

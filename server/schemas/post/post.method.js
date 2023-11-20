@@ -8,6 +8,8 @@ module.exports.feed = function ({
   lastPostId,
   pageSize,
   currentUser,
+  competitionId,
+  allPosts, // get posts from followings list or from any person
 }) {
   let query = {
     is_deleted: false,
@@ -17,20 +19,26 @@ module.exports.feed = function ({
     ],
   }; // undeleted posts and posts by unblocked people
 
-  const unblockedFollowings = [];
+  if (competitionId) {
+    query.competition = competitionId;
+  }
 
-  currentUser.following.map((f) => {
-    if (
-      !currentUser?.blocked_users?.includes(f._id) &&
-      !currentUser?.blocked_by?.includes(f._id)
-    ) {
-      unblockedFollowings.push(f._id);
+  if (!allPosts) {
+    const unblockedFollowings = [];
+
+    currentUser.following.map((f) => {
+      if (
+        !currentUser?.blocked_users?.includes(f._id) &&
+        !currentUser?.blocked_by?.includes(f._id)
+      ) {
+        unblockedFollowings.push(f._id);
+      }
+    });
+
+    if (unblockedFollowings.length > 0) {
+      unblockedFollowings.push(currentUser._id);
+      query.author = { $in: unblockedFollowings };
     }
-  });
-
-  if (unblockedFollowings.length > 0) {
-    unblockedFollowings.push(currentUser._id);
-    query.author = { $in: unblockedFollowings };
   }
 
   if (lastDate) {
@@ -49,7 +57,7 @@ module.exports.feed = function ({
     query,
     "caption media likes_count comments_count createdAt updatedAt"
   )
-    .sort({ createdAt: -1, _id: -1 })
+    .sort(competitionId ? { likes_count: -1 } : { createdAt: -1, _id: -1 })
     .limit(parseInt(pageSize))
     .populate("author", "first_name last_name profile_img username address")
     .populate({

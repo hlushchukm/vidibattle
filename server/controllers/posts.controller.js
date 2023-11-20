@@ -4,7 +4,7 @@ const { User } = require("../models/user.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
-    let { pageSize, lastDate, lastPostId } = req.query;
+    let { pageSize, lastDate, lastPostId, competitionId } = req.query;
     const { _id: userId } = req.user;
 
     if (!pageSize) pageSize = 10;
@@ -18,6 +18,8 @@ module.exports.getFeed = async (req, res, next) => {
       lastPostId,
       pageSize,
       currentUser,
+      competitionId: competitionId,
+      allPosts: competitionId ? true : false,
     });
 
     let updatedLastDate = lastDate;
