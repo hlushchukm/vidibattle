@@ -14,6 +14,7 @@ import {
   handlePostImageError,
 } from "../../services/asset-paths";
 import { toast } from "react-toastify";
+import SearchResultsContainer from "./components/container/SearchResultsContainer";
 
 export default function Timeline() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -21,14 +22,15 @@ export default function Timeline() {
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
   const loadingAdditionalPosts = useRef<boolean>(false);
-  // const [showLoading, setShowLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchPage, setSearchPage] = useState(10);
+  const searchLimit = 10;
+  const [noMoreSearchUsers, setNoMoreSearchUsers] = useState(false);
+  const [showingSearchResults, setShowingSearchResults] = useState(false);
   const navigate = useNavigate();
-
-  // TODO:
-  /**
-   * 1. search by posts by their caption. current user posts or other posts
-   * 2. on video thumbnails, add a play icon and on click, take them to the explore page
-   */
 
   useEffect(() => {
     getTimeline();
@@ -39,7 +41,7 @@ export default function Timeline() {
   }, []);
 
   const getTimeline = async () => {
-    // setShowLoading(true);
+    setShowLoading(true);
     const pageSize = 15;
     return get("post/timeline/" + getUsername(), {
       pageSize,
@@ -70,13 +72,13 @@ export default function Timeline() {
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
         setPageLoading(false);
-        // setShowLoading(false);
+        setShowLoading(false);
       })
       .catch((e) => {
         console.log(e);
         toast.error(e.response?.data?.message ?? "Error fetching posts");
         setPageLoading(false);
-        // setShowLoading(false);
+        setShowLoading(false);
       });
   };
 
@@ -93,17 +95,83 @@ export default function Timeline() {
     }
   };
 
+  const delayTimer = useRef<any>();
+  const searchInputChanged = (text: string) => {
+    setSearchText(text);
+    if (!searchLoading && text.length > 0) {
+      clearTimeout(delayTimer.current);
+
+      delayTimer.current = setTimeout(() => {
+        setSearchResults([]);
+        setSearchPage(0);
+        setNoMoreSearchUsers(false);
+        searchUsers(0, text);
+      }, 700);
+    } else {
+      closeSearchResults();
+    }
+  };
+
+  const searchUsers = (pageCopy: number, text: string) => {
+    setShowingSearchResults(true);
+    setSearchLoading(true);
+    get("user/search", {
+      name: text,
+      page: pageCopy + 1,
+      limit: searchLimit,
+    })
+      .then((res) => {
+        if (res.data.length < searchLimit) {
+          setNoMoreSearchUsers(true);
+        }
+
+        setSearchResults((s: any) => [...s, ...res.data]);
+        setSearchPage(res.page);
+        setSearchLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error while searching users"
+        );
+        setSearchLoading(false);
+      });
+  };
+
+  const closeSearchResults = () => {
+    setShowingSearchResults(false);
+    setNoMoreSearchUsers(false);
+    setSearchPage(0);
+    setSearchResults([]);
+    setSearchLoading(false);
+    setSearchText("");
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
 
   return (
     <>
-      <TimelineHeader />
+      <TimelineHeader
+        value={searchText}
+        onChange={(e) => searchInputChanged(e.target.value)}
+      />
 
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
+            <div className="pt-3">
+              {showingSearchResults && (
+                <SearchResultsContainer
+                  users={searchResults}
+                  loading={searchLoading}
+                  showMoreBtn={!noMoreSearchUsers}
+                  loadMore={() => searchUsers(searchPage, searchText)}
+                  closeSearchResults={closeSearchResults}
+                />
+              )}
+            </div>
             <div className="title-bar my-2">
               <h6 className="mb-0">My Posts</h6>
               <div className="dz-tab style-2">
@@ -170,7 +238,7 @@ export default function Timeline() {
                   ))}
                 </div>
               </div>
-              {loadingAdditionalPosts.current && <BlinkingLoadingCircles />}
+              {showLoading && <BlinkingLoadingCircles />}
             </div>
           </div>
         </div>
