@@ -20,6 +20,8 @@ import SinglePost from "./pages/home/SinglePost";
 import Logout from "./pages/Logout";
 import StaticPage from "./pages/static-pages/StaticPage";
 import SuggestUsersToFollow from "./pages/followers/SuggestUsersToFollow";
+import CompetitionsList from "./pages/competition/CompetitionsList";
+import CompetitionPosts from "./pages/competition/CompetitionPosts";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -90,6 +92,22 @@ export default function Router() {
                 element={
                   <MainLayout active="home">
                     <Home />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/competition"
+                element={
+                  <MainLayout>
+                    <CompetitionsList />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/competition/:id"
+                element={
+                  <MainLayout>
+                    <CompetitionPosts />
                   </MainLayout>
                 }
               />
