@@ -11,9 +11,13 @@ import { toast } from "react-toastify";
 
 interface PostContainerProps {
   feed: any[];
+  showAddBtn?: boolean;
 }
 
-export default function PostsContainer({ feed }: PostContainerProps) {
+export default function PostsContainer({
+  feed,
+  showAddBtn,
+}: PostContainerProps) {
   const [visibleComment, setVisibleComment] = useState<string | null>();
   const componentRefs = useRef<{ [key: string]: HTMLElement }>({});
   const postToReport = useReportStore((state) => state.post);
@@ -69,7 +73,7 @@ export default function PostsContainer({ feed }: PostContainerProps) {
   };
 
   if (feed.length === 0) {
-    return <NoPostsFound showBtn={true} />;
+    return <NoPostsFound showBtn={showAddBtn ?? true} />;
   }
 
   return (
