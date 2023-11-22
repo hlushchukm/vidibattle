@@ -6,8 +6,9 @@ import PostsContainer from "../home/components/container/PostsContainer";
 import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
 import ShareModal from "../../components/ShareModal";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
+import CompetitionInfo from "./components/container/CompetitionInfo";
 
-export default function Competition() {
+export default function CompetitionPosts() {
   const [posts, setPosts] = useState<any[]>([]);
   const [competitionId, setCompetitionId] = useState<string>();
   const lastDate = useRef<string | null>(null);
@@ -69,7 +70,9 @@ export default function Competition() {
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
-            <PostsContainer feed={posts} />
+            <CompetitionInfo competition={null} />
+
+            <PostsContainer feed={posts} showAddBtn={false} />
           </div>
 
           {postsLoading && <BlinkingLoadingCircles />}
