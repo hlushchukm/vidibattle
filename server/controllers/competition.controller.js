@@ -78,6 +78,7 @@ module.exports.createCompetition = async (req, res, next) => {
       start_date: start_date_str,
       end_date: end_date_str,
       is_paid,
+      amount,
     } = req.body;
 
     const imageFile = req.file;
@@ -87,6 +88,12 @@ module.exports.createCompetition = async (req, res, next) => {
         message:
           "missing field. name, description, start date, and end date are required",
       });
+    }
+
+    if (is_paid && !amount) {
+      return res
+        .status(400)
+        .json({ message: "payment amount is needed for paid competitions" });
     }
 
     const start_date = new Date(start_date_str);
@@ -115,6 +122,7 @@ module.exports.createCompetition = async (req, res, next) => {
 
     if (is_paid) {
       competitionData.is_paid = is_paid;
+      competitionData.amount = amount;
     }
 
     if (imageFile) {

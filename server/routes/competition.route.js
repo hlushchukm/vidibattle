@@ -16,7 +16,7 @@ router.get("/admin/list", getCompetitionsList);// use admin authguard here
 
 // post
 router.post("/create", createCompetition);
-router.post("/start", startCompetition);
-router.post("/end", endCompetition);
+router.post("/start/:id", startCompetition);
+router.post("/end/:id", endCompetition);
 
 module.exports = router;
