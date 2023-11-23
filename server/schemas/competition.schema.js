@@ -15,6 +15,7 @@ const competitionSchema = Schema(
     },
     winning_posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
     is_paid: { type: Boolean, default: false },
+    amount: { type: Number },
     image: { type: String },
   },
   { timestamps: true }

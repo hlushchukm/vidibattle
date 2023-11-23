@@ -213,3 +213,24 @@ const getCompetitionWinners = async (competitionId) => {
   // no winner
   return [];
 };
+
+module.exports.getCompetitionsList = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, status = "scheduled" } = req.query;
+
+    const total = await Competition.countDocuments({ status });
+    const competitions = await Competition.find({ status })
+      .sort({ start_date: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.status(200).json({
+      data: competitions,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
