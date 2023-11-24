@@ -22,6 +22,7 @@ import StaticPage from "./pages/static-pages/StaticPage";
 import SuggestUsersToFollow from "./pages/followers/SuggestUsersToFollow";
 import CompetitionsList from "./pages/competition/CompetitionsList";
 import CompetitionPosts from "./pages/competition/CompetitionPosts";
+import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -137,6 +138,7 @@ export default function Router() {
                 }
               />
               <Route path="/create-post" element={<CreatePost />} />
+              <Route path="/competition/:id/create-post" element={<CreateCompetitionPost />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/setting" element={<Setting />} />
               <Route path="/blocked" element={<Blocked />} />
