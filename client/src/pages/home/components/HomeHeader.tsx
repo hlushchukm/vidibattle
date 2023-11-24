@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function HomeHeader() {
@@ -11,6 +12,14 @@ export default function HomeHeader() {
         </div>
         <div className="mid-content"></div>
         <div className="right-content d-flex align-items-center">
+          <Link
+            to="/competition"
+            title="competitions"
+            style={{ cursor: "pointer" }}
+            className="bell-icon menu-toggler"
+          >
+            <i className="fa fa-trophy text-primary"></i>
+          </Link>
           {/* <a href="reels" className="bell-icon me-2">
             <svg
               id="Layer_3"
