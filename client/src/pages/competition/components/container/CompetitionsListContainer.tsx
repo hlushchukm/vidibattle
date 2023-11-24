@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { get } from "../../../../services/crud";
 import Competition from "../ui/Competition";
+import { toast } from "react-toastify";
+import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 
 export default function CompetitionsListContainer({
   status,
@@ -23,14 +25,23 @@ export default function CompetitionsListContainer({
       status,
       page: page + 1,
       limit,
-    }).then((res) => {
-      if (res.data.length < limit) {
-        setNoMoreCompetitions(true);
-      }
+    })
+      .then((res) => {
+        if (res.data.length < limit) {
+          setNoMoreCompetitions(true);
+        }
 
-      setCompetitions(res.data);
-      setPage(res.page);
-    });
+        setCompetitions((c: any) => [...c, ...res.data]);
+        setPage(res.page);
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't load competitions"
+        );
+        setLoading(false);
+      });
   };
 
   const getStatusLabel = (status: "scheduled" | "started" | "ended") => {
@@ -49,7 +60,7 @@ export default function CompetitionsListContainer({
       <h3>{getStatusLabel(status)}</h3>
       <div className="divider"></div>
 
-      {competitions.length === 0 ? (
+      {competitions.length === 0 && !loading ? (
         <>
           <h4 className="text-muted py-4 text-center">
             No {getStatusLabel(status)} Competitions
@@ -62,6 +73,16 @@ export default function CompetitionsListContainer({
               <Competition key={competition._id} competition={competition} />
             </>
           ))}
+          {loading && <BlinkingLoadingCircles />}
+
+          {!loading && !noMoreCompetitions && (
+            <button
+              className={`btn light btn-primary ${loading && "disabled"}`}
+              onClick={fetchCompetitions}
+            >
+              <span>show more</span>
+            </button>
+          )}
         </div>
       )}
     </>
