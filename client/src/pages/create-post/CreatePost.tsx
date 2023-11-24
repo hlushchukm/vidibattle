@@ -11,7 +11,13 @@ import {
 } from "../../services/asset-paths";
 import { toast } from "react-toastify";
 
-export default function CreatePost() {
+export default function CreatePost({
+  allowedTypes = "any",
+  competitionId = null,
+}: {
+  allowedTypes?: "image" | "video" | "any";
+  competitionId?: string | null;
+}) {
   const [postBtnDisabled, setPostBtnDisabled] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
   const [thumbnail, setThumbnail] = useState(null);
@@ -76,6 +82,7 @@ export default function CreatePost() {
       formData.append("caption", caption);
       formData.append("type", fileType);
       if (thumbnail) formData.append("thumbnail", thumbnail);
+      if (competitionId) formData.append("competition", competitionId);
 
       setUploading(true);
 
@@ -87,9 +94,7 @@ export default function CreatePost() {
         })
         .catch((error) => {
           setUploading(false);
-          toast.error(
-            error.response?.data?.message ?? "Error uploading file"
-          );
+          toast.error(error.response?.data?.message ?? "Error uploading file");
           console.error("Error uploading file:", error);
         });
     }
@@ -203,26 +208,32 @@ export default function CreatePost() {
       <footer className="footer border-0">
         <div className="container">
           <ul className="element-list">
-            {(!selectedFile || fileType === "image") && (
-              <li style={{ cursor: "pointer" }}>
-                <a onClick={openPhotoDialog}>
-                  <i className="fa-solid fa-file-image"></i>Photo
-                </a>
-              </li>
-            )}
-            {(!selectedFile || fileType === "video") && (
-              <li style={{ cursor: "pointer" }}>
-                <a onClick={openVideoDialog}>
-                  <i className="fa-solid fa-video"></i>Video
-                </a>
-              </li>
-            )}
-            {selectedFile && fileType === "video" && (
-              <li style={{ cursor: "pointer" }}>
-                <a onClick={openThumbnailDialog}>
-                  <i className="fa-solid fa-file-image"></i>Thumbnail (optional)
-                </a>
-              </li>
+            {(!selectedFile || fileType === "image") &&
+              (allowedTypes === "any" || allowedTypes === "image") && (
+                <li style={{ cursor: "pointer" }}>
+                  <a onClick={openPhotoDialog}>
+                    <i className="fa-solid fa-file-image"></i>Photo
+                  </a>
+                </li>
+              )}
+            {(allowedTypes === "any" || allowedTypes === "video") && (
+              <>
+                {(!selectedFile || fileType === "video") && (
+                  <li style={{ cursor: "pointer" }}>
+                    <a onClick={openVideoDialog}>
+                      <i className="fa-solid fa-video"></i>Video
+                    </a>
+                  </li>
+                )}
+                {selectedFile && fileType === "video" && (
+                  <li style={{ cursor: "pointer" }}>
+                    <a onClick={openThumbnailDialog}>
+                      <i className="fa-solid fa-file-image"></i>Thumbnail
+                      (optional)
+                    </a>
+                  </li>
+                )}
+              </>
             )}
           </ul>
         </div>
