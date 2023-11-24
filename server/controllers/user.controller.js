@@ -576,7 +576,6 @@ module.exports.searchUsers = async (req, res) => {
     } = req.query;
     const requesterId = req.user._id;
     const allUsers = await User.find({}, "first_name last_name username");
-    console.log(allUsers);
 
     const requester = await User.findById(requesterId);
     if (!requester) {
