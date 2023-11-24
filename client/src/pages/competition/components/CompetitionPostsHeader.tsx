@@ -6,7 +6,7 @@ export default function CompetitionPostsHeader() {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn to="/competition" />
+          <BackBtn />
           <h4 className="title mb-0">Posts</h4>
         </div>
         <div className="mid-content"></div>

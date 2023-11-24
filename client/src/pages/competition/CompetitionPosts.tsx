@@ -8,15 +8,20 @@ import ShareModal from "../../components/ShareModal";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import CompetitionInfo from "./components/container/CompetitionInfo";
 import PageLoading from "../../components/PageLoading";
+import { usePostStore } from "../../store";
 
 export default function CompetitionPosts() {
   const [pageLoading, setPageLoading] = useState(true);
-  const [posts, setPosts] = useState<any[]>([]);
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
   const [competitionId, setCompetitionId] = useState<string>();
+  const [postsLoading, setPostsLoading] = useState(false);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
-  const postsLoading = useRef(false);
+  const lastLikesCount = useRef<string | null>(null);
+  const postsLoadingRef = useRef(true);
+  const posts = usePostStore((state) => state.posts);
+  const addToFeed = usePostStore((state) => state.addToFeed);
+  const clearPosts = usePostStore((state) => state.clearPosts);
 
   const pageSize = 10;
   const params = useParams();
@@ -25,7 +30,10 @@ export default function CompetitionPosts() {
     setCompetitionId(params.id);
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearPosts();
+    };
   }, []);
 
   useEffect(() => {
@@ -36,22 +44,28 @@ export default function CompetitionPosts() {
   }, [competitionId]);
 
   const getPosts = async (competitionId: string) => {
-    postsLoading.current = true;
-    get("post/feed", {
+    setPostsLoading(true);
+    return get("post/feed", {
       pageSize,
-      lastDate,
-      lastPostId,
+      lastDate: lastDate.current,
+      lastPostId: lastPostId.current,
+      lastLikesCount: lastLikesCount.current,
       competitionId,
     })
       .then((res) => {
-        setPosts((s) => [...s, ...res.data]);
+        if (res.data.length === 0) {
+          postsLoadingRef.current = false;
+          window.removeEventListener("scroll", handleScroll);
+        }
+        addToFeed([...res.data]);
         lastDate.current = res.lastDate;
         lastPostId.current = res.lastPostId;
-        postsLoading.current = false;
+        lastLikesCount.current = res.lastLikesCount;
+        setPostsLoading(false);
       })
       .catch((e) => {
         console.log(e);
-        postsLoading.current = false;
+        setPostsLoading(false);
         toast.error(e.response?.data?.message ?? "Error while fetching posts");
       });
   };
@@ -76,11 +90,11 @@ export default function CompetitionPosts() {
       params.id &&
       window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 5 &&
-      !postsLoading.current
+      !postsLoadingRef.current
     ) {
-      postsLoading.current = true;
+      postsLoadingRef.current = true;
       await getPosts(params.id);
-      postsLoading.current = false;
+      postsLoadingRef.current = false;
     }
   };
 
@@ -97,10 +111,16 @@ export default function CompetitionPosts() {
           <div className="container bottom-content">
             <CompetitionInfo competition={competitionInfo} />
 
-            <PostsContainer feed={posts} showAddBtn={false} />
-          </div>
+            <div className="my-4 bg-white">
+              <div className="divider border-secondary divider-dashed"></div>
+              <h3 className="text-center">Posts</h3>
+              <div className="divider border-secondary divider-dashed"></div>
+            </div>
 
-          {postsLoading && <BlinkingLoadingCircles />}
+            <PostsContainer feed={posts} showAddBtn={false} />
+
+            {postsLoading && <BlinkingLoadingCircles />}
+          </div>
         </div>
       </div>
 

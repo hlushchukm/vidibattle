@@ -79,9 +79,9 @@ export default function PostsContainer({
   return (
     <>
       <div className="post-area">
-        {feed.map((post, i) => (
+        {feed.map((post) => (
           <div
-            key={i}
+            key={post._id}
             ref={(el) => (componentRefs.current[post._id] = el as HTMLElement)}
           >
             <Post
