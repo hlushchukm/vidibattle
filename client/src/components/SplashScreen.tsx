@@ -19,23 +19,23 @@ export default function SplashScreen() {
             <div id="loading-area" className="loading-page-4">
               <div className="loading-inner">
                 <div className="load-text">
-                  <span data-text="S" className="text-load">
-                    S
+                  <span data-text="T" className="text-load">
+                    T
                   </span>
-                  <span data-text="O" className="text-load">
-                    O
-                  </span>
-                  <span data-text="Z" className="text-load">
-                    Z
+                  <span data-text="W" className="text-load">
+                    W
                   </span>
                   <span data-text="I" className="text-load">
                     I
                   </span>
-                  <span data-text="E" className="text-load">
-                    E
+                  <span data-text="N" className="text-load">
+                    N
                   </span>
-                  <span data-text="T" className="text-load">
-                    T
+                  <span data-text="P" className="text-load">
+                    P
+                  </span>
+                  <span data-text="H" className="text-load">
+                    H
                   </span>
                   <span data-text="Y" className="text-load">
                     Y
