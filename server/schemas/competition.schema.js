@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const competitionSchema = Schema(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
     status: {
@@ -13,6 +13,7 @@ const competitionSchema = Schema(
       enum: ["scheduled", "started", "ended"],
       default: "scheduled",
     },
+    type: { type: String, enum: ["video", "image", "any"], default: "any" },
     winning_posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
     is_paid: { type: Boolean, default: false },
     amount: { type: Number, default: 0 },
