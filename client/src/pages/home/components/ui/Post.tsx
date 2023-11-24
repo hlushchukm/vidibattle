@@ -138,6 +138,20 @@ export default function Post({
             </div>
           )}
         </div>
+        {post.competition && (
+          <p>
+            <span
+              className="badge badge-secondary me-1 mb-1 px-3"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/competition/" + post.competition._id)}
+            >
+              <span className="me-2">
+                <i className="fa fa-trophy"></i>
+              </span>
+              <span>{post.competition.name}</span>
+            </span>
+          </p>
+        )}
         <p className="text-black">{post.caption}</p>
         <div className="dz-media">
           {post.media?.[0]?.type === "image" && (
