@@ -7,9 +7,12 @@ import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
 import ShareModal from "../../components/ShareModal";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import CompetitionInfo from "./components/container/CompetitionInfo";
+import PageLoading from "../../components/PageLoading";
 
 export default function CompetitionPosts() {
+  const [pageLoading, setPageLoading] = useState(true);
   const [posts, setPosts] = useState<any[]>([]);
+  const [competitionInfo, setCompetitionInfo] = useState<any>({});
   const [competitionId, setCompetitionId] = useState<string>();
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
@@ -26,7 +29,10 @@ export default function CompetitionPosts() {
   }, []);
 
   useEffect(() => {
-    if (competitionId) getPosts(competitionId);
+    if (competitionId) {
+      getPosts(competitionId);
+      getBasicInfo(competitionId);
+    }
   }, [competitionId]);
 
   const getPosts = async (competitionId: string) => {
@@ -50,6 +56,21 @@ export default function CompetitionPosts() {
       });
   };
 
+  const getBasicInfo = (id: string) => {
+    get("competition/info/" + id)
+      .then((res) => {
+        setCompetitionInfo(res.data);
+        setPageLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! Couldn't load competition info"
+        );
+        setPageLoading(false);
+      });
+  };
+
   const handleScroll = async () => {
     if (
       params.id &&
@@ -63,6 +84,10 @@ export default function CompetitionPosts() {
     }
   };
 
+  if (pageLoading) {
+    return <PageLoading />;
+  }
+
   return (
     <>
       <CompetitionPostsHeader />
@@ -70,7 +95,7 @@ export default function CompetitionPosts() {
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
-            <CompetitionInfo competition={null} />
+            <CompetitionInfo competition={competitionInfo} />
 
             <PostsContainer feed={posts} showAddBtn={false} />
           </div>

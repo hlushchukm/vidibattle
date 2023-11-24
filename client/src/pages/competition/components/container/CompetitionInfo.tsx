@@ -1,37 +1,61 @@
-import { handleCompetitionImageError } from "../../../../services/asset-paths";
+import { formatResourceURL, handleCompetitionImageError } from "../../../../services/asset-paths";
+import { getDate } from "../../../../services/timeAndDate";
 
 export default function CompetitionInfo({ competition }: { competition: any }) {
   return (
     <>
       <div className="card mb-3">
         <img
-          src={competition?.image}
+          src={formatResourceURL(competition?.image)}
           className="card-img-top"
           style={{ height: "180px", objectFit: "cover" }}
           onError={handleCompetitionImageError}
         />
         <div className="card-body">
-          <h5 className="card-title">{competition?.name}</h5>
-          <p className="card-text">{competition?.description}</p>
+          <h5 className="card-title">
+            <span>{competition?.name}</span>
+          </h5>
+          <p className="card-text">
+            <span>{competition?.description}</span>
+          </p>
+          <div className="divider"></div>
           <p className="card-text d-flex gap-2">
-            <small className="text-muted">
-              Start Date: {competition?.start_date},
+            <small className="">
+              Start Date:{" "}
+              <span className="fw-bolder">
+                {getDate(competition?.start_date)},
+              </span>
             </small>
-            <small className="text-muted">
-              End Date: {competition?.end_date}
+            <small className="">
+              End Date:{" "}
+              <span className="fw-bolder">
+                {getDate(competition?.end_date)}
+              </span>
             </small>
           </p>
+          <p className="card-text d-flex gap-2">
+            <small className="">
+              Post Types Allowed:{" "}
+              <span className="fw-bolder">{competition?.type}</span>
+            </small>
+          </p>
+
           {competition?.is_paid ? (
             <>
               <p className="card-text d-flex gap-2">
-                <small className="text-muted">
-                  Payment Amount: {competition?.amout}
+                <small className="">
+                  Payment Amount:{" "}
+                  <span className="fw-bolder">{competition?.amount}</span>
                 </small>
               </p>
+              <div className="divider"></div>
               <button className="btn btn-secondary">Pay and Join</button>
             </>
           ) : (
-            <button className="btn btn-secondary">Create Post</button>
+            <>
+              <div className="divider"></div>
+              <button className="btn btn-secondary">Create Post</button>
+            </>
           )}
         </div>
       </div>
