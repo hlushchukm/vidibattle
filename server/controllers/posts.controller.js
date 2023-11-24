@@ -1,10 +1,12 @@
 const { Post } = require("../models/post.model");
 const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
+const { Competition } = require("../models/competition.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
-    let { pageSize, lastDate, lastPostId, competitionId } = req.query;
+    let { pageSize, lastDate, lastPostId, competitionId, lastLikesCount } =
+      req.query;
     const { _id: userId } = req.user;
 
     if (!pageSize) pageSize = 10;
@@ -20,22 +22,30 @@ module.exports.getFeed = async (req, res, next) => {
       currentUser,
       competitionId: competitionId,
       allPosts: competitionId ? true : false,
+      lastLikesCount: competitionId ? lastLikesCount : null,
     });
 
     let updatedLastDate = lastDate;
     let updatedLastPostId = lastPostId;
+    let updatedLastLikesCount;
+    if (competitionId) updatedLastLikesCount = lastLikesCount;
 
     if (posts.length > 0) {
       updatedLastDate = posts[posts.length - 1].createdAt.toISOString();
       updatedLastPostId = posts[posts.length - 1]._id.toString();
+      if (competitionId)
+        updatedLastLikesCount = posts[posts.length - 1].likes_count.toString();
     }
 
-    res.status(200).json({
+    const response = {
       data: posts,
       pageSize,
       lastDate: updatedLastDate,
       lastPostId: updatedLastPostId,
-    });
+    };
+    if (competitionId) response.lastLikesCount = updatedLastLikesCount;
+
+    res.status(200).json(response);
   } catch (error) {
     next(error);
   }
@@ -116,6 +126,7 @@ module.exports.getPost = async (req, res, next) => {
           path: "thumbnail",
         },
       },
+      { path: "competition" },
     ]);
 
     const responsePost = { ...post.toObject(), is_liked };
@@ -127,7 +138,7 @@ module.exports.getPost = async (req, res, next) => {
 };
 
 module.exports.create = async (req, res, next) => {
-  const { caption, author, type } = req.body;
+  const { caption, author, type, competition } = req.body;
   const mainFile = req.files["file"][0];
   const thumbnailFile = req.files["thumbnail"]?.[0];
 
@@ -143,6 +154,17 @@ module.exports.create = async (req, res, next) => {
   }
 
   try {
+    if (competition) {
+      const competitionItem = await Competition.find({
+        status: "started",
+        _id: competition,
+      });
+
+      if (!competitionItem) {
+        return res.status(400).json({ message: "competition not found" });
+      }
+    }
+
     // create the media document
     const media = new Media({
       filename: mainFile.filename,
@@ -166,11 +188,14 @@ module.exports.create = async (req, res, next) => {
 
     await media.save();
 
-    const post = new Post({
+    const postData = {
       caption,
       media: [media._id],
       author,
-    });
+    };
+    if (competition) postData.competition = competition;
+
+    const post = new Post(postData);
 
     // update the user's post array
     await User.addPost(author, post._id);

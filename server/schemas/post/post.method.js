@@ -10,6 +10,7 @@ module.exports.feed = function ({
   currentUser,
   competitionId,
   allPosts, // get posts from followings list or from any person
+  lastLikesCount,
 }) {
   let query = {
     is_deleted: false,
@@ -42,22 +43,45 @@ module.exports.feed = function ({
   }
 
   if (lastDate) {
-    query.$or = [
-      { createdAt: { $lt: new Date(lastDate) } },
-      {
-        $and: [
-          { createdAt: new Date(lastDate) },
-          { _id: { $lt: new mongoose.Types.ObjectId(lastPostId) } },
-        ],
-      },
-    ];
+    if (!competitionId) {
+      query.$or = [
+        { createdAt: { $lt: new Date(lastDate) } },
+        {
+          $and: [
+            { createdAt: new Date(lastDate) },
+            { _id: { $lt: new mongoose.Types.ObjectId(lastPostId) } },
+          ],
+        },
+      ];
+    } else {
+      query.$or = [
+        { likes_count: { $lt: lastLikesCount } },
+        {
+          $and: [
+            { likes_count: { $eq: lastLikesCount } },
+            { createdAt: { $lt: new Date(lastDate) } },
+          ],
+        },
+        {
+          $and: [
+            { likes_count: { $eq: lastLikesCount } },
+            { createdAt: new Date(lastDate) },
+            { _id: { $lt: new mongoose.Types.ObjectId(lastPostId) } },
+          ],
+        },
+      ];
+    }
   }
 
   return this.find(
     query,
-    "caption media likes_count comments_count createdAt updatedAt"
+    "caption media likes_count comments_count competition createdAt updatedAt"
   )
-    .sort(competitionId ? { likes_count: -1 } : { createdAt: -1, _id: -1 })
+    .sort(
+      competitionId
+        ? { likes_count: -1, createdAt: -1, _id: -1 }
+        : { createdAt: -1, _id: -1 }
+    )
     .limit(parseInt(pageSize))
     .populate("author", "first_name last_name profile_img username address")
     .populate({
@@ -70,7 +94,8 @@ module.exports.feed = function ({
       path: "likes",
       match: { _id: currentUser._id },
       select: "_id",
-    });
+    })
+    .populate("competition");
 };
 
 // generate a timeline for a user
