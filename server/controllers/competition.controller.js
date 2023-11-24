@@ -37,11 +37,6 @@ module.exports.updateCompetitionStartsForToday = async () => {
 
 module.exports.updateCompetitionEndsForToday = async () => {
   const currentDate = new Date();
-  const startOfDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate()
-  );
   const endOfDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
@@ -50,7 +45,7 @@ module.exports.updateCompetitionEndsForToday = async () => {
 
   try {
     const competitions = await Competition.find({
-      end_date: { $gte: startOfDay, $lt: endOfDay },
+      end_date: { $lt: endOfDay },
       status: "started",
     });
 
@@ -72,6 +67,8 @@ module.exports.updateCompetitionEndsForToday = async () => {
 
 module.exports.createCompetition = async (req, res, next) => {
   try {
+    const { data: strData } = req.body;
+    const data = JSON.parse(strData);
     const {
       name,
       description,
@@ -79,14 +76,15 @@ module.exports.createCompetition = async (req, res, next) => {
       end_date: end_date_str,
       is_paid,
       amount,
-    } = req.body;
+      type,
+    } = data;
 
     const imageFile = req.file;
 
-    if (!name || !description || !start_date_str || !end_date_str) {
+    if (!name || !start_date_str || !end_date_str || !type) {
       return res.status(400).json({
         message:
-          "missing field. name, description, start date, and end date are required",
+          "missing field. name, type, start date, and end date are required",
       });
     }
 
@@ -94,6 +92,12 @@ module.exports.createCompetition = async (req, res, next) => {
       return res
         .status(400)
         .json({ message: "payment amount is needed for paid competitions" });
+    }
+
+    if (type !== "video" && type !== "image" && type !== "any") {
+      return res
+        .status(400)
+        .json({ message: "invalid competition type given" });
     }
 
     const start_date = new Date(start_date_str);
@@ -118,6 +122,7 @@ module.exports.createCompetition = async (req, res, next) => {
       start_date,
       end_date,
       status,
+      type,
     };
 
     if (is_paid) {
@@ -237,6 +242,29 @@ module.exports.getCompetitionsList = async (req, res, next) => {
       page: parseInt(page),
       limit: parseInt(limit),
       total,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getCompetitionPosts = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const { id } = req.params;
+
+    const total = await Post.countDocuments({ competition: id });
+    const posts = await Post.find({ competition: id, is_deleted: false })
+      .populate("author", "first_name last_name profile_img username")
+      .sort({ likes_count: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.status(200).json({
+      data: posts,
+      total,
+      page: parseInt(page),
+      limit: parseInt(limit),
     });
   } catch (e) {
     next(e);
