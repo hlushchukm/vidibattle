@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 export default function AddPWA() {
   return (
     <>
@@ -25,4 +27,28 @@ export default function AddPWA() {
       <div className="offcanvas-backdrop pwa-backdrop"></div>
     </>
   );
+}
+
+export function usePwaInstallPrompt() {
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      // Prevent the default behavior to delay the prompt
+      e.preventDefault();
+      // Store the install prompt event
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt
+      );
+    };
+  }, []);
+
+  return installPrompt;
 }

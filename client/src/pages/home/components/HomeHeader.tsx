@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
-export default function HomeHeader() {
+export default function HomeHeader({ installPWA }: { installPWA: any }) {
+  const handleInstallClick = () => {
+    if (installPWA) {
+      installPWA.prompt();
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -16,10 +22,20 @@ export default function HomeHeader() {
             to="/competition"
             title="competitions"
             style={{ cursor: "pointer" }}
-            className="bell-icon menu-toggler"
+            className="bell-icon menu-toggler me-2"
           >
             <i className="fa fa-trophy text-primary"></i>
           </Link>
+          {installPWA && (
+            <a
+              onClick={handleInstallClick}
+              title="install app"
+              style={{ cursor: "pointer" }}
+              className="bell-icon menu-toggler me-2"
+            >
+              <i className="fa fa-download text-primary"></i>
+            </a>
+          )}
           {/* <a href="reels" className="bell-icon me-2">
             <svg
               id="Layer_3"

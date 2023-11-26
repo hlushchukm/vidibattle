@@ -8,8 +8,11 @@ import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import { usePostStore } from "../../store";
 import ShareModal from "../../components/ShareModal";
 import { toast } from "react-toastify";
+import { usePwaInstallPrompt } from "../../components/AddPWA";
 
 export default function Home() {
+  const installPWA: any = usePwaInstallPrompt();
+
   const [pageLoading, setPageLoading] = useState(true);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
@@ -77,7 +80,7 @@ export default function Home() {
 
   return (
     <>
-      <HomeHeader />
+      <HomeHeader installPWA={installPWA} />
 
       {/* Page Content  */}
       <div className="page-content min-vh-100">
