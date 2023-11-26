@@ -26,6 +26,7 @@ export default function AddPWA({ installPWA }: { installPWA: any }) {
   const handleInstallClick = () => {
     if (installPWA) {
       installPWA.prompt();
+      clearPWARemindDate();
     }
     closePWAModal();
   };
@@ -47,6 +48,10 @@ export default function AddPWA({ installPWA }: { installPWA: any }) {
 
   const setPWARemindDate = (date: Date) => {
     localStorage.setItem("PWA_remind_date", date.toString());
+  };
+
+  const clearPWARemindDate = () => {
+    localStorage.removeItem("PWA_remind_date");
   };
 
   return (
