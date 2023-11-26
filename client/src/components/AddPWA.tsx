@@ -1,21 +1,77 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function AddPWA() {
+export default function AddPWA({ installPWA }: { installPWA: any }) {
+  const canvasRef = useRef<HTMLElement>();
+  const backdropRef = useRef<HTMLElement>();
+
+  useEffect(() => {
+    if (
+      installPWA &&
+      (!getPWARemindDate() || getPWARemindDate() <= new Date())
+    ) {
+      showPWAModal();
+    }
+  }, []);
+
+  const showPWAModal = () => {
+    canvasRef.current?.classList.add("show");
+    backdropRef.current?.classList.add("fade", "show");
+  };
+
+  const closePWAModal = () => {
+    canvasRef.current?.classList.remove("show");
+    backdropRef.current?.classList.remove("fade", "show");
+  };
+
+  const handleInstallClick = () => {
+    if (installPWA) {
+      installPWA.prompt();
+    }
+    closePWAModal();
+  };
+
+  const handleCancelClick = () => {
+    const today = new Date();
+    const remindDate = new Date();
+    remindDate.setDate(today.getDate() + 3);
+
+    setPWARemindDate(remindDate);
+    closePWAModal();
+  };
+
+  const getPWARemindDate = (): Date => {
+    const storedDate = localStorage.getItem("PWA_remind_date");
+    if (storedDate) return new Date(storedDate);
+    else return new Date();
+  };
+
+  const setPWARemindDate = (date: Date) => {
+    localStorage.setItem("PWA_remind_date", date.toString());
+  };
+
   return (
     <>
-      <div className="offcanvas offcanvas-bottom pwa-offcanvas">
+      <div
+        ref={(el) => (canvasRef.current = el as HTMLElement)}
+        className="offcanvas offcanvas-bottom pwa-offcanvas"
+      >
         <div className="container">
           <div className="offcanvas-body small">
             <img className="logo" src="assets/images/icon.png" alt="" />
-            <h5 className="title">Soziety on Your Home Screen</h5>
+            <h5 className="title">Twinphy on Your Home Screen</h5>
             <p>
-              Install Soziety social network mobile app template to your home
-              screen for easy access, just like any other app
+              Install Twinphy social network mobile app to your home screen for
+              easy access, just like any other app
             </p>
-            <button type="button" className="btn btn-sm btn-primary pwa-btn">
+            <button
+              onClick={handleInstallClick}
+              type="button"
+              className="btn btn-sm btn-primary pwa-btn"
+            >
               Add to Home Screen
             </button>
             <button
+              onClick={handleCancelClick}
               type="button"
               className="btn btn-sm pwa-close light btn-secondary ms-2"
             >
@@ -24,7 +80,10 @@ export default function AddPWA() {
           </div>
         </div>
       </div>
-      <div className="offcanvas-backdrop pwa-backdrop"></div>
+      <div
+        ref={(el) => (backdropRef.current = el as HTMLElement)}
+        className="offcanvas-backdrop pwa-backdrop"
+      ></div>
     </>
   );
 }

@@ -8,7 +8,7 @@ import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import { usePostStore } from "../../store";
 import ShareModal from "../../components/ShareModal";
 import { toast } from "react-toastify";
-import { usePwaInstallPrompt } from "../../components/AddPWA";
+import AddPWA, { usePwaInstallPrompt } from "../../components/AddPWA";
 
 export default function Home() {
   const installPWA: any = usePwaInstallPrompt();
@@ -99,6 +99,8 @@ export default function Home() {
         </div>
       </div>
       {/* Page Content End */}
+
+      <AddPWA installPWA={installPWA} />
     </>
   );
 }
