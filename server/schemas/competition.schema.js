@@ -7,7 +7,6 @@ const competitionSchema = Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
-
     status: {
       type: String,
       enum: ["scheduled", "started", "ended", "cancelled"],
@@ -19,7 +18,7 @@ const competitionSchema = Schema(
     amount: { type: Number, default: 0 },
     image: { type: String },
     current_round: { type: Number, required: true, default: 1 },
-    rounds_count: { type: Number, required: true },
+    rounds_count: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }
 );

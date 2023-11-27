@@ -116,22 +116,13 @@ module.exports.createCompetition = async (req, res, next) => {
   try {
     const { data: strData } = req.body;
     const data = JSON.parse(strData);
-    const {
-      name,
-      description,
-      start_date: start_date_str,
-      end_date: end_date_str,
-      is_paid,
-      amount,
-      type,
-    } = data;
+    const { name, description, is_paid, amount, type, rounds } = data;
 
     const imageFile = req.file;
 
-    if (!name || !start_date_str || !end_date_str || !type) {
+    if (!name || !type || rounds.length === 0) {
       return res.status(400).json({
-        message:
-          "missing field. name, type, start date, and end date are required",
+        message: "missing field. name, type, and rounds are required",
       });
     }
 
@@ -147,29 +138,12 @@ module.exports.createCompetition = async (req, res, next) => {
         .json({ message: "invalid competition type given" });
     }
 
-    const start_date = new Date(start_date_str);
-    const end_date = new Date(end_date_str);
-
-    if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
-      return res.status(400).json({ error: "Invalid date format" });
-    }
-
-    // Validate start and end dates
-    if (start_date >= end_date) {
-      return res
-        .status(400)
-        .json({ error: "End date must be greater than start date" });
-    }
-
-    const status = start_date <= new Date() ? "started" : "scheduled";
-
     const competitionData = {
       name,
       description,
-      start_date,
-      end_date,
-      status,
+      status: "scheduled",
       type,
+      rounds_count: rounds.length,
     };
 
     if (is_paid) {
@@ -183,6 +157,51 @@ module.exports.createCompetition = async (req, res, next) => {
 
     const newCompetition = new Competition(competitionData);
     await newCompetition.save();
+
+    // create rounds
+    for (let i = 0; i < rounds.length; i++) {
+      const round = rounds[i];
+
+      if (!round.start_date || !round.end_date) {
+        return res
+          .status(400)
+          .json({ message: "found a round without start or end date" });
+      }
+
+      const start_date = new Date(round.start_date);
+      const end_date = new Date(round.end_date);
+
+      if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+        return res
+          .status(400)
+          .json({ error: "Invalid date format found in rounds" });
+      }
+
+      // Validate start and end dates
+      if (start_date >= end_date) {
+        return res
+          .status(400)
+          .json({ error: "End date must be greater than start date" });
+      }
+
+      if (start_date <= new Date()) {
+        newCompetition.status = "started";
+        newCompetition.current_round = round.number;
+        await newCompetition.save();
+      }
+
+      const newRound = new Round({
+        number: round.number || i,
+        start_date,
+        end_date,
+        min_likes: round.min_likes,
+        is_first_round: i === 0,
+        is_last_round: i + 1 >= rounds.length,
+        competition: newCompetition._id,
+      });
+
+      await newRound.save();
+    }
 
     res.status(201).json({
       message: "competition created successfully",
@@ -292,6 +311,7 @@ module.exports.endCompetition = async (req, res, next) => {
     next(e);
   }
 };
+
 module.exports.cancelCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -398,11 +418,16 @@ module.exports.getCompetitionsList = async (req, res, next) => {
 
 module.exports.getCompetitionPosts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, round } = req.query;
     const { id } = req.params;
 
-    const total = await Post.countDocuments({ competition: id });
-    const posts = await Post.find({ competition: id, is_deleted: false })
+    const query = { competition: id, is_deleted: false };
+    if (round !== undefined) {
+      query.round = round;
+    }
+
+    const total = await Post.countDocuments(query);
+    const posts = await Post.find(query)
       .populate("author", "first_name last_name profile_img username")
       .sort({ likes_count: -1 })
       .skip((page - 1) * limit)
@@ -414,6 +439,66 @@ module.exports.getCompetitionPosts = async (req, res, next) => {
       page: parseInt(page),
       limit: parseInt(limit),
     });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.leaveCompetition = async (req, res, next) => {
+  try {
+    const { competition, user } = req.params;
+
+    const competator = await CompetingUser.findOne({ user, competition });
+
+    if (!competator) {
+      return res
+        .status(404)
+        .json({ message: "user is not in the given competition" });
+    }
+
+    competator.status = "left";
+    await competator.save();
+
+    res.status(200).json({ message: "competition left" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.removeFromCompetition = async (req, res, next) => {
+  try {
+    const { competition, user } = req.params;
+    const { reason } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ message: "reason field is required" });
+    }
+
+    const competator = await CompetingUser.findOne({ competition, user });
+
+    if (!competator) {
+      return res
+        .status(404)
+        .json({ message: "user is not in the given competition" });
+    }
+
+    competator.status = "removed";
+    competator.removed_reason = reason;
+    await competator.save();
+
+    res.status(200).json({ message: "user removed from competition" });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getRounds = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const rounds = await Round.find({ competition: id }).sort({ number: 1 });
+
+    res.status(200).json({ data: rounds });
   } catch (e) {
     next(e);
   }
