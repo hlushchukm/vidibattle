@@ -1,4 +1,8 @@
-const { Competition } = require("../models/competition.model");
+const {
+  Competition,
+  Round,
+  CompetingUser,
+} = require("../models/competition.model");
 const { Post } = require("../models/post.model");
 
 module.exports.updateCompetitionStartsForToday = async () => {
@@ -15,23 +19,29 @@ module.exports.updateCompetitionStartsForToday = async () => {
   );
 
   try {
-    const competitions = await Competition.find({
+    const rounds = await Round.find({
       start_date: { $gte: startOfDay, $lt: endOfDay },
-      status: "scheduled",
     });
 
-    for (const competition of competitions) {
-      competition.status = "started";
-      await competition.save();
+    for (const round of rounds) {
+      const competition = await Competition.find({
+        _id: round.competition,
+      });
+
+      if (competition) {
+        competition.status = "started";
+        competition.current_round = round.number;
+        await competition.save();
+      }
     }
 
-    if (competitions.length > 0) {
-      console.log(competitions.length + " competitions started for today.");
+    if (rounds.length > 0) {
+      console.log(rounds.length + " competition rounds started for today.");
     } else {
-      console.log("No competitions start today.");
+      console.log("No competition rounds start today.");
     }
   } catch (error) {
-    console.error("Error starting competitions:", error);
+    console.error("Error starting competition rounds:", error);
   }
 };
 
@@ -44,24 +54,36 @@ module.exports.updateCompetitionEndsForToday = async () => {
   );
 
   try {
-    const competitions = await Competition.find({
+    const rounds = await Round.find({
       end_date: { $lt: endOfDay },
-      status: "started",
     });
 
-    for (const competition of competitions) {
-      competition.status = "ended"; // update status
-      competition.winning_posts = await getCompetitionWinners(competition._id);
-      await competition.save();
+    for (const round of rounds) {
+      const competition = await Competition.find({
+        _id: round.competition,
+      });
+
+      if (competition) {
+        if (round.is_last_round) {
+          competition.status = "ended"; // update status
+          competition.winners = await getCompetitionWinners(competition, round);
+          await competition.save();
+        } else {
+          competition.status = "started";
+          competition.current_round = round.number + 1;
+          await competition.save();
+          await advanceUsersToNextRound(competition);
+        }
+      }
     }
 
-    if (competitions.length > 0) {
-      console.log(competitions.length + " competitions ended today.");
+    if (rounds.length > 0) {
+      console.log(rounds.length + " competition rounds ended today.");
     } else {
-      console.log("No competitions end today.");
+      console.log("No competition rounds end today.");
     }
   } catch (error) {
-    console.error("Error ending competitions:", error);
+    console.error("Error ending competition rounds:", error);
   }
 };
 
@@ -207,10 +229,12 @@ module.exports.endCompetition = async (req, res, next) => {
   }
 };
 
-const getCompetitionWinners = async (competitionId) => {
+const getCompetitionWinners = async (competition, round) => {
   // find posts
   const posts = await Post.find({
-    competition: competitionId,
+    competition: competition._id,
+    round: round.number,
+    likes_count: { $gte: round.min_likes },
     is_deleted: false,
   })
     .sort("-likes_count")
@@ -219,12 +243,26 @@ const getCompetitionWinners = async (competitionId) => {
   if (posts.length > 0) {
     // set winner
     const maxLikes = posts[0].likes_count;
-    const winners = posts.filter((post) => post.likes_count === maxLikes);
+    const winners = posts
+      .filter((post) => post.likes_count === maxLikes)
+      .map((post) => post.author);
     return winners;
   }
 
   // no winner
   return [];
+};
+
+const advanceUsersToNextRound = async (competition) => {
+  const competingUsers = CompetingUser.find({
+    competition: competition._id,
+    status: "playing",
+  });
+
+  for (const competator of competingUsers) {
+    competator.current_round = competition.current_round;
+    await competator.save();
+  }
 };
 
 module.exports.getCompetitionsList = async (req, res, next) => {
