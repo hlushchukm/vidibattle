@@ -6,6 +6,7 @@ const {
   endCompetition,
   getCompetitionsList,
   getCompetitionPosts,
+  cancelCompetition,
 } = require("../controllers/competition.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const { upload } = require("../services/storage");
@@ -26,5 +27,6 @@ router.post(
 );
 router.post("/start/:id", adminAuthGuard, startCompetition);
 router.post("/end/:id", adminAuthGuard, endCompetition);
+router.post("/cancel/:id", adminAuthGuard, cancelCompetition);
 
 module.exports = router;

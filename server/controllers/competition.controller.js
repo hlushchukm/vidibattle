@@ -259,10 +259,31 @@ module.exports.endCompetition = async (req, res, next) => {
     }
 
     competition.status = "ended";
-    competition.winners = await getCompetitionWinners(competition._id);
+    competition.winners = await getCompetitionWinners(
+      competition._id,
+      competition.current_round
+    );
     await competition.save();
 
     return res.status(200).json({ message: "competition ended" });
+  } catch (e) {
+    next(e);
+  }
+};
+module.exports.cancelCompetition = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const competition = await Competition.findById(id);
+
+    if (!competition) {
+      return res.status(404).json({ message: "competition not found" });
+    }
+
+    competition.status = "cancelled";
+    await competition.save();
+
+    return res.status(200).json({ message: "competition cancelled" });
   } catch (e) {
     next(e);
   }
@@ -273,7 +294,6 @@ const getCompetitionWinners = async (competition, round) => {
   const posts = await Post.find({
     competition: competition._id,
     round: round.number,
-    // likes_count: { $gte: round.min_likes },
     is_deleted: false,
   })
     .sort("-likes_count")
@@ -289,6 +309,8 @@ const getCompetitionWinners = async (competition, round) => {
       const competator = await CompetingUser.findOne({
         user: post.author,
         competition: competition._id,
+        current_round: round.number,
+        status: "playing",
       });
 
       if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
@@ -336,7 +358,7 @@ module.exports.getCompetitionsList = async (req, res, next) => {
 
     const total = await Competition.countDocuments({ status });
     const competitions = await Competition.find({ status })
-      .sort({ start_date: -1 })
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
