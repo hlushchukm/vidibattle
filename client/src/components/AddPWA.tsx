@@ -34,7 +34,7 @@ export default function AddPWA({ installPWA }: { installPWA: any }) {
   const handleCancelClick = () => {
     const today = new Date();
     const remindDate = new Date();
-    remindDate.setDate(today.getDate() + 3);
+    remindDate.setDate(today.getDate() + 7);
 
     setPWARemindDate(remindDate);
     closePWAModal();
