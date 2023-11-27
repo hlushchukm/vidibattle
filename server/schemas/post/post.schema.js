@@ -17,6 +17,7 @@ const postSchema = new Schema(
     comments_count: { type: Number, default: 0 },
     is_deleted: { type: Boolean, default: false },
     competition: { type: Schema.Types.ObjectId, ref: "Competition" },
+    round: { type: Number },
     sticker: { type: Schema.Types.ObjectId, ref: "Media" },
   },
   { timestamps: true }
