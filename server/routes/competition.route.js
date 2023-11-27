@@ -5,7 +5,7 @@ const {
   startCompetition,
   endCompetition,
   getCompetitionsList,
-  getCompetitionPosts,
+  getCompetitorUsers,
   cancelCompetition,
   removeFromCompetition,
   advanceCompetitionRound,
@@ -19,7 +19,7 @@ const router = express.Router();
 router.get("/info/:id", authGuard, getCompetitionInfo);
 router.get("/list/", authGuard, getCompetitionsList);
 router.get("/admin/list", adminAuthGuard, getCompetitionsList);
-router.get("/post/list/:id", adminAuthGuard, getCompetitionPosts);
+router.get("/user/list/:id", adminAuthGuard, getCompetitorUsers);
 router.get("/rounds/:id", authGuard, getRounds);
 router.get("/admin/rounds/:id", adminAuthGuard, getRounds);
 

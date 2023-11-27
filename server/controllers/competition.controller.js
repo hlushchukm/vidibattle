@@ -235,7 +235,10 @@ module.exports.startCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const competition = await Competition.findById(id);
+    const competition = await Competition.findOne({
+      _id: id,
+      status: "scheduled",
+    });
 
     if (!competition) {
       return res.status(404).json({ message: "competition not found" });
@@ -254,7 +257,10 @@ module.exports.advanceCompetitionRound = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const competition = await Competition.findById(id);
+    const competition = await Competition.findOne({
+      _id: id,
+      status: "started",
+    });
 
     if (!competition) {
       return res.status(404).json({ message: "competition not found" });
@@ -293,7 +299,10 @@ module.exports.endCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const competition = await Competition.findById(id);
+    const competition = await Competition.findOne({
+      _id: id,
+      status: "started",
+    });
 
     if (!competition) {
       return res.status(404).json({ message: "competition not found" });
@@ -316,9 +325,13 @@ module.exports.cancelCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const competition = await Competition.findById(id);
+    const competition = await Competition.findOne({ id });
 
-    if (!competition) {
+    if (
+      !competition ||
+      competition.status === "ended" ||
+      competition.status === "cancelled"
+    ) {
       return res.status(404).json({ message: "competition not found" });
     }
 
@@ -416,25 +429,40 @@ module.exports.getCompetitionsList = async (req, res, next) => {
   }
 };
 
-module.exports.getCompetitionPosts = async (req, res, next) => {
+module.exports.getCompetitorUsers = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, round } = req.query;
     const { id } = req.params;
 
-    const query = { competition: id, is_deleted: false };
+    const query = { competition: id };
     if (round !== undefined) {
-      query.round = round;
+      query.number = round;
     }
 
-    const total = await Post.countDocuments(query);
-    const posts = await Post.find(query)
-      .populate("author", "first_name last_name profile_img username")
+    const users = await CompetingUser.distinct("user", query)
+      .populate("user", "first_name last_name profile_img username")
       .sort({ likes_count: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
+    const total = await CompetingUser.distinct("user", query).count();
+
+    for (const user of users) {
+      const q = { competition: id, is_deleted: false };
+      if (round !== undefined) {
+        q.round = round;
+      }
+
+      const post = await Post.find(q).populate(
+        "author",
+        "first_name last_name profile_img username"
+      );
+
+      user.post = post;
+    }
+
     res.status(200).json({
-      data: posts,
+      data: users,
       total,
       page: parseInt(page),
       limit: parseInt(limit),
@@ -448,7 +476,11 @@ module.exports.leaveCompetition = async (req, res, next) => {
   try {
     const { competition, user } = req.params;
 
-    const competator = await CompetingUser.findOne({ user, competition });
+    const competator = await CompetingUser.findOne({
+      user,
+      competition,
+      status: "playing",
+    });
 
     if (!competator) {
       return res
@@ -474,7 +506,11 @@ module.exports.removeFromCompetition = async (req, res, next) => {
       return res.status(400).json({ message: "reason field is required" });
     }
 
-    const competator = await CompetingUser.findOne({ competition, user });
+    const competator = await CompetingUser.findOne({
+      competition,
+      user,
+      status: "playing",
+    });
 
     if (!competator) {
       return res
