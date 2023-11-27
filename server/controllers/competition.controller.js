@@ -12,26 +12,28 @@ module.exports.updateCompetitionStartsForToday = async () => {
     currentDate.getMonth(),
     currentDate.getDate()
   );
+  startOfDay.setHours(0, 0, 0, 0);
   const endOfDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
     currentDate.getDate() + 1
   );
+  endOfDay.setHours(0, 0, 0, 0);
 
   try {
+    let changes = 0;
+
     const rounds = await Round.find({
-      $and: [
-        { start_date: { $gte: startOfDay, $lt: endOfDay } },
-        {
-          $or: [
-            { "competition.status": "scheduled" },
-            { "competition.status": "started" },
-          ],
-        },
-      ],
-    });
+      start_date: { $gte: startOfDay, $lt: endOfDay },
+    }).populate("competition");
 
     for (const round of rounds) {
+      if (
+        round.competition.status !== "started" &&
+        round.competition.status !== "scheduled"
+      )
+        continue;
+
       const competition = await Competition.findById(round.competition);
 
       if (
@@ -50,11 +52,13 @@ module.exports.updateCompetitionStartsForToday = async () => {
           });
           if (prevRound) await advanceUsersToNextRound(competition, prevRound);
         }
+
+        changes++;
       }
     }
 
-    if (rounds.length > 0) {
-      console.log(rounds.length + " competition rounds started for today.");
+    if (changes > 0) {
+      console.log(changes + " competition rounds started for today.");
     } else {
       console.log("No competition rounds start today.");
     }
@@ -65,23 +69,29 @@ module.exports.updateCompetitionStartsForToday = async () => {
 
 module.exports.updateCompetitionEndsForToday = async () => {
   const currentDate = new Date();
+  const startOfDay = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate()
+  );
   const endOfDay = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
     currentDate.getDate() + 1
   );
+  endOfDay.setHours(0, 0, 0, 0);
 
   try {
-    const rounds = await Round.find({
-      $and: [
-        { end_date: { $lt: endOfDay } },
-        { "competition.status": "started" },
-      ],
-    }).populate("competition");
+    const rounds = await Round.find({ end_date: { $lt: startOfDay } }).populate(
+      "competition"
+    );
+
+    let changes = 0;
 
     for (const round of rounds) {
       if (
         round.competition &&
+        round.competition.status === "started" &&
         round.competition.current_round === round.number
       ) {
         const competition = await Competition.findById(round.competition._id);
@@ -99,11 +109,13 @@ module.exports.updateCompetitionEndsForToday = async () => {
           await competition.save();
           await advanceUsersToNextRound(competition, round);
         }
+
+        changes++;
       }
     }
 
-    if (rounds.length > 0) {
-      console.log(rounds.length + " competition rounds ended today.");
+    if (changes > 0) {
+      console.log(changes + " competition rounds ended today.");
     } else {
       console.log("No competition rounds end today.");
     }
@@ -143,6 +155,7 @@ module.exports.createCompetition = async (req, res, next) => {
       description,
       status: "scheduled",
       type,
+      current_round: 1,
       rounds_count: rounds.length,
     };
 
@@ -156,7 +169,6 @@ module.exports.createCompetition = async (req, res, next) => {
     }
 
     const newCompetition = new Competition(competitionData);
-    await newCompetition.save();
 
     // create rounds
     for (let i = 0; i < rounds.length; i++) {
@@ -169,29 +181,25 @@ module.exports.createCompetition = async (req, res, next) => {
       }
 
       const start_date = new Date(round.start_date);
+      start_date.setHours(0, 0, 0, 0);
       const end_date = new Date(round.end_date);
+      end_date.setHours(0, 0, 0, 0);
 
       if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
         return res
           .status(400)
-          .json({ error: "Invalid date format found in rounds" });
+          .json({ message: "Invalid date format found in rounds" });
       }
 
       // Validate start and end dates
-      if (start_date >= end_date) {
+      if (start_date > end_date) {
         return res
           .status(400)
-          .json({ error: "End date must be greater than start date" });
-      }
-
-      if (start_date <= new Date()) {
-        newCompetition.status = "started";
-        newCompetition.current_round = round.number;
-        await newCompetition.save();
+          .json({ message: "End date must be greater than start date" });
       }
 
       const newRound = new Round({
-        number: round.number || i,
+        number: i + 1,
         start_date,
         end_date,
         min_likes: round.min_likes,
@@ -201,7 +209,14 @@ module.exports.createCompetition = async (req, res, next) => {
       });
 
       await newRound.save();
+
+      if (start_date <= new Date().setHours(0, 0, 0, 0)) {
+        newCompetition.status = "started";
+        newCompetition.current_round = i + 1;
+      }
     }
+
+    await newCompetition.save();
 
     res.status(201).json({
       message: "competition created successfully",

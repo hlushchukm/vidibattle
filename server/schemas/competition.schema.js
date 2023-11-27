@@ -1,5 +1,4 @@
 const { default: mongoose } = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
 
 const Schema = mongoose.Schema;
 
@@ -36,8 +35,6 @@ const roundSchema = Schema(
   { timestamps: true }
 );
 
-roundSchema.plugin(uniqueValidator);
-
 const competingUserSchema = Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -48,7 +45,6 @@ const competingUserSchema = Schema(
     },
     current_round: {
       type: Number,
-      required: true,
       default: 1,
     },
     status: {
