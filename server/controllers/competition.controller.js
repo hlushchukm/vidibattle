@@ -12,11 +12,16 @@ module.exports.updateCompetitionStartsForToday = async () => {
     currentDate.getMonth(),
     currentDate.getDate()
   );
+  const endOfDay = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    currentDate.getDate() + 1
+  );
 
   try {
     const rounds = await Round.find({
       $and: [
-        { start_date: { $lte: startOfDay } },
+        { start_date: { $gte: startOfDay, $lt: endOfDay } },
         {
           $or: [
             { "competition.status": "scheduled" },
@@ -29,10 +34,22 @@ module.exports.updateCompetitionStartsForToday = async () => {
     for (const round of rounds) {
       const competition = await Competition.findById(round.competition);
 
-      if (competition) {
+      if (
+        competition &&
+        (competition.current_round === 1 ||
+          competition.current_round < round.number)
+      ) {
         competition.status = "started";
         competition.current_round = round.number;
         await competition.save();
+
+        if (!round.is_first_round) {
+          const prevRound = await Round.findOne({
+            competition: competition._id,
+            number: round.number - 1,
+          });
+          if (prevRound) await advanceUsersToNextRound(competition, prevRound);
+        }
       }
     }
 
@@ -60,12 +77,17 @@ module.exports.updateCompetitionEndsForToday = async () => {
         { end_date: { $lt: endOfDay } },
         { "competition.status": "started" },
       ],
-    });
+    }).populate("competition");
 
     for (const round of rounds) {
-      const competition = await Competition.findById(round.competition);
+      if (
+        round.competition &&
+        round.competition.current_round === round.number
+      ) {
+        const competition = await Competition.findById(round.competition._id);
 
-      if (competition) {
+        if (!competition) continue;
+
         if (round.is_last_round) {
           const winners = await getCompetitionWinners(competition, round);
           competition.status = "ended"; // update status
@@ -326,24 +348,25 @@ const getCompetitionWinners = async (competition, round) => {
   return winners;
 };
 
-const advanceUsersToNextRound = async (competition, round) => {
+const advanceUsersToNextRound = async (competition, prevRound) => {
   const competingUsers = await CompetingUser.find({
     competition: competition._id,
     status: "playing",
+    current_round: prevRound.number,
   });
 
   for (const competator of competingUsers) {
     const post = await Post.findOne({
       author: competator._id,
       competition: competition._id,
-      round: round.number,
+      round: prevRound.number,
     });
 
     if (!post) {
       continue;
     }
 
-    if (post.likes_count >= round.min_likes) {
+    if (post.likes_count >= prevRound.min_likes) {
       competator.current_round = competition.current_round;
     } else {
       competator.status = "lost";
