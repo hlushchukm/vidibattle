@@ -27,11 +27,9 @@ module.exports.updateCompetitionStartsForToday = async () => {
     });
 
     for (const round of rounds) {
-      const competition = await Competition.find({
-        _id: round.competition,
-      });
+      const competition = await Competition.findById(round.competition);
 
-      if (competition || competition.status === "cancelled") {
+      if (competition) {
         competition.status = "started";
         competition.current_round = round.number;
         await competition.save();
@@ -65,20 +63,19 @@ module.exports.updateCompetitionEndsForToday = async () => {
     });
 
     for (const round of rounds) {
-      const competition = await Competition.find({
-        _id: round.competition,
-      });
+      const competition = await Competition.findById(round.competition);
 
       if (competition) {
         if (round.is_last_round) {
+          const winners = await getCompetitionWinners(competition, round);
           competition.status = "ended"; // update status
-          competition.winners = await getCompetitionWinners(competition, round);
+          competition.winners = winners;
           await competition.save();
         } else {
           competition.status = "started";
           competition.current_round = round.number + 1;
           await competition.save();
-          await advanceUsersToNextRound(competition);
+          await advanceUsersToNextRound(competition, round);
         }
       }
     }
@@ -179,11 +176,8 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
     const { id } = req.params;
 
     const competition = await Competition.findById(id).populate({
-      path: "winning_posts",
-      populate: {
-        path: "author",
-        select: "first_name last_name username profile_img",
-      },
+      path: "winners",
+      select: "first_name last_name username profile_img",
     });
 
     if (!competition) {
@@ -215,6 +209,45 @@ module.exports.startCompetition = async (req, res, next) => {
   }
 };
 
+module.exports.advanceCompetitionRound = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const competition = await Competition.findById(id);
+
+    if (!competition) {
+      return res.status(404).json({ message: "competition not found" });
+    }
+
+    const round = await Round.findOne({
+      number: competition.current_round,
+      competition: competition._id,
+    });
+
+    if (!round) {
+      return res.status(404).json({ message: "current round not found" });
+    }
+
+    if (round.is_last_round) {
+      const winners = await getCompetitionWinners(competition, round);
+      competition.status = "ended";
+      competition.winners = winners;
+      await competition.save();
+    } else {
+      competition.current_round = competition.current_round + 1;
+      await competition.save();
+      await advanceUsersToNextRound(competition);
+    }
+
+    competition.status = "started";
+    await competition.save();
+
+    return res.status(200).json({ message: "competition started" });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.endCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -226,7 +259,7 @@ module.exports.endCompetition = async (req, res, next) => {
     }
 
     competition.status = "ended";
-    competition.winning_posts = await getCompetitionWinners(competition._id);
+    competition.winners = await getCompetitionWinners(competition._id);
     await competition.save();
 
     return res.status(200).json({ message: "competition ended" });
@@ -240,33 +273,59 @@ const getCompetitionWinners = async (competition, round) => {
   const posts = await Post.find({
     competition: competition._id,
     round: round.number,
-    likes_count: { $gte: round.min_likes },
+    // likes_count: { $gte: round.min_likes },
     is_deleted: false,
   })
     .sort("-likes_count")
     .exec();
 
+  const winners = [];
+
   if (posts.length > 0) {
     // set winner
     const maxLikes = posts[0].likes_count;
-    const winners = posts
-      .filter((post) => post.likes_count === maxLikes)
-      .map((post) => post.author);
-    return winners;
+
+    for (const post of posts) {
+      const competator = await CompetingUser.findOne({
+        user: post.author,
+        competition: competition._id,
+      });
+
+      if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
+        competator.status = "lost";
+      } else {
+        winners.push(post.author);
+        competator.status = "won";
+      }
+      await competator.save();
+    }
   }
 
-  // no winner
-  return [];
+  return winners;
 };
 
-const advanceUsersToNextRound = async (competition) => {
-  const competingUsers = CompetingUser.find({
+const advanceUsersToNextRound = async (competition, round) => {
+  const competingUsers = await CompetingUser.find({
     competition: competition._id,
     status: "playing",
   });
 
   for (const competator of competingUsers) {
-    competator.current_round = competition.current_round;
+    const post = await Post.findOne({
+      author: competator._id,
+      competition: competition._id,
+      round: round.number,
+    });
+
+    if (!post) {
+      continue;
+    }
+
+    if (post.likes_count >= round.min_likes) {
+      competator.current_round = competition.current_round;
+    } else {
+      competator.status = "lost";
+    }
     await competator.save();
   }
 };
