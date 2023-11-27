@@ -12,15 +12,18 @@ module.exports.updateCompetitionStartsForToday = async () => {
     currentDate.getMonth(),
     currentDate.getDate()
   );
-  const endOfDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate() + 1
-  );
 
   try {
     const rounds = await Round.find({
-      start_date: { $gte: startOfDay, $lt: endOfDay },
+      $and: [
+        { start_date: { $lte: startOfDay } },
+        {
+          $or: [
+            { "competition.status": "scheduled" },
+            { "competition.status": "started" },
+          ],
+        },
+      ],
     });
 
     for (const round of rounds) {
@@ -28,7 +31,7 @@ module.exports.updateCompetitionStartsForToday = async () => {
         _id: round.competition,
       });
 
-      if (competition) {
+      if (competition || competition.status === "cancelled") {
         competition.status = "started";
         competition.current_round = round.number;
         await competition.save();
@@ -55,7 +58,10 @@ module.exports.updateCompetitionEndsForToday = async () => {
 
   try {
     const rounds = await Round.find({
-      end_date: { $lt: endOfDay },
+      $and: [
+        { end_date: { $lt: endOfDay } },
+        { "competition.status": "started" },
+      ],
     });
 
     for (const round of rounds) {
