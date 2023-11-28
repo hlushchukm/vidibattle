@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { get } from "../../services/crud";
+import { create, get } from "../../services/crud";
 import { toast } from "react-toastify";
 import PostsContainer from "../home/components/container/PostsContainer";
 import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
@@ -22,6 +22,9 @@ export default function CompetitionPosts() {
   const posts = usePostStore((state) => state.posts);
   const addToFeed = usePostStore((state) => state.addToFeed);
   const clearPosts = usePostStore((state) => state.clearPosts);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [payLoading, setPayLoading] = useState(false);
+  const [leaveLoading, setLeaveLoading] = useState(false);
 
   const pageSize = 10;
   const params = useParams();
@@ -71,6 +74,7 @@ export default function CompetitionPosts() {
   };
 
   const getBasicInfo = (id: string) => {
+    setPageLoading(true);
     get("competition/info/" + id)
       .then((res) => {
         setCompetitionInfo(res.data);
@@ -83,6 +87,46 @@ export default function CompetitionPosts() {
         );
         setPageLoading(false);
       });
+  };
+
+  // TODO: show confirmation dialogue
+
+  const leaveCompetition = () => {
+    setLeaveLoading(true);
+    create("competition/" + competitionId + "/leave", {})
+      .then((res) => {
+        toast.success(res.message ?? "Competition Left");
+        setCompetitionInfo((i: any) => ({ ...i, competingUser: res.data }));
+        setLeaveLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e.response?.data?.message ?? "Error! couldn't leave competition"
+        );
+        setLeaveLoading(false);
+      });
+  };
+
+  const joinCompetition = () => {
+    setJoinLoading(true);
+    create("competition/" + competitionId + "/join", {})
+      .then((res) => {
+        toast.success(res.message ?? "Competition joined");
+        setCompetitionInfo((i: any) => ({ ...i, competingUser: res.data }));
+        setJoinLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e.response?.data?.message ?? "Error! couldn't join competition"
+        );
+        setJoinLoading(false);
+      });
+  };
+
+  const payForCompetition = () => {
+    setPayLoading(false);
   };
 
   const handleScroll = async () => {
@@ -109,7 +153,15 @@ export default function CompetitionPosts() {
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
           <div className="container bottom-content">
-            <CompetitionInfo competition={competitionInfo} />
+            <CompetitionInfo
+              competition={competitionInfo}
+              joinCompetition={joinCompetition}
+              payForCompetition={payForCompetition}
+              leaveCompetition={leaveCompetition}
+              payLoading={payLoading}
+              joinLoading={joinLoading}
+              leaveLoading={leaveLoading}
+            />
 
             <div className="my-4 bg-white">
               <div className="divider border-secondary divider-dashed"></div>
