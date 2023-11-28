@@ -4,6 +4,7 @@ const {
   CompetingUser,
 } = require("../models/competition.model");
 const { Post } = require("../models/post.model");
+const { User } = require("../models/user.model");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -231,13 +232,42 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const competition = await Competition.findById(id).populate({
+    let competition = await Competition.findById(id).populate({
       path: "winners",
       select: "first_name last_name username profile_img",
     });
 
     if (!competition) {
       return res.status(404).json({ message: "Competition not found" });
+    }
+
+    if (!req.user?.is_admin) {
+      competition = competition.toObject();
+      const user = req.user?._id;
+
+      // get competing user info
+      if (user) {
+        const competitor = await CompetingUser.findOne({
+          competition: competition._id,
+          user,
+        });
+
+        competition.competingUser = competitor;
+      }
+
+      // get rounds
+      const rounds = await Round.find({ competition: competition._id });
+      competition.rounds = rounds;
+
+      // determine if the user has posted anything in the current round
+      const post = await Post.findOne({
+        competition: competition._id,
+        round: competition.current_round,
+        is_deleted: false,
+        author: user,
+      });
+
+      competition.post = post;
     }
 
     res.status(200).json({ data: competition });
@@ -411,6 +441,8 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
     });
 
     if (!post) {
+      competitor.status = "lost";
+      await competitor.save();
       continue;
     }
 
@@ -428,10 +460,26 @@ module.exports.getCompetitionsList = async (req, res, next) => {
     const { page = 1, limit = 10, status = "scheduled" } = req.query;
 
     const total = await Competition.countDocuments({ status });
-    const competitions = await Competition.find({ status })
+    let competitions = await Competition.find({ status })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
+
+    if (!req.user?.is_admin) {
+      const user = req.user?._id;
+
+      if (user) {
+        for (let i = 0; i < competitions.length; i++) {
+          competitions[i] = competitions[i].toObject();
+          const competitor = await CompetingUser.findOne({
+            competition: competitions[i]._id,
+            user,
+          });
+
+          competitions[i].competingUser = competitor;
+        }
+      }
+    }
 
     res.status(200).json({
       data: competitions,
@@ -487,12 +535,65 @@ module.exports.getCompetitorUsers = async (req, res, next) => {
   }
 };
 
+module.exports.joinCompetition = async (req, res, next) => {
+  try {
+    const { competition } = req.params;
+    const { _id } = req.user;
+
+    const user = await User.findById(_id);
+
+    if (!user) {
+      return res.status(404).json({ message: "user not found" });
+    } else if (!user.is_complete) {
+      return res.status(400).json({ message: "user account not complete" });
+    }
+
+    const selectedCompetition = await Competition.findById(competition);
+
+    if (!selectedCompetition) {
+      return res.status(404).json({ message: "competition not found" });
+    } else if (selectedCompetition.status !== "scheduled") {
+      return res.status(400).json({ message: "can't join this competition" });
+    }
+
+    const existingCompetitor = await CompetingUser.findOne({
+      user: _id,
+      competition,
+    });
+
+    let competitor;
+
+    if (existingCompetitor) {
+      if (existingCompetitor.status === "left") {
+        existingCompetitor.status = "playing";
+        await existingCompetitor.save();
+        competitor = existingCompetitor;
+      } else {
+        return res.status(400).join({ message: "competition join failed" });
+      }
+    } else {
+      competitor = new CompetingUser({
+        user: user._id,
+        competition: selectedCompetition._id,
+        current_round: selectedCompetition.current_round,
+        status: "playing",
+      });
+
+      await competitor.save();
+    }
+
+    res.status(200).json({ message: "competition joined", data: competitor });
+  } catch (e) {
+    next(e);
+  }
+};
 module.exports.leaveCompetition = async (req, res, next) => {
   try {
-    const { competition, user } = req.params;
+    const { competition } = req.params;
+    const { _id } = req.user;
 
     const competitor = await CompetingUser.findOne({
-      user,
+      user: _id,
       competition,
       status: "playing",
     });
@@ -506,7 +607,7 @@ module.exports.leaveCompetition = async (req, res, next) => {
     competitor.status = "left";
     await competitor.save();
 
-    res.status(200).json({ message: "competition left" });
+    res.status(200).json({ message: "competition left", data: competitor });
   } catch (e) {
     next(e);
   }
