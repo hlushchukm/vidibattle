@@ -376,7 +376,7 @@ const getCompetitionWinners = async (competition, round) => {
     const maxLikes = posts[0].likes_count;
 
     for (const post of posts) {
-      const competator = await CompetingUser.findOne({
+      const competitor = await CompetingUser.findOne({
         user: post.author,
         competition: competition._id,
         current_round: round.number,
@@ -384,12 +384,12 @@ const getCompetitionWinners = async (competition, round) => {
       });
 
       if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
-        competator.status = "lost";
+        competitor.status = "lost";
       } else {
         winners.push(post.author);
-        competator.status = "won";
+        competitor.status = "won";
       }
-      await competator.save();
+      await competitor.save();
     }
   }
 
@@ -403,9 +403,9 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
     current_round: prevRound.number,
   });
 
-  for (const competator of competingUsers) {
+  for (const competitor of competingUsers) {
     const post = await Post.findOne({
-      author: competator._id,
+      author: competitor._id,
       competition: competition._id,
       round: prevRound.number,
     });
@@ -415,11 +415,11 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
     }
 
     if (post.likes_count >= prevRound.min_likes) {
-      competator.current_round = competition.current_round;
+      competitor.current_round = competition.current_round;
     } else {
-      competator.status = "lost";
+      competitor.status = "lost";
     }
-    await competator.save();
+    await competitor.save();
   }
 };
 
@@ -491,20 +491,20 @@ module.exports.leaveCompetition = async (req, res, next) => {
   try {
     const { competition, user } = req.params;
 
-    const competator = await CompetingUser.findOne({
+    const competitor = await CompetingUser.findOne({
       user,
       competition,
       status: "playing",
     });
 
-    if (!competator) {
+    if (!competitor) {
       return res
         .status(404)
         .json({ message: "user is not in the given competition" });
     }
 
-    competator.status = "left";
-    await competator.save();
+    competitor.status = "left";
+    await competitor.save();
 
     res.status(200).json({ message: "competition left" });
   } catch (e) {
@@ -521,21 +521,21 @@ module.exports.removeFromCompetition = async (req, res, next) => {
       return res.status(400).json({ message: "reason field is required" });
     }
 
-    const competator = await CompetingUser.findOne({
+    const competitor = await CompetingUser.findOne({
       competition,
       user,
       status: "playing",
     });
 
-    if (!competator) {
+    if (!competitor) {
       return res
         .status(404)
         .json({ message: "user is not in the given competition" });
     }
 
-    competator.status = "removed";
-    competator.removed_reason = reason;
-    await competator.save();
+    competitor.status = "removed";
+    competitor.removed_reason = reason;
+    await competitor.save();
 
     res.status(200).json({ message: "user removed from competition" });
   } catch (e) {
