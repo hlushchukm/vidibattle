@@ -77,7 +77,7 @@ module.exports.feed = function ({
 
   return this.find(
     query,
-    "caption media likes_count comments_count competition createdAt updatedAt"
+    "caption media likes_count comments_count competition round createdAt updatedAt"
   )
     .sort(
       competitionId

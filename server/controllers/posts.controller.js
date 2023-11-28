@@ -1,7 +1,7 @@
 const { Post } = require("../models/post.model");
 const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
-const { Competition } = require("../models/competition.model");
+const { Competition, CompetingUser } = require("../models/competition.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -145,7 +145,7 @@ module.exports.getPost = async (req, res, next) => {
 };
 
 module.exports.create = async (req, res, next) => {
-  const { caption, author, type, competition } = req.body;
+  const { caption, author, type, competition, round } = req.body;
   const mainFile = req.files["file"][0];
   const thumbnailFile = req.files["thumbnail"]?.[0];
 
@@ -162,13 +162,34 @@ module.exports.create = async (req, res, next) => {
 
   try {
     if (competition) {
-      const competitionItem = await Competition.find({
+      const competitionItem = await Competition.findOne({
         status: "started",
         _id: competition,
+        current_round: round ?? 1,
       });
 
       if (!competitionItem) {
         return res.status(400).json({ message: "competition not found" });
+      } else if (
+        round !== null &&
+        parseInt(round) !== parseInt(competitionItem.current_round)
+      ) {
+        return res.status(400).json({ message: "can't post for this round" });
+      } else if (!round && competition.current_round !== 1) {
+        return res.status(400).json({ message: "can't post for this round" });
+      }
+
+      const competitor = await CompetingUser.findOne({
+        user: _id,
+        competition,
+        status: "playing",
+        current_round: parseInt(round ?? 1),
+      });
+
+      if (!competitor) {
+        return res
+          .status(400)
+          .json({ message: "this person can't post in this round" });
       }
     }
 
@@ -200,7 +221,10 @@ module.exports.create = async (req, res, next) => {
       media: [media._id],
       author,
     };
-    if (competition) postData.competition = competition;
+    if (competition) {
+      postData.competition = competition;
+      postData.round = parseInt(round) ?? 1;
+    }
 
     const post = new Post(postData);
 
