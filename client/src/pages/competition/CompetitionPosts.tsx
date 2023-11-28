@@ -44,21 +44,32 @@ export default function CompetitionPosts() {
 
   useEffect(() => {
     if (competitionId) {
-      getPosts(competitionId, 1);
+      getPosts(competitionId, 1, true);
       getBasicInfo(competitionId);
     }
   }, [competitionId]);
 
-  const getPosts = async (competitionId: string, round: number = 1) => {
+  const getPosts = async (
+    competitionId: string,
+    round: number = 1,
+    first_time: boolean = false
+  ) => {
     setPostsLoading(true);
-    return get("post/feed", {
+    let payload: any = {
       pageSize,
-      lastDate: lastDate.current,
-      lastPostId: lastPostId.current,
-      lastLikesCount: lastLikesCount.current,
       competitionId,
       round,
-    })
+    };
+
+    if (!first_time) {
+      payload = {
+        ...payload,
+        lastDate: lastDate.current,
+        lastPostId: lastPostId.current,
+        lastLikesCount: lastLikesCount.current,
+      };
+    }
+    return get("post/feed", payload)
       .then((res) => {
         if (res.data.length === 0) {
           postsLoadingRef.current = false;
@@ -149,16 +160,16 @@ export default function CompetitionPosts() {
   };
 
   const onNextRoundClicked = () => {
-    addToFeed([]);
+    clearPosts();
     setPostsLoading(true);
-    getPosts(competitionId ?? "", currentRound.number + 1);
+    getPosts(competitionId ?? "", currentRound.number + 1, true);
     setCurrentRound(rounds[currentRound.number]);
   };
 
   const onPreviousRoundClicked = () => {
-    addToFeed([]);
+    clearPosts();
     setPostsLoading(true);
-    getPosts(competitionId ?? "", currentRound.number - 1);
+    getPosts(competitionId ?? "", currentRound.number - 1, true);
     setCurrentRound(rounds[currentRound.number - 2]);
   };
 

@@ -145,12 +145,14 @@ export default function CompetitionInfo({
               {competition.status === "started" &&
                 !competition.post &&
                 competition.competingUser &&
-                competition.competingUser.status === "playing" && (
+                competition.competingUser.status === "playing" &&
+                competition.competingUser.current_round ===
+                  competition.current_round && (
                   <>
                     <button
                       onClick={() =>
                         navigate(
-                          "/competition/" + competition._id + "/create-post"
+                          `/competition/${competition._id}/${competition.current_round}/create-post`
                         )
                       }
                       className="btn btn-secondary"
