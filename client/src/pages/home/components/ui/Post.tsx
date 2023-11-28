@@ -21,6 +21,16 @@ export default function Post({
   const setPostToShare = useShareStore((state) => state.setPostToShare);
   const setPostToReport = useReportStore((state) => state.setPostToReport);
 
+  const checkIfWinner = (post: any) => {
+    const author: string = post.author?._id;
+    const winners: any[] = post.competition?.winners ?? [];
+
+    if (winners.includes(author)) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <>
       <div className="post-card">
@@ -141,14 +151,22 @@ export default function Post({
         {post.competition && (
           <p>
             <span
-              className="badge badge-secondary me-1 mb-1 px-3"
+              className=""
               style={{ cursor: "pointer" }}
               onClick={() => navigate("/competition/" + post.competition._id)}
             >
-              <span className="me-2">
-                <i className="fa fa-trophy"></i>
+              <span className="me-1">Competition:</span>
+              <span className="me-2 text-secondary fw-bold">
+                {post.competition.name},
               </span>
-              <span>{post.competition.name}</span>
+              <span className="me-1">Round:</span>
+              <span className="me-2 text-secondary fw-bold">{post.round}</span>
+              {checkIfWinner(post) && (
+                <span className="ms-2 badge badge-warning me-1 mb-1 px-3">
+                  <i className="fa fa-trophy me-2"></i>
+                  <span>Winner</span>
+                </span>
+              )}
             </span>
           </p>
         )}
