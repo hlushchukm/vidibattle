@@ -36,6 +36,18 @@ export default function CompetitionInfo({
     }
   };
 
+  const getMinimumLikesNeeded = (competition: any) => {
+    const current_round = competition?.current_round ?? 1;
+    const rounds = competition?.rounds ?? [];
+
+    for (let i = 0; i < rounds.length; i++) {
+      if (rounds[i]?.number === current_round) {
+        return rounds[i]?.min_likes ?? 0;
+      }
+    }
+
+    return 0;
+  };
   return (
     <>
       <div className="card mb-3">
@@ -54,18 +66,26 @@ export default function CompetitionInfo({
             <span>{competition?.description}</span>
           </p>
           <div className="divider"></div>
-          <p className="card-text d-flex gap-2">
+          <p className="card-text d-flex flex-column flex-md-row gap-2">
             <small className="">
               Total Rounds:&nbsp;
               <span className="fw-bolder">{competition.rounds_count},</span>
             </small>
             {competition.status === "started" && (
-              <small className="">
-                Current Round:&nbsp;
-                <span className="fw-bolder">
-                  Round {competition.current_round}
-                </span>
-              </small>
+              <>
+                <small className="">
+                  Current Round:&nbsp;
+                  <span className="fw-bolder">
+                    Round {competition.current_round},
+                  </span>
+                </small>
+                <small className="">
+                  minimum Likes Needed to Advance:&nbsp;
+                  <span className="fw-bolder">
+                    {getMinimumLikesNeeded(competition)}
+                  </span>
+                </small>
+              </>
             )}
           </p>
           <p className="card-text d-flex gap-2">

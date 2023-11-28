@@ -9,9 +9,10 @@ import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import CompetitionInfo from "./components/container/CompetitionInfo";
 import PageLoading from "../../components/PageLoading";
 import { usePostStore } from "../../store";
+import { getDate } from "../../services/timeAndDate";
 
 export default function CompetitionPosts() {
-  const [pageLoading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(false);
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
   const [competitionId, setCompetitionId] = useState<string>();
   const [postsLoading, setPostsLoading] = useState(false);
@@ -25,6 +26,8 @@ export default function CompetitionPosts() {
   const [joinLoading, setJoinLoading] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
+  const [currentRound, setCurrentRound] = useState<any>();
+  const [rounds, setRounds] = useState<any>([]);
 
   const pageSize = 10;
   const params = useParams();
@@ -41,12 +44,12 @@ export default function CompetitionPosts() {
 
   useEffect(() => {
     if (competitionId) {
-      getPosts(competitionId);
+      getPosts(competitionId, 1);
       getBasicInfo(competitionId);
     }
   }, [competitionId]);
 
-  const getPosts = async (competitionId: string) => {
+  const getPosts = async (competitionId: string, round: number = 1) => {
     setPostsLoading(true);
     return get("post/feed", {
       pageSize,
@@ -54,6 +57,7 @@ export default function CompetitionPosts() {
       lastPostId: lastPostId.current,
       lastLikesCount: lastLikesCount.current,
       competitionId,
+      round,
     })
       .then((res) => {
         if (res.data.length === 0) {
@@ -78,6 +82,8 @@ export default function CompetitionPosts() {
     get("competition/info/" + id)
       .then((res) => {
         setCompetitionInfo(res.data);
+        setRounds(res.data?.rounds ?? []);
+        setCurrentRound(res.data?.rounds?.[0] ?? null);
         setPageLoading(false);
       })
       .catch((e) => {
@@ -137,9 +143,23 @@ export default function CompetitionPosts() {
       !postsLoadingRef.current
     ) {
       postsLoadingRef.current = true;
-      await getPosts(params.id);
+      await getPosts(params.id, currentRound?.number ?? 1);
       postsLoadingRef.current = false;
     }
+  };
+
+  const onNextRoundClicked = () => {
+    addToFeed([]);
+    setPostsLoading(true);
+    getPosts(competitionId ?? "", currentRound.number + 1);
+    setCurrentRound(rounds[currentRound.number]);
+  };
+
+  const onPreviousRoundClicked = () => {
+    addToFeed([]);
+    setPostsLoading(true);
+    getPosts(competitionId ?? "", currentRound.number - 1);
+    setCurrentRound(rounds[currentRound.number - 2]);
   };
 
   if (pageLoading) {
@@ -165,7 +185,51 @@ export default function CompetitionPosts() {
 
             <div className="my-4 bg-white">
               <div className="divider border-secondary divider-dashed"></div>
-              <h3 className="text-center">Posts</h3>
+              <div className="d-flex w-100 px-2 align-items-center">
+                {currentRound?.number > 1 && (
+                  <button
+                    disabled={postsLoading}
+                    onClick={onPreviousRoundClicked}
+                    className="btn btn-primary light rounded-circle p-0"
+                    style={{ width: "40px", height: "40px" }}
+                  >
+                    <i className="fa fa-angle-left"></i>
+                  </button>
+                )}
+                <div className="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+                  <h3 className="text-center py-0 mb-0">
+                    Round {currentRound?.number}
+                  </h3>
+                  <div className="d-flex py-1">
+                    <span className="small text-center">
+                      Minimum number of likes needed:&nbsp;
+                      {currentRound?.min_likes ?? 0}
+                    </span>
+                  </div>
+                  <div className="d-flex flex-column flex-md-row gap-1 gap-md-2">
+                    {currentRound?.start_date && (
+                      <span className="small text-center">
+                        Start Date: {getDate(currentRound.start_date)}
+                      </span>
+                    )}
+                    {currentRound?.end_date && (
+                      <span className="small text-center">
+                        End Date: {getDate(currentRound.end_date)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {currentRound?.number < competitionInfo?.rounds_count && (
+                  <button
+                    disabled={postsLoading}
+                    onClick={onNextRoundClicked}
+                    className="btn btn-primary light rounded-circle p-0"
+                    style={{ width: "40px", height: "40px" }}
+                  >
+                    <i className="fa fa-angle-right"></i>
+                  </button>
+                )}
+              </div>
               <div className="divider border-secondary divider-dashed"></div>
             </div>
 
