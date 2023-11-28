@@ -138,7 +138,7 @@ export default function Router() {
                 }
               />
               <Route path="/create-post" element={<CreatePost />} />
-              <Route path="/competition/:id/create-post" element={<CreateCompetitionPost />} />
+              <Route path="/competition/:id/:round/create-post" element={<CreateCompetitionPost />} />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/setting" element={<Setting />} />
               <Route path="/blocked" element={<Blocked />} />

@@ -14,9 +14,11 @@ import { toast } from "react-toastify";
 export default function CreatePost({
   allowedTypes = "any",
   competitionId = null,
+  round = null,
 }: {
   allowedTypes?: "image" | "video" | "any";
   competitionId?: string | null;
+  round?: number | null;
 }) {
   const [postBtnDisabled, setPostBtnDisabled] = useState(true);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -83,6 +85,7 @@ export default function CreatePost({
       formData.append("type", fileType);
       if (thumbnail) formData.append("thumbnail", thumbnail);
       if (competitionId) formData.append("competition", competitionId);
+      if (round !== null) formData.append("round", round.toString());
 
       setUploading(true);
 
