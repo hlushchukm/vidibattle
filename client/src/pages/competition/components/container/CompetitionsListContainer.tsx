@@ -49,9 +49,9 @@ export default function CompetitionsListContainer({
   ) => {
     switch (status) {
       case "scheduled":
-        return "Scheduled";
+        return "Upcoming";
       case "started":
-        return "Started";
+        return "Active";
       case "ended":
         return "Ended";
       case "cancelled":
@@ -59,36 +59,48 @@ export default function CompetitionsListContainer({
     }
   };
 
-  return (
-    <>
-      <h3>{getStatusLabel(status)}</h3>
-      <div className="divider"></div>
+  if (
+    (status === "ended" || status === "cancelled") &&
+    competitions.length === 0
+  ) {
+    return;
+  }
 
-      {competitions.length === 0 && !loading ? (
-        <>
-          <h4 className="text-muted py-4 text-center">
-            No {getStatusLabel(status)} Competitions
-          </h4>
-        </>
-      ) : (
-        <div className="row">
-          {competitions.map((competition: any) => (
+    return (
+      <>
+        <div className="mb-2">
+          <h3>{getStatusLabel(status)}</h3>
+          <div className="divider"></div>
+
+          {competitions.length === 0 && !loading ? (
             <>
-              <Competition key={competition._id} competition={competition} />
+              <h4 className="text-muted py-4 text-center">
+                No {getStatusLabel(status)} Competitions
+              </h4>
             </>
-          ))}
-          {loading && <BlinkingLoadingCircles />}
+          ) : (
+            <div className="row">
+              {competitions.map((competition: any) => (
+                <>
+                  <Competition
+                    key={competition._id}
+                    competition={competition}
+                  />
+                </>
+              ))}
+              {loading && <BlinkingLoadingCircles />}
 
-          {!loading && !noMoreCompetitions && (
-            <button
-              className={`btn light btn-primary ${loading && "disabled"}`}
-              onClick={fetchCompetitions}
-            >
-              <span>show more</span>
-            </button>
+              {!loading && !noMoreCompetitions && (
+                <button
+                  className={`btn light btn-primary ${loading && "disabled"}`}
+                  onClick={fetchCompetitions}
+                >
+                  <span>show more</span>
+                </button>
+              )}
+            </div>
           )}
         </div>
-      )}
-    </>
-  );
+      </>
+    );
 }
