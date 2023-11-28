@@ -5,8 +5,14 @@ const { Competition } = require("../models/competition.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
-    let { pageSize, lastDate, lastPostId, competitionId, lastLikesCount } =
-      req.query;
+    let {
+      pageSize,
+      lastDate,
+      lastPostId,
+      competitionId,
+      lastLikesCount,
+      round,
+    } = req.query;
     const { _id: userId } = req.user;
 
     if (!pageSize) pageSize = 10;
@@ -23,6 +29,7 @@ module.exports.getFeed = async (req, res, next) => {
       competitionId: competitionId,
       allPosts: competitionId ? true : false,
       lastLikesCount: competitionId ? lastLikesCount : null,
+      round: competitionId ? (round ? round : 1) : null,
     });
 
     let updatedLastDate = lastDate;

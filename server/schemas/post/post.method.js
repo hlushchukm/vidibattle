@@ -11,6 +11,7 @@ module.exports.feed = function ({
   competitionId,
   allPosts, // get posts from followings list or from any person
   lastLikesCount,
+  round,
 }) {
   let query = {
     is_deleted: false,
@@ -22,6 +23,7 @@ module.exports.feed = function ({
 
   if (competitionId) {
     query.competition = competitionId;
+    query.round = round ? round : 1;
   }
 
   if (!allPosts) {
