@@ -7,7 +7,7 @@ import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircle
 export default function CompetitionsListContainer({
   status,
 }: {
-  status: "scheduled" | "started" | "ended";
+  status: "scheduled" | "started" | "ended" | "cancelled";
 }) {
   const [competitions, setCompetitions] = useState<any>([]);
   const [page, setPage] = useState(0);
@@ -44,7 +44,9 @@ export default function CompetitionsListContainer({
       });
   };
 
-  const getStatusLabel = (status: "scheduled" | "started" | "ended") => {
+  const getStatusLabel = (
+    status: "scheduled" | "started" | "ended" | "cancelled"
+  ) => {
     switch (status) {
       case "scheduled":
         return "Scheduled";
@@ -52,6 +54,8 @@ export default function CompetitionsListContainer({
         return "Started";
       case "ended":
         return "Ended";
+      case "cancelled":
+        return "Cancelled";
     }
   };
 

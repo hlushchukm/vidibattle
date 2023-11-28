@@ -18,6 +18,9 @@ export default function CompetitionsList() {
             <div className="mb-2">
               <CompetitionsListContainer status="ended" />
             </div>
+            <div className="mb-2">
+              <CompetitionsListContainer status="cancelled" />
+            </div>
           </div>
         </div>
       </div>
