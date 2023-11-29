@@ -104,11 +104,8 @@ export default function CompetitionInfo({
                 Payment Amount:&nbsp;
                 <span className="fw-bolder">
                   <i className="fa fa-inr"></i>
-                  <span>
-
-                  {competition?.amount}
-                  </span>
-                  </span>
+                  <span>{competition?.amount}</span>
+                </span>
               </small>
             </p>
           ) : (
@@ -189,7 +186,7 @@ export default function CompetitionInfo({
           </div>
 
           {competition.competingUser &&
-            competition.competingUser === "lost" && (
+            competition.competingUser.status === "lost" && (
               <>
                 <div className="fw-bold text-light">
                   You have lost this competition on&nbsp;
@@ -201,7 +198,7 @@ export default function CompetitionInfo({
             )}
 
           {competition.competingUser &&
-            competition.competingUser === "left" && (
+            competition.competingUser.status === "left" && (
               <>
                 <div className="fw-bold text-light">
                   You have left this competition on&nbsp;
@@ -213,7 +210,7 @@ export default function CompetitionInfo({
             )}
 
           {competition.competingUser &&
-            competition.competingUser === "removed" && (
+            competition.competingUser.status === "removed" && (
               <div>
                 <div className="fw-bold text-danger">
                   You have been removed from this competition
@@ -224,6 +221,15 @@ export default function CompetitionInfo({
                     {competition.competingUser?.removed_reason}
                   </span>
                 </p>
+              </div>
+            )}
+
+          {competition.competingUser &&
+            competition.competingUser.status === "won" && (
+              <div>
+                <div className="fw-bold text-warning">
+                  You have won this competition
+                </div>
               </div>
             )}
         </div>

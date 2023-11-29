@@ -25,7 +25,10 @@ export default function Post({
     const author: string = post.author?._id;
     const winners: any[] = post.competition?.winners ?? [];
 
-    if (winners.includes(author)) {
+    if (
+      winners.includes(author) &&
+      post.competition?.current_round === post.round
+    ) {
       return true;
     }
     return false;
