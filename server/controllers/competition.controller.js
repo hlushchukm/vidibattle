@@ -326,13 +326,14 @@ module.exports.advanceCompetitionRound = async (req, res, next) => {
       competition.winners = winners;
       await competition.save();
     } else {
+      const prevRound = await Round.findOne({
+        competition: competition.id,
+        number: competition.current_round,
+      });
       competition.current_round = competition.current_round + 1;
       await competition.save();
-      await advanceUsersToNextRound(competition);
+      await advanceUsersToNextRound(competition, prevRound);
     }
-
-    competition.status = "started";
-    await competition.save();
 
     return res.status(200).json({ message: "competition started" });
   } catch (e) {
@@ -435,7 +436,7 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
 
   for (const competitor of competingUsers) {
     const post = await Post.findOne({
-      author: competitor._id,
+      author: competitor.user?._id,
       competition: competition._id,
       round: prevRound.number,
     });
@@ -494,38 +495,41 @@ module.exports.getCompetitionsList = async (req, res, next) => {
 
 module.exports.getCompetitorUsers = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, round } = req.query;
+    const { page = 1, limit = 10, round = 1 } = req.query;
     const { id } = req.params;
 
-    const query = { competition: id };
-    if (round !== undefined) {
-      query.number = round;
-    }
+    const query = { competition: id, current_round: { $gte: round } };
 
-    const users = await CompetingUser.distinct("user", query)
+    const total = await CompetingUser.find(query).count();
+
+    let competitors = await CompetingUser.find(query)
+      .populate("competition")
       .populate("user", "first_name last_name profile_img username")
       .sort({ likes_count: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
-    const total = await CompetingUser.distinct("user", query).count();
+    const competitorsList = [];
+    for (const competitor of competitors) {
+      const competitorCopy = competitor.toObject();
 
-    for (const user of users) {
-      const q = { competition: id, is_deleted: false };
-      if (round !== undefined) {
-        q.round = round;
+      const q = {
+        competition: id,
+        round: round,
+        author: competitorCopy.user?._id,
+        is_deleted: false,
+      };
+
+      const post = await Post.findOne(q, "likes_count");
+
+      if (post) {
+        competitorCopy.post = post;
       }
-
-      const post = await Post.find(q).populate(
-        "author",
-        "first_name last_name profile_img username"
-      );
-
-      user.post = post;
+      competitorsList.push(competitorCopy);
     }
 
     res.status(200).json({
-      data: users,
+      data: competitorsList,
       total,
       page: parseInt(page),
       limit: parseInt(limit),
@@ -648,7 +652,9 @@ module.exports.getRounds = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const rounds = await Round.find({ competition: id }).sort({ number: 1 });
+    const rounds = await Round.find({ competition: id })
+      .populate("competition")
+      .sort({ number: 1 });
 
     res.status(200).json({ data: rounds });
   } catch (e) {
