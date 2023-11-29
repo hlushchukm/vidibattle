@@ -62,9 +62,11 @@ export default function CompetitionInfo({
             <span className="flex-grow-1">{competition?.name}</span>
             <span>{getStatusBadge(competition.status)}</span>
           </h5>
-          <p className="card-text">
-            <span>{competition?.description}</span>
-          </p>
+          <div className="card-text">
+            <div
+              dangerouslySetInnerHTML={{ __html: competition?.description }}
+            />
+          </div>
           <div className="divider"></div>
           <p className="card-text d-flex flex-column flex-md-row gap-2">
             <small className="">
@@ -100,7 +102,13 @@ export default function CompetitionInfo({
             <p className="card-text d-flex gap-2">
               <small className="badge badge-warning">
                 Payment Amount:&nbsp;
-                <span className="fw-bolder">{competition?.amount}</span>
+                <span className="fw-bolder">
+                  <i className="fa fa-inr"></i>
+                  <span>
+
+                  {competition?.amount}
+                  </span>
+                  </span>
               </small>
             </p>
           ) : (

@@ -5,7 +5,7 @@ import {
 } from "../../../../services/asset-paths";
 
 export default function Competition({ competition }: { competition: any }) {
-  const descriptionTextLength = 210;
+  // const descriptionTextLength = 210;
 
   const getCompetitionStatusBadge = (status: string) => {
     switch (status) {
@@ -13,12 +13,14 @@ export default function Competition({ competition }: { competition: any }) {
         if (competition.status === "scheduled") {
           return <span className="badge badge-warning me-1 mb-1">Joined</span>;
         } else {
-          return <span className="badge badge-primary me-1 mb-1">Playing</span>;
+          return (
+            <span className="badge badge-secondary me-1 mb-1">Playing</span>
+          );
         }
       case "won":
         return <span className="badge badge-success me-1 mb-1">Won</span>;
       case "lost":
-        return <span className="badge badge-info me-1 mb-1">Lost</span>;
+        return <span className="badge badge-light me-1 mb-1">Lost</span>;
       case "removed":
         return <span className="badge badge-danger me-1 mb-1">Removed</span>;
       case "left":
@@ -39,16 +41,13 @@ export default function Competition({ competition }: { competition: any }) {
           <div className="card-body d-flex flex-column">
             <h5 className="card-title">{competition.name}</h5>
             <p className="card-text text-justify flex-grow-1">
-              {competition.description?.length > descriptionTextLength
+              {/* {competition.description?.length > descriptionTextLength
                 ? competition.description?.slice(0, descriptionTextLength) +
                   "..."
-                : competition.description}
+                : competition.description} */}
+              {competition.competingUser &&
+                getCompetitionStatusBadge(competition.competingUser.status)}
             </p>
-            {competition.competingUser && (
-              <p>
-                {getCompetitionStatusBadge(competition.competingUser.status)}
-              </p>
-            )}
 
             <div>
               <Link
