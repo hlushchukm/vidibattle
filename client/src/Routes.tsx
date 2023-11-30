@@ -23,6 +23,7 @@ import SuggestUsersToFollow from "./pages/followers/SuggestUsersToFollow";
 import CompetitionsList from "./pages/competition/CompetitionsList";
 import CompetitionPosts from "./pages/competition/CompetitionPosts";
 import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
+import Wallet from "./pages/wallet/Wallet";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -138,10 +139,14 @@ export default function Router() {
                 }
               />
               <Route path="/create-post" element={<CreatePost />} />
-              <Route path="/competition/:id/:round/create-post" element={<CreateCompetitionPost />} />
+              <Route
+                path="/competition/:id/:round/create-post"
+                element={<CreateCompetitionPost />}
+              />
               <Route path="/edit-profile" element={<EditProfile />} />
               <Route path="/setting" element={<Setting />} />
               <Route path="/blocked" element={<Blocked />} />
+              <Route path="/wallet" element={<Wallet />} />
               <Route path="*" element={<NotFound />} />
             </>
           ) : (
