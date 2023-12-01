@@ -44,10 +44,9 @@ export default function StaticPage({ pagename }: { pagename: string }) {
 
   return (
     <>
-      {/* TODO: make sure content inside here has appropriate formatting */}
       <StaticPageHeader pageTitle={pageTitle} />
       <div className="bg-gradient-2 min-vh-100">
-        <div className=" container">
+        <div className="container">
           <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </div>
