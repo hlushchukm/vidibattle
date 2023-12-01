@@ -53,6 +53,7 @@ const competingUserSchema = Schema(
       default: "playing",
     },
     removed_reason: { type: String },
+    paid_amount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

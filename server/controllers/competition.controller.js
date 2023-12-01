@@ -5,6 +5,7 @@ const {
 } = require("../models/competition.model");
 const { Post } = require("../models/post.model");
 const { User } = require("../models/user.model");
+const { Wallet } = require("../models/wallet.model");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -543,6 +544,7 @@ module.exports.joinCompetition = async (req, res, next) => {
   try {
     const { competition } = req.params;
     const { _id } = req.user;
+    const { payment } = req.body;
 
     const user = await User.findById(_id);
 
@@ -582,7 +584,37 @@ module.exports.joinCompetition = async (req, res, next) => {
         current_round: selectedCompetition.current_round,
         status: "playing",
       });
+    }
 
+    await competitor.save();
+
+    // handle payment
+    if (
+      selectedCompetition.is_paid &&
+      (!competitor.paid_amount ||
+        competitor.paid_amount < selectedCompetition.amount)
+    ) {
+      if (payment === undefined || payment < selectedCompetition.amount) {
+        return res.status(400).json({ message: "payment not sufficient" });
+      }
+
+      let paymentAmount = selectedCompetition.amount;
+      if (competitor.paid_amount) {
+        paymentAmount = paymentAmount - competitor.paid_amount;
+      }
+
+      const wallet = await Wallet.findOne({ user: user._id });
+
+      if (!wallet) {
+        return res.status(404).json({ message: "wallet not found" });
+      } else if (wallet.balance < paymentAmount) {
+        return res.status(400).json({ message: "insufficient wallet balance" });
+      }
+
+      wallet.balance = wallet.balance - paymentAmount;
+      await wallet.save();
+
+      competitor.paid_amount = selectedCompetition.amount;
       await competitor.save();
     }
 
@@ -591,6 +623,7 @@ module.exports.joinCompetition = async (req, res, next) => {
     next(e);
   }
 };
+
 module.exports.leaveCompetition = async (req, res, next) => {
   try {
     const { competition } = req.params;
