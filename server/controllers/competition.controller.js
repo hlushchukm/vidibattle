@@ -130,13 +130,15 @@ module.exports.createCompetition = async (req, res, next) => {
   try {
     const { data: strData } = req.body;
     const data = JSON.parse(strData);
-    const { name, description, is_paid, amount, type, rounds } = data;
+    const { name, description, is_paid, amount, type, result_date, rounds } =
+      data;
 
     const imageFile = req.file;
 
-    if (!name || !type || rounds.length === 0) {
+    if (!name || !type || rounds.length === 0 || !result_date) {
       return res.status(400).json({
-        message: "missing field. name, type, and rounds are required",
+        message:
+          "missing field. name, type, result date and rounds are required",
       });
     }
 
@@ -159,6 +161,7 @@ module.exports.createCompetition = async (req, res, next) => {
       type,
       current_round: 1,
       rounds_count: rounds.length,
+      result_date
     };
 
     if (is_paid) {
