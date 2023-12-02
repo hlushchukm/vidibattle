@@ -18,6 +18,7 @@ const competitionSchema = Schema(
     image: { type: String },
     current_round: { type: Number, required: true, default: 1 },
     rounds_count: { type: Number, required: true, default: 0 },
+    result_date: { type: Date, required: true },
   },
   { timestamps: true }
 );
