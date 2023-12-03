@@ -1,6 +1,7 @@
 const { Admin } = require("../models/admin.model");
 const { hash } = require("../services/hash");
 const { deleteProfileImg } = require("./media.controller");
+const bcrypt = require("bcryptjs");
 
 module.exports.createAdminAccount = async (req, res, next) => {
   try {
@@ -79,6 +80,31 @@ module.exports.updateAdminProfile = async (req, res, next) => {
     admin.save();
 
     res.status(200).json({ message: "admin data updated", data: admin });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.changePassword = async (req, res, next) => {
+  try {
+    const { old_password, new_password } = req.body;
+    const { _id } = req.user;
+
+    const admin = await Admin.findById(_id);
+
+    if (!admin) {
+      return res.status(404).json({ message: "admin account not found" });
+    }
+
+    if (!(await bcrypt.compare(old_password, admin.password))) {
+      return res.status(400).json({ message: "incorrect password" });
+    }
+
+    const new_password_hash = await hash(new_password);
+    admin.password = new_password_hash;
+    await admin.save();
+
+    res.status(200).json({ message: "password changed successfully" });
   } catch (e) {
     next(e);
   }
