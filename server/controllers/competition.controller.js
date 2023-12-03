@@ -31,8 +31,9 @@ module.exports.updateCompetitionStartsForToday = async () => {
 
     for (const round of rounds) {
       if (
-        round.competition.status !== "started" &&
-        round.competition.status !== "scheduled"
+        !round.competition ||
+        (round.competition?.status !== "started" &&
+          round.competition?.status !== "scheduled")
       )
         continue;
 
@@ -161,7 +162,7 @@ module.exports.createCompetition = async (req, res, next) => {
       type,
       current_round: 1,
       rounds_count: rounds.length,
-      result_date
+      result_date,
     };
 
     if (is_paid) {

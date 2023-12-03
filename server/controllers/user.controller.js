@@ -520,8 +520,11 @@ module.exports.updateSelfProfile = async (req, res, next) => {
         .json({ message: "invalid WhatsApp number length" });
     }
 
-    const usernameMathch = await User.findOne({ username: data.username });
-    if (usernameMathch && usernameMathch._id.toString() !== _id) {
+    const usernameMatch = await User.countDocuments({
+      username: data.username,
+      _id: { $ne: _id },
+    });
+    if (usernameMatch > 0) {
       return res.status(400).json({ message: "username is already taken" });
     }
 
