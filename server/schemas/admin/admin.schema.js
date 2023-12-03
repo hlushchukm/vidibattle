@@ -15,6 +15,7 @@ const adminSchema = new Schema(
     last_name: { type: String, required: true },
     is_admin: { type: Boolean, default: true, required: true },
     password: { type: String },
+    profile_img: { type: String },
   },
   { timestamps: true }
 );
