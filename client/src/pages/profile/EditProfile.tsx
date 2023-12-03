@@ -107,6 +107,12 @@ export default function EditProfile({
     if (!formData.username) {
       setErrors((e: any) => ({ ...e, username: "User Name is Required" }));
       valid = false;
+    } else if (formData.username.includes(" ")) {
+      setErrors((e: any) => ({
+        ...e,
+        username: "User Name Can't Contain a Space",
+      }));
+      valid = false;
     } else {
       setErrors((e: any) => ({ ...e, username: null }));
     }
