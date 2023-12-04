@@ -216,10 +216,28 @@ module.exports.createCompetition = async (req, res, next) => {
 
       await newRound.save();
 
+      if (newRound.is_first_round) {
+        newCompetition.start_date = newRound.start_date;
+      } else if (newRound.is_last_round) {
+        newCompetition.end_date = newRound.end_date;
+      }
+
       if (start_date <= new Date().setHours(0, 0, 0, 0)) {
         newCompetition.status = "started";
         newCompetition.current_round = i + 1;
       }
+    }
+
+    const findMatch = await Competition.findOne({
+      name: newCompetition.name,
+      start_date: newCompetition.start_date,
+      end_date: newCompetition.end_date,
+    });
+    if (findMatch) {
+      return res.status(400).json({
+        message:
+          "a competition with the same name, start date and end date found",
+      });
     }
 
     await newCompetition.save();
