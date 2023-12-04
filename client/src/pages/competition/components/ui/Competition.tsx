@@ -51,7 +51,14 @@ export default function Competition({ competition }: { competition: any }) {
 
             <div>
               <Link
-                to={"/competition/" + competition._id}
+                to={
+                  "/competition/" +
+                  competition.name +
+                  "?start_date=" +
+                  new Date(competition.start_date).toLocaleDateString() +
+                  "&end_date=" +
+                  new Date(competition.end_date).toLocaleDateString()
+                }
                 className="btn btn-primary"
               >
                 View

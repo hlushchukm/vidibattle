@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { create, get } from "../../services/crud";
 import { toast } from "react-toastify";
 import PostsContainer from "../home/components/container/PostsContainer";
@@ -12,9 +12,9 @@ import { usePostStore } from "../../store";
 import { getDate } from "../../services/timeAndDate";
 
 export default function CompetitionPosts() {
-  const [pageLoading, setPageLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
-  const [competitionId, setCompetitionId] = useState<string>();
+  const [competitionName, setCompetitionName] = useState<string>();
   const [postsLoading, setPostsLoading] = useState(false);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
@@ -29,11 +29,14 @@ export default function CompetitionPosts() {
   const [currentRound, setCurrentRound] = useState<any>();
   const [rounds, setRounds] = useState<any>([]);
 
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+
   const pageSize = 10;
   const params = useParams();
 
   useEffect(() => {
-    setCompetitionId(params.id);
+    setCompetitionName(params.name);
 
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -43,11 +46,10 @@ export default function CompetitionPosts() {
   }, []);
 
   useEffect(() => {
-    if (competitionId) {
-      getPosts(competitionId, 1, true);
-      getBasicInfo(competitionId);
+    if (competitionName) {
+      getBasicInfo(competitionName);
     }
-  }, [competitionId]);
+  }, [competitionName]);
 
   const getPosts = async (
     competitionId: string,
@@ -88,14 +90,22 @@ export default function CompetitionPosts() {
       });
   };
 
-  const getBasicInfo = (id: string) => {
+  const getBasicInfo = (nameInfo: string) => {
     setPageLoading(true);
-    get("competition/info/" + id)
+    const query: any = {};
+    if (queryParams.get("start_date"))
+      query.start_date = queryParams.get("start_date");
+
+    if (queryParams.get("end_date"))
+      query.end_date = queryParams.get("end_date");
+
+    get("competition/info/" + nameInfo, query)
       .then((res) => {
         setCompetitionInfo(res.data);
         setRounds(res.data?.rounds ?? []);
         setCurrentRound(res.data?.rounds?.[0] ?? null);
         setPageLoading(false);
+        getPosts(res.data._id, 1, true);
       })
       .catch((e) => {
         console.log(e);
@@ -110,7 +120,7 @@ export default function CompetitionPosts() {
 
   const leaveCompetition = () => {
     setLeaveLoading(true);
-    create("competition/" + competitionId + "/leave", {})
+    create("competition/" + competitionInfo._id + "/leave", {})
       .then((res) => {
         toast.success(res.message ?? "Competition Left");
         setCompetitionInfo((i: any) => ({ ...i, competingUser: res.data }));
@@ -127,7 +137,7 @@ export default function CompetitionPosts() {
 
   const joinCompetition = () => {
     setJoinLoading(true);
-    create("competition/" + competitionId + "/join", {})
+    create("competition/" + competitionInfo._id + "/join", {})
       .then((res) => {
         toast.success(res.message ?? "Competition joined");
         setCompetitionInfo((i: any) => ({ ...i, competingUser: res.data }));
@@ -148,13 +158,13 @@ export default function CompetitionPosts() {
 
   const handleScroll = async () => {
     if (
-      params.id &&
+      competitionInfo &&
       window.innerHeight + document.documentElement.scrollTop >=
         document.documentElement.offsetHeight - 5 &&
       !postsLoadingRef.current
     ) {
       postsLoadingRef.current = true;
-      await getPosts(params.id, currentRound?.number ?? 1);
+      await getPosts(competitionInfo._id, currentRound?.number ?? 1);
       postsLoadingRef.current = false;
     }
   };
@@ -162,14 +172,14 @@ export default function CompetitionPosts() {
   const onNextRoundClicked = () => {
     clearPosts();
     setPostsLoading(true);
-    getPosts(competitionId ?? "", currentRound.number + 1, true);
+    getPosts(competitionInfo?._id ?? "", currentRound.number + 1, true);
     setCurrentRound(rounds[currentRound.number]);
   };
 
   const onPreviousRoundClicked = () => {
     clearPosts();
     setPostsLoading(true);
-    getPosts(competitionId ?? "", currentRound.number - 1, true);
+    getPosts(competitionInfo?._id ?? "", currentRound.number - 1, true);
     setCurrentRound(rounds[currentRound.number - 2]);
   };
 

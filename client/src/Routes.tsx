@@ -106,7 +106,7 @@ export default function Router() {
                 }
               />
               <Route
-                path="/competition/:id"
+                path="/competition/:name"
                 element={
                   <MainLayout>
                     <CompetitionPosts />
