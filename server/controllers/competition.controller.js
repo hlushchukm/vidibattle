@@ -254,9 +254,19 @@ module.exports.createCompetition = async (req, res, next) => {
 
 module.exports.getCompetitionInfo = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { name } = req.params;
+    const { start_date, end_date } = req.query;
 
-    let competition = await Competition.findById(id).populate({
+    const query = { name };
+
+    if (start_date) {
+      query.start_date = new Date(start_date);
+    }
+    if (end_date) {
+      query.end_date = new Date(end_date);
+    }
+
+    let competition = await Competition.findOne(query).populate({
       path: "winners",
       select: "first_name last_name username profile_img",
     });
