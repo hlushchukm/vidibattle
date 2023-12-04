@@ -205,6 +205,7 @@ module.exports.createCompetition = async (req, res, next) => {
       }
 
       const newRound = new Round({
+        name: round.name,
         number: i + 1,
         start_date,
         end_date,

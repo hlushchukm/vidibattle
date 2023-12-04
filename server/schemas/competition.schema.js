@@ -27,6 +27,7 @@ const competitionSchema = Schema(
 
 const roundSchema = Schema(
   {
+    name: { type: String, required: true },
     number: { type: Number, required: true },
     start_date: { type: Date, required: true },
     end_date: { type: Date, required: true },
