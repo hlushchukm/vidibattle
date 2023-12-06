@@ -66,41 +66,36 @@ export default function CompetitionsListContainer({
     return;
   }
 
-    return (
-      <>
-        <div className="mb-2">
-          <h3>{getStatusLabel(status)}</h3>
-          <div className="divider"></div>
+  return (
+    <>
+      <div className="mb-2">
+        <h3>{getStatusLabel(status)}</h3>
+        <div className="divider"></div>
 
-          {competitions.length === 0 && !loading ? (
-            <>
-              <h4 className="text-muted py-4 text-center">
-                No {getStatusLabel(status)} Competitions
-              </h4>
-            </>
-          ) : (
-            <div className="row">
-              {competitions.map((competition: any) => (
-                <>
-                  <Competition
-                    key={competition._id}
-                    competition={competition}
-                  />
-                </>
-              ))}
-              {loading && <BlinkingLoadingCircles />}
+        {competitions.length === 0 && !loading ? (
+          <>
+            <h4 className="text-muted py-4 text-center">
+              No {getStatusLabel(status)} Competitions
+            </h4>
+          </>
+        ) : (
+          <div className="row">
+            {competitions.map((competition: any) => (
+              <Competition key={competition._id} competition={competition} />
+            ))}
+            {loading && <BlinkingLoadingCircles />}
 
-              {!loading && !noMoreCompetitions && (
-                <button
-                  className={`btn light btn-primary ${loading && "disabled"}`}
-                  onClick={fetchCompetitions}
-                >
-                  <span>show more</span>
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </>
-    );
+            {!loading && !noMoreCompetitions && (
+              <button
+                className={`btn light btn-primary ${loading && "disabled"}`}
+                onClick={fetchCompetitions}
+              >
+                <span>show more</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
 }
