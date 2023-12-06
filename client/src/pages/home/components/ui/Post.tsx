@@ -156,7 +156,16 @@ export default function Post({
             <span
               className=""
               style={{ cursor: "pointer" }}
-              onClick={() => navigate("/competition/" + post.competition._id)}
+              onClick={() =>
+                navigate(
+                  "/competition/" +
+                    post.competition.name +
+                    "?start_date=" +
+                    new Date(post.competition.start_date).toLocaleDateString() +
+                    "&end_date=" +
+                    new Date(post.competition.end_date).toLocaleDateString()
+                )
+              }
             >
               <span className="me-1">Competition:</span>
               <span className="me-2 text-secondary fw-bold">
