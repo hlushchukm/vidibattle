@@ -4,7 +4,7 @@ import {
   handleCompetitionImageError,
 } from "../../../../services/asset-paths";
 
-export default function CompetitionInfo({
+export default function CompetitionInfoCard({
   competition,
   payLoading,
   joinLoading,

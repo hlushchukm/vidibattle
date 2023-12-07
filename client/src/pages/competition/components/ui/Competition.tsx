@@ -68,7 +68,7 @@ export default function Competition({ competition }: { competition: any }) {
                 <>
                   <Link
                     to={
-                      "/competition/post" +
+                      "/competition/post/" +
                       competition.name +
                       "?start_date=" +
                       new Date(competition.start_date).toLocaleDateString() +

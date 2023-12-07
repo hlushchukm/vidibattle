@@ -21,9 +21,10 @@ import Logout from "./pages/Logout";
 import StaticPage from "./pages/static-pages/StaticPage";
 import SuggestUsersToFollow from "./pages/followers/SuggestUsersToFollow";
 import CompetitionsList from "./pages/competition/CompetitionsList";
-import CompetitionPosts from "./pages/competition/CompetitionPosts";
+import CompetitionInfo from "./pages/competition/CompetitionInfo";
 import CreateCompetitionPost from "./pages/create-post/CreateCompetitionPost";
 import Wallet from "./pages/wallet/Wallet";
+import CompetitionPosts from "./pages/competition/CompetitionPosts";
 
 export default function Router() {
   let loggedIn = isLoggedIn();
@@ -106,7 +107,23 @@ export default function Router() {
                 }
               />
               <Route
-                path="/competition/:name"
+                path="/competition/info/:name"
+                element={
+                  <MainLayout>
+                    <CompetitionInfo />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/competition/post/:name"
+                element={
+                  <MainLayout>
+                    <CompetitionPosts />
+                  </MainLayout>
+                }
+              />
+              <Route
+                path="/competition/post/round/:number/:name"
                 element={
                   <MainLayout>
                     <CompetitionPosts />
