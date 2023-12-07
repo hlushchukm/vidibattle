@@ -266,7 +266,10 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
     const { name } = req.params;
     const { start_date, end_date } = req.query;
 
-    let competitions = await Competition.find({ name });
+    let competitions = await Competition.find({ name }).populate(
+      "winners",
+      "first_name last_name username profile_img"
+    );
     let competition = null;
 
     for (const c of competitions) {
@@ -447,6 +450,8 @@ const getCompetitionWinners = async (competition, round) => {
   if (posts.length > 0) {
     // set winner
     const maxLikes = posts[0].likes_count;
+    let rank = 0;
+    let last_like = -1;
 
     for (const post of posts) {
       const competitor = await CompetingUser.findOne({
@@ -458,9 +463,18 @@ const getCompetitionWinners = async (competition, round) => {
 
       if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
         competitor.status = "lost";
+
+        if (post.likes_count >= round.min_likes) {
+          last_like !== post.likes_count ? rank++ : null;
+          competitor.rank = rank;
+          last_like = post.likes_count;
+        }
       } else {
         winners.push(post.author);
         competitor.status = "won";
+        last_like !== post.likes_count ? rank++ : null;
+        competitor.rank = rank;
+        last_like = post.likes_count;
       }
       await competitor.save();
     }
@@ -731,6 +745,75 @@ module.exports.getRounds = async (req, res, next) => {
       .sort({ number: 1 });
 
     res.status(200).json({ data: rounds });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.getTopParticipants = async (req, res, next) => {
+  try {
+    const { competition, round } = req.params;
+
+    const top3 = await CompetingUser.find({
+      competition,
+      current_round: round,
+      status: { $nin: ["left", "removed"] },
+      rank: { $gte: 1, $lte: 3 },
+    })
+      .populate("user", "first_name last_name username profile_img")
+      .sort("rank");
+
+    const top10 = await CompetingUser.find({
+      competition,
+      current_round: round,
+      status: { $nin: ["left", "removed"] },
+      rank: { $gte: 4, $lte: 10 },
+    })
+      .populate("user", "first_name last_name username profile_img")
+      .sort("rank")
+      .limit(10);
+
+    const top3List = [];
+    for (const competitor of top3) {
+      const item = competitor.toObject();
+      const post = await Post.findOne(
+        {
+          competition,
+          round,
+          author: competitor.user._id,
+          is_deleted: false,
+        },
+        "likes_count"
+      );
+
+      if (post) {
+        item.likes = post.likes_count;
+      }
+
+      top3List.push(item);
+    }
+
+    const top10List = [];
+    for (const competitor of top10) {
+      const item = competitor.toObject();
+      const post = await Post.findOne(
+        {
+          competition,
+          round,
+          author: competitor.user._id,
+          is_deleted: false,
+        },
+        "likes_count"
+      );
+
+      if (post) {
+        item.likes = post.likes_count;
+      }
+
+      top10List.push(item);
+    }
+
+    res.status(200).json({ top3: top3List, top10: top10List });
   } catch (e) {
     next(e);
   }
