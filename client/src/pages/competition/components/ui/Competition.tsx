@@ -49,10 +49,10 @@ export default function Competition({ competition }: { competition: any }) {
                 getCompetitionStatusBadge(competition.competingUser.status)}
             </p>
 
-            <div>
+            <div className="d-flex gap-2" style={{ flexWrap: "wrap" }}>
               <Link
                 to={
-                  "/competition/" +
+                  "/competition/info/" +
                   competition.name +
                   "?start_date=" +
                   new Date(competition.start_date).toLocaleDateString() +
@@ -60,9 +60,49 @@ export default function Competition({ competition }: { competition: any }) {
                   new Date(competition.end_date).toLocaleDateString()
                 }
                 className="btn btn-primary"
+                style={{ fontSize: "10px" }}
               >
-                View
+                Details
               </Link>
+              {competition.status !== "scheduled" && (
+                <>
+                  <Link
+                    to={
+                      "/competition/post" +
+                      competition.name +
+                      "?start_date=" +
+                      new Date(competition.start_date).toLocaleDateString() +
+                      "&end_date=" +
+                      new Date(competition.end_date).toLocaleDateString()
+                    }
+                    className="btn btn-secondary"
+                    style={{ fontSize: "10px" }}
+                  >
+                    All Posts
+                  </Link>
+
+                  {competition.status !== "cancelled" && (
+                    <Link
+                      to={
+                        "/competition/post/round/" +
+                        competition.current_round +
+                        "/" +
+                        competition.name +
+                        "?start_date=" +
+                        new Date(competition.start_date).toLocaleDateString() +
+                        "&end_date=" +
+                        new Date(competition.end_date).toLocaleDateString()
+                      }
+                      className="btn btn-secondary"
+                      style={{ fontSize: "10px" }}
+                    >
+                      {competition.status === "started"
+                        ? "Current Round"
+                        : "Last Round"}
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>
