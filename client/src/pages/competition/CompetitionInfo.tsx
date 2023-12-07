@@ -10,6 +10,7 @@ import CompetitionInfoCard from "./components/container/CompetitionInfoCard";
 import PageLoading from "../../components/PageLoading";
 import { usePostStore } from "../../store";
 import { getDate } from "../../services/timeAndDate";
+import RoundsTable from "./components/container/RoundsTable";
 
 export default function CompetitionInfo() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -129,6 +130,11 @@ export default function CompetitionInfo() {
               payLoading={payLoading}
               joinLoading={joinLoading}
               leaveLoading={leaveLoading}
+            />
+            <RoundsTable
+              rounds={rounds}
+              currentRound={currentRound}
+              competitionInfo={competitionInfo}
             />
           </div>
         </div>
