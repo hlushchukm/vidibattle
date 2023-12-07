@@ -229,16 +229,25 @@ module.exports.createCompetition = async (req, res, next) => {
       }
     }
 
-    const findMatch = await Competition.findOne({
+    const competitionMatches = await Competition.find({
       name: newCompetition.name,
-      start_date: newCompetition.start_date,
-      end_date: newCompetition.end_date,
     });
-    if (findMatch) {
-      return res.status(400).json({
-        message:
-          "a competition with the same name, start date and end date found",
-      });
+
+    const start_date_str = new Date(
+      newCompetition.start_date
+    ).toLocaleDateString();
+    const end_date_str = new Date(newCompetition.end_date).toLocaleDateString();
+
+    for (const match of competitionMatches) {
+      if (
+        match.start_date?.toLocaleDateString()?.includes(start_date_str) &&
+        match.end_date?.toLocaleDateString(end_date_str)?.includes()
+      ) {
+        return res.status(400).json({
+          message:
+            "a competition with the same name, start date and end date found",
+        });
+      }
     }
 
     await newCompetition.save();
@@ -257,19 +266,18 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
     const { name } = req.params;
     const { start_date, end_date } = req.query;
 
-    const query = { name };
+    let competitions = await Competition.find({ name });
+    let competition = null;
 
-    if (start_date) {
-      query.start_date = new Date(start_date);
+    for (const c of competitions) {
+      if (
+        c.start_date?.toLocaleDateString()?.includes(start_date) &&
+        c.end_date?.toLocaleDateString()?.includes(end_date)
+      ) {
+        competition = c;
+        break;
+      }
     }
-    if (end_date) {
-      query.end_date = new Date(end_date);
-    }
-
-    let competition = await Competition.findOne(query).populate({
-      path: "winners",
-      select: "first_name last_name username profile_img",
-    });
 
     if (!competition) {
       return res.status(404).json({ message: "Competition not found" });
