@@ -60,7 +60,7 @@ export default function Competition({ competition }: { competition: any }) {
                   new Date(competition.end_date).toLocaleDateString()
                 }
                 className="btn btn-primary"
-                style={{ fontSize: "10px" }}
+                style={{ fontSize: "12px" }}
               >
                 Details
               </Link>
@@ -76,7 +76,7 @@ export default function Competition({ competition }: { competition: any }) {
                       new Date(competition.end_date).toLocaleDateString()
                     }
                     className="btn btn-secondary"
-                    style={{ fontSize: "10px" }}
+                    style={{ fontSize: "12px" }}
                   >
                     All Posts
                   </Link>
@@ -94,7 +94,7 @@ export default function Competition({ competition }: { competition: any }) {
                         new Date(competition.end_date).toLocaleDateString()
                       }
                       className="btn btn-secondary"
-                      style={{ fontSize: "10px" }}
+                      style={{ fontSize: "12px" }}
                     >
                       {competition.status === "started"
                         ? "Current Round"
