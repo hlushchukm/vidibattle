@@ -3,10 +3,10 @@ import { useLocation, useParams } from "react-router-dom";
 import { create, get } from "../../services/crud";
 import { toast } from "react-toastify";
 import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
-import ShareModal from "../../components/ShareModal";
 import CompetitionInfoCard from "./components/container/CompetitionInfoCard";
 import PageLoading from "../../components/PageLoading";
 import RoundsTable from "./components/container/RoundsTable";
+import TopParticipantsList from "./components/container/TopParticipantsList";
 
 export default function CompetitionInfo() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -15,7 +15,6 @@ export default function CompetitionInfo() {
   const [joinLoading, setJoinLoading] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
-  const [currentRound, setCurrentRound] = useState<any>();
   const [rounds, setRounds] = useState<any>([]);
 
   const { search } = useLocation();
@@ -46,7 +45,6 @@ export default function CompetitionInfo() {
       .then((res) => {
         setCompetitionInfo(res.data);
         setRounds(res.data?.rounds ?? []);
-        setCurrentRound(res.data?.rounds?.[0] ?? null);
         setPageLoading(false);
       })
       .catch((e) => {
@@ -120,14 +118,20 @@ export default function CompetitionInfo() {
             />
             <RoundsTable
               rounds={rounds}
-              currentRound={currentRound}
               competitionInfo={competitionInfo}
             />
+
+            {competitionInfo.status === "ended" && (
+              <div className="py-2">
+                <TopParticipantsList
+                  competitionId={competitionInfo._id}
+                  round={competitionInfo.current_round}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      <ShareModal />
     </>
   );
 }
