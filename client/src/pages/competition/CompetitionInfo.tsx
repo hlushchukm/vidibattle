@@ -1,29 +1,17 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { create, get } from "../../services/crud";
 import { toast } from "react-toastify";
-import PostsContainer from "../home/components/container/PostsContainer";
 import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
 import ShareModal from "../../components/ShareModal";
-import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import CompetitionInfoCard from "./components/container/CompetitionInfoCard";
 import PageLoading from "../../components/PageLoading";
-import { usePostStore } from "../../store";
-import { getDate } from "../../services/timeAndDate";
 import RoundsTable from "./components/container/RoundsTable";
 
 export default function CompetitionInfo() {
   const [pageLoading, setPageLoading] = useState(true);
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
   const [competitionName, setCompetitionName] = useState<string>();
-  const [postsLoading, setPostsLoading] = useState(false);
-  const lastDate = useRef<string | null>(null);
-  const lastPostId = useRef<string | null>(null);
-  const lastLikesCount = useRef<string | null>(null);
-  const postsLoadingRef = useRef(true);
-  const posts = usePostStore((state) => state.posts);
-  const addToFeed = usePostStore((state) => state.addToFeed);
-  const clearPosts = usePostStore((state) => state.clearPosts);
   const [joinLoading, setJoinLoading] = useState(false);
   const [payLoading, setPayLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
@@ -33,7 +21,6 @@ export default function CompetitionInfo() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
 
-  const pageSize = 10;
   const params = useParams();
 
   useEffect(() => {
