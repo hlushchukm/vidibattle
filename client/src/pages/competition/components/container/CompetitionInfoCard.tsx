@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   formatResourceURL,
   handleCompetitionImageError,
@@ -128,6 +128,7 @@ export default function CompetitionInfoCard({
                           disabled={payLoading}
                           onClick={payForCompetition}
                           className="btn btn-secondary"
+                          style={{ fontSize: "12px" }}
                         >
                           Pay and Join
                         </button>
@@ -138,6 +139,7 @@ export default function CompetitionInfoCard({
                           disabled={joinLoading}
                           onClick={joinCompetition}
                           className="btn btn-secondary"
+                          style={{ fontSize: "12px" }}
                         >
                           Join
                         </button>
@@ -161,11 +163,52 @@ export default function CompetitionInfoCard({
                         )
                       }
                       className="btn btn-secondary"
+                      style={{ fontSize: "12px" }}
                     >
                       Post
                     </button>
                   </>
                 )}
+
+              {competition.status !== "scheduled" && (
+                <>
+                  <Link
+                    to={
+                      "/competition/post/" +
+                      competition.name +
+                      "?start_date=" +
+                      new Date(competition.start_date).toLocaleDateString() +
+                      "&end_date=" +
+                      new Date(competition.end_date).toLocaleDateString()
+                    }
+                    className="btn btn-secondary"
+                    style={{ fontSize: "12px" }}
+                  >
+                    All Posts
+                  </Link>
+
+                  {competition.status !== "cancelled" && (
+                    <Link
+                      to={
+                        "/competition/post/round/" +
+                        competition.current_round +
+                        "/" +
+                        competition.name +
+                        "?start_date=" +
+                        new Date(competition.start_date).toLocaleDateString() +
+                        "&end_date=" +
+                        new Date(competition.end_date).toLocaleDateString()
+                      }
+                      className="btn btn-secondary"
+                      style={{ fontSize: "12px" }}
+                    >
+                      {competition.status === "started"
+                        ? "Current Round"
+                        : "Last Round"}
+                    </Link>
+                  )}
+                </>
+              )}
             </div>
 
             {/* Leave Button */}
@@ -178,12 +221,15 @@ export default function CompetitionInfoCard({
                     disabled={leaveLoading}
                     onClick={leaveCompetition}
                     className="btn btn-danger"
+                    style={{ fontSize: "12px" }}
                   >
                     Leave
                   </button>
                 </>
               )}
           </div>
+
+          <div className="divider"></div>
 
           {competition.competingUser &&
             competition.competingUser.status === "lost" && (
