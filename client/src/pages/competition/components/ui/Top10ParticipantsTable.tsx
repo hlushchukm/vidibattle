@@ -8,7 +8,7 @@ export default function Top10ParticipantsTable({
 }) {
   return (
     <>
-      <div className="d-flex flex-column justify-content-center align-items-center">
+      <div className="d-flex flex-column justify-content-center align-items-center pt-4">
         <h1 className="text-light" style={{ textDecoration: "underline" }}>
           Top 10 Participants
         </h1>
@@ -23,22 +23,32 @@ export default function Top10ParticipantsTable({
             </tr>
           </thead>
           <tbody>
+            {topParticipants.length === 0 && (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="text-center text-light fw-bold py-2 bg-white"
+                >
+                  No users found
+                </td>
+              </tr>
+            )}
             {topParticipants.map((participant) => (
               <tr key={participant._id} className="bg-white">
-                <th className="px-4 py-2 border">{participant.rank}</th>
-                <th className="px-4 py-2 border">
+                <td className="px-4 py-2 border">{participant.rank}</td>
+                <td className="px-4 py-2 border">
                   <Link to={"/user" + participant.user.username}>
                     {getName(participant.user)}
                   </Link>
-                </th>
-                <th className="px-4 py-2 border">
+                </td>
+                <td className="px-4 py-2 border">
                   <Link to={"/user" + participant.user.username}>
                     @{participant.user.username}
                   </Link>
-                </th>
-                <th className="px-4 py-2 border">
+                </td>
+                <td className="px-4 py-2 border">
                   {participant.likes !== undefined ? participant.likes : "-"}
-                </th>
+                </td>
               </tr>
             ))}
           </tbody>
