@@ -21,19 +21,6 @@ export default function Post({
   const setPostToShare = useShareStore((state) => state.setPostToShare);
   const setPostToReport = useReportStore((state) => state.setPostToReport);
 
-  const checkIfWinner = (post: any) => {
-    const author: string = post.author?._id;
-    const winners: any[] = post.competition?.winners ?? [];
-
-    if (
-      winners.includes(author) &&
-      post.competition?.current_round === post.round
-    ) {
-      return true;
-    }
-    return false;
-  };
-
   return (
     <>
       <div className="post-card">
@@ -158,7 +145,7 @@ export default function Post({
               style={{ cursor: "pointer" }}
               onClick={() =>
                 navigate(
-                  "/competition/" +
+                  "/competition/info/" +
                     post.competition.name +
                     "?start_date=" +
                     new Date(post.competition.start_date).toLocaleDateString() +
@@ -173,12 +160,6 @@ export default function Post({
               </span>
               <span className="me-1">Round:</span>
               <span className="me-2 text-secondary fw-bold">{post.round}</span>
-              {checkIfWinner(post) && (
-                <span className="ms-2 badge badge-warning me-1 mb-1 px-3">
-                  <i className="fa fa-trophy me-2"></i>
-                  <span>Winner</span>
-                </span>
-              )}
             </span>
           </p>
         )}
