@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { usePostStore } from "../../store";
 import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
+import PageLoading from "../../components/PageLoading";
 
 export default function CompetitionPosts() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -57,7 +58,6 @@ export default function CompetitionPosts() {
         setCompetitionInfo(res.data);
         setRounds(res.data?.rounds ?? []);
         setCurrentRound(res.data?.rounds?.[0] ?? null);
-        setPageLoading(false);
         getPosts(res.data._id, 1, true);
       })
       .catch((e) => {
@@ -100,11 +100,13 @@ export default function CompetitionPosts() {
         lastPostId.current = res.lastPostId;
         lastLikesCount.current = res.lastLikesCount;
         setPostsLoading(false);
+        setPageLoading(false);
       })
       .catch((e) => {
         console.log(e);
-        setPostsLoading(false);
         toast.error(e.response?.data?.message ?? "Error while fetching posts");
+        setPostsLoading(false);
+        setPageLoading(false);
       });
   };
 
@@ -121,8 +123,13 @@ export default function CompetitionPosts() {
     }
   };
 
+  if (pageLoading) {
+    return <PageLoading />;
+  }
+
   return (
     <>
+    {/* TODO: show round name if it is a particular round */}
       <CompetitionPostsHeader />
 
       <div className="page-content min-vh-100">
