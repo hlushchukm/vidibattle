@@ -30,6 +30,7 @@ export default function CompetitionPosts() {
 
   useEffect(() => {
     setCompetitionName(params.name);
+    getBasicInfo(params.name ?? "");
 
     window.addEventListener("scroll", handleScroll);
     return () => {
@@ -37,12 +38,6 @@ export default function CompetitionPosts() {
       clearPosts();
     };
   }, []);
-
-  useEffect(() => {
-    if (competitionName) {
-      getBasicInfo(competitionName);
-    }
-  }, [competitionName]);
 
   const getBasicInfo = (nameInfo: string) => {
     setPageLoading(true);
@@ -57,8 +52,7 @@ export default function CompetitionPosts() {
       .then((res) => {
         setCompetitionInfo(res.data);
         setRounds(res.data?.rounds ?? []);
-        setCurrentRound(res.data?.rounds?.[0] ?? null);
-        getPosts(res.data._id, 1, true);
+        getPosts(res.data._id, true);
       })
       .catch((e) => {
         console.log(e);
@@ -71,15 +65,17 @@ export default function CompetitionPosts() {
 
   const getPosts = async (
     competitionId: string,
-    round: number = 1,
     first_time: boolean = false
   ) => {
     setPostsLoading(true);
     let payload: any = {
       pageSize,
       competitionId,
-      round,
     };
+
+    if (params.number !== undefined) {
+      payload.round = params.number;
+    }
 
     if (!first_time) {
       payload = {
@@ -129,7 +125,7 @@ export default function CompetitionPosts() {
 
   return (
     <>
-    {/* TODO: show round name if it is a particular round */}
+      {/* TODO: show round name if it is a particular round */}
       <CompetitionPostsHeader />
 
       <div className="page-content min-vh-100">

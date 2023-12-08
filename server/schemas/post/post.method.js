@@ -23,7 +23,7 @@ module.exports.feed = function ({
 
   if (competitionId) {
     query.competition = competitionId;
-    query.round = round ? round : 1;
+    if (round) query.round = round;
   }
 
   if (!allPosts) {
@@ -81,7 +81,9 @@ module.exports.feed = function ({
   )
     .sort(
       competitionId
-        ? { likes_count: -1, createdAt: -1, _id: -1 }
+        ? round
+          ? { round: -1, likes_count: -1, createdAt: -1, _id: -1 }
+          : { likes_count: -1, createdAt: -1, _id: -1 }
         : { createdAt: -1, _id: -1 }
     )
     .limit(parseInt(pageSize))

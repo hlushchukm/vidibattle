@@ -29,7 +29,7 @@ module.exports.getFeed = async (req, res, next) => {
       competitionId: competitionId,
       allPosts: competitionId ? true : false,
       lastLikesCount: competitionId ? lastLikesCount : null,
-      round: competitionId ? (round ? round : 1) : null,
+      round: competitionId ? (round ? round : null) : null,
     });
 
     let updatedLastDate = lastDate;
