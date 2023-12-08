@@ -11,7 +11,6 @@ import PageLoading from "../../components/PageLoading";
 export default function CompetitionPosts() {
   const [pageLoading, setPageLoading] = useState(true);
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
-  const [competitionName, setCompetitionName] = useState<string>();
   const [postsLoading, setPostsLoading] = useState(false);
   const lastDate = useRef<string | null>(null);
   const lastPostId = useRef<string | null>(null);
@@ -23,13 +22,11 @@ export default function CompetitionPosts() {
   const { search } = useLocation();
   const queryParams = new URLSearchParams(search);
   const [currentRound, setCurrentRound] = useState<any>();
-  const [rounds, setRounds] = useState<any>([]);
 
   const pageSize = 10;
   const params = useParams();
 
   useEffect(() => {
-    setCompetitionName(params.name);
     getBasicInfo(params.name ?? "");
 
     window.addEventListener("scroll", handleScroll);
@@ -38,6 +35,17 @@ export default function CompetitionPosts() {
       clearPosts();
     };
   }, []);
+
+  useEffect(() => {
+    if (params.number !== undefined && competitionInfo) {
+      const cr = competitionInfo.rounds?.find(
+        (round: any) =>
+          parseInt(round?.number) === parseInt(params.number ?? "")
+      );
+
+      setCurrentRound(cr);
+    }
+  }, [competitionInfo]);
 
   const getBasicInfo = (nameInfo: string) => {
     setPageLoading(true);
@@ -51,7 +59,6 @@ export default function CompetitionPosts() {
     get("competition/info/" + nameInfo, query)
       .then((res) => {
         setCompetitionInfo(res.data);
-        setRounds(res.data?.rounds ?? []);
         getPosts(res.data._id, true);
       })
       .catch((e) => {
@@ -126,7 +133,13 @@ export default function CompetitionPosts() {
   return (
     <>
       {/* TODO: show round name if it is a particular round */}
-      <CompetitionPostsHeader />
+      <CompetitionPostsHeader
+        text={
+          params.number
+            ? currentRound?.name ?? "Round " + params.number
+            : "Posts"
+        }
+      />
 
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
