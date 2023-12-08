@@ -3,6 +3,7 @@ import {
   formatResourceURL,
   handleCompetitionImageError,
 } from "../../../../services/asset-paths";
+import { getDate } from "../../../../services/timeAndDate";
 
 export default function CompetitionInfoCard({
   competition,
@@ -94,6 +95,14 @@ export default function CompetitionInfoCard({
             <small className="">
               Post Types Allowed:&nbsp;
               <span className="fw-bolder">{competition?.type}</span>
+            </small>
+          </p>
+          <p className="card-text d-flex gap-2">
+            <small className="">
+              Result Date:&nbsp;
+              <span className="fw-bolder">
+                {getDate(competition?.result_date)}
+              </span>
             </small>
           </p>
 
@@ -234,12 +243,21 @@ export default function CompetitionInfoCard({
           {competition.competingUser &&
             competition.competingUser.status === "lost" && (
               <>
-                <div className="fw-bold text-light">
-                  You have lost this competition on&nbsp;
-                  <span className="text-info">
-                    Round {competition.competingUser.current_round}
-                  </span>
-                </div>
+                {competition.competingUser.rank ? (
+                  <div className="fw-bold text-light">
+                    You'r rank on this competition was:&nbsp;
+                    <span className="text-info">
+                      {competition.competingUser.rank}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="fw-bold text-light">
+                    You have lost this competition on&nbsp;
+                    <span className="text-info">
+                      Round {competition.competingUser.current_round}
+                    </span>
+                  </div>
+                )}
               </>
             )}
 
