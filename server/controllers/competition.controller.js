@@ -461,6 +461,10 @@ const getCompetitionWinners = async (competition, round) => {
         status: "playing",
       });
 
+      if (!competitor) {
+        continue;
+      }
+
       if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
         competitor.status = "lost";
 
