@@ -321,6 +321,30 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
   }
 };
 
+module.exports.getCompetitionInfoForEdit = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    let competition = await Competition.findById(id);
+
+    if (!competition) {
+      return res.status(404).json({ message: "Competition not found" });
+    }
+
+    // get rounds
+    const rounds = await Round.find({ competition: competition._id }).sort(
+      "number"
+    );
+
+    const competitionData = competition.toObject();
+    competitionData.rounds = rounds;
+
+    res.status(200).json({ data: competitionData });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.startCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;
