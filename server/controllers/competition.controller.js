@@ -777,47 +777,7 @@ module.exports.getTopParticipants = async (req, res, next) => {
       .sort("rank")
       .limit(10);
 
-    const top3List = [];
-    for (const competitor of top3) {
-      const item = competitor.toObject();
-      const post = await Post.findOne(
-        {
-          competition,
-          round,
-          author: competitor.user._id,
-          is_deleted: false,
-        },
-        "likes_count"
-      );
-
-      if (post) {
-        item.likes = post.likes_count;
-      }
-
-      top3List.push(item);
-    }
-
-    const top10List = [];
-    for (const competitor of top10) {
-      const item = competitor.toObject();
-      const post = await Post.findOne(
-        {
-          competition,
-          round,
-          author: competitor.user._id,
-          is_deleted: false,
-        },
-        "likes_count"
-      );
-
-      if (post) {
-        item.likes = post.likes_count;
-      }
-
-      top10List.push(item);
-    }
-
-    res.status(200).json({ top3: top3List, top10: top10List });
+    res.status(200).json({ top3: top3, top10: top10 });
   } catch (e) {
     next(e);
   }

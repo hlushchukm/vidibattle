@@ -58,9 +58,6 @@ export default function WinnersList({ winners }: { winners: any[] }) {
                     @{winner?.user?.username}
                   </div>
                 </div>
-                <div className="small text-dark">
-                  Likes:&nbsp;{winner?.likes}
-                </div>
                 <div className="small text-dark">Rank:&nbsp;{winner?.rank}</div>
               </div>
             </div>
