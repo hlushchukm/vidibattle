@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { create, get } from "../../services/crud";
 import { toast } from "react-toastify";
-import CompetitionPostsHeader from "./components/CompetitionPostsHeader";
+import CompetitionInfoHeader from "./components/CompetitionInfoHeader";
 import CompetitionInfoCard from "./components/container/CompetitionInfoCard";
 import PageLoading from "../../components/PageLoading";
 import RoundsTable from "./components/container/RoundsTable";
@@ -96,13 +96,22 @@ export default function CompetitionInfo() {
     setPayLoading(false);
   };
 
+  const showResults = (result_date_str: string) => {
+    const result_date = new Date(result_date_str);
+    result_date.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return today >= result_date;
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
 
   return (
     <>
-      <CompetitionPostsHeader />
+      <CompetitionInfoHeader />
 
       <div className="page-content min-vh-100">
         <div className="content-inner pt-0">
@@ -116,12 +125,11 @@ export default function CompetitionInfo() {
               joinLoading={joinLoading}
               leaveLoading={leaveLoading}
             />
-            <RoundsTable
-              rounds={rounds}
-              competitionInfo={competitionInfo}
-            />
+            <RoundsTable rounds={rounds} competitionInfo={competitionInfo} />
 
-            {competitionInfo.status === "ended" && (
+            {competitionInfo.status === "ended" &&
+              showResults(competitionInfo.result_date) && (
+            
               <div className="py-2">
                 <TopParticipantsList
                   competitionId={competitionInfo._id}
