@@ -36,56 +36,65 @@ export default function RoundsTable({
           Rounds
         </h1>
 
-        <table>
-          <thead>
-            <tr className="bg-primary text-white">
-              <th className="px-2 py-2"></th>
-              <th className="px-4 py-2">Round Name</th>
-              <th className="px-4 py-2">Minimum Likes</th>
-              <th className="px-4 py-2">Start Date</th>
-              <th className="px-4 py-2">End Date</th>
-              <th className="px-4 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedRounds.map((round) => (
-              <tr key={round._id} className="bg-white">
-                <th className="px-2 py-2 border text-primary">
-                  {round.number === competitionInfo.current_round && (
-                    <i className="fa fa-certificate"></i>
-                  )}
-                </th>
-                <th className="px-4 py-2 border">{round.name}</th>
-                <th className="px-4 py-2 border">{round.min_likes}</th>
-                <th className="px-4 py-2 border">
-                  {getDate(round.start_date)}
-                </th>
-                <th className="px-4 py-2 border">{getDate(round.end_date)}</th>
-                <th className="px-4 py-2 border">
-                  {round.number <= competitionInfo.current_round && (
-                    <Link
-                      to={
-                        "/competition/post/round/" +
-                        round.number +
-                        "/" +
-                        competitionInfo.name +
-                        "?start_date=" +
-                        new Date(
-                          competitionInfo.start_date
-                        ).toLocaleDateString() +
-                        "&end_date=" +
-                        new Date(competitionInfo.end_date).toLocaleDateString()
-                      }
-                      className="btn btn-secondary btn-sm"
-                    >
-                      Posts
-                    </Link>
-                  )}
-                </th>
+        <div
+          className="d-flex justify-content-center"
+          style={{ width: "100%", overflowX: "auto" }}
+        >
+          <table>
+            <thead>
+              <tr className="bg-primary text-white">
+                <th className="px-2 py-2"></th>
+                <th className="px-4 py-2">Round Name</th>
+                <th className="px-4 py-2">Minimum Likes</th>
+                <th className="px-4 py-2">Start Date</th>
+                <th className="px-4 py-2">End Date</th>
+                <th className="px-4 py-2">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {sortedRounds.map((round) => (
+                <tr key={round._id} className="bg-white">
+                  <th className="px-2 py-2 border text-primary">
+                    {round.number === competitionInfo.current_round && (
+                      <i className="fa fa-certificate"></i>
+                    )}
+                  </th>
+                  <th className="px-4 py-2 border">{round.name}</th>
+                  <th className="px-4 py-2 border">{round.min_likes}</th>
+                  <th className="px-4 py-2 border">
+                    {getDate(round.start_date)}
+                  </th>
+                  <th className="px-4 py-2 border">
+                    {getDate(round.end_date)}
+                  </th>
+                  <th className="px-4 py-2 border">
+                    {round.number <= competitionInfo.current_round && (
+                      <Link
+                        to={
+                          "/competition/post/round/" +
+                          round.number +
+                          "/" +
+                          competitionInfo.name +
+                          "?start_date=" +
+                          new Date(
+                            competitionInfo.start_date
+                          ).toLocaleDateString() +
+                          "&end_date=" +
+                          new Date(
+                            competitionInfo.end_date
+                          ).toLocaleDateString()
+                        }
+                        className="btn btn-secondary btn-sm"
+                      >
+                        Posts
+                      </Link>
+                    )}
+                  </th>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </>
   );

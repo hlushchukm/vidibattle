@@ -124,8 +124,8 @@ export default function CompetitionInfoCard({
           )}
 
           <div className="divider"></div>
-          <div className="d-flex">
-            <div className="flex-grow-1 d-flex gap-2">
+          <div className="d-flex flex-wrap gap-2">
+            <div className="flex-grow-1 d-flex gap-2 flex-wrap">
               {/* Join Button */}
               {competition.status === "scheduled" &&
                 (!competition.competingUser ||
