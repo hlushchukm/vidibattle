@@ -1,5 +1,5 @@
 const { User } = require("../models/user.model");
-const { deleteProfileImg } = require("./media.controller");
+const { deleteFile } = require("./media.controller");
 
 module.exports.getBasicUserInfo = async (req, res, next) => {
   try {
@@ -536,7 +536,7 @@ module.exports.updateSelfProfile = async (req, res, next) => {
 
     if (profileImg) {
       // change profile pic
-      await deleteProfileImg(user.profile_img);
+      await deleteFile(user.profile_img);
       user.profile_img = profileImg.filename;
     }
 

@@ -111,7 +111,7 @@ module.exports.storeProfile = async (url) => {
   }
 };
 
-module.exports.deleteProfileImg = async (filename) => {
+module.exports.deleteFile = async (filename) => {
   try {
     const file = await gfs.files.findOne({
       filename,
