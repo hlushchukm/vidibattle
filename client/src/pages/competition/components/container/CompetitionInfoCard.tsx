@@ -245,7 +245,7 @@ export default function CompetitionInfoCard({
               <>
                 {competition.competingUser.rank ? (
                   <div className="fw-bold text-light">
-                    You'r rank on this competition was:&nbsp;
+                    Your rank on this competition was:&nbsp;
                     <span className="text-info">
                       {competition.competingUser.rank}
                     </span>
