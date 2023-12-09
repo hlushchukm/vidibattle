@@ -6,6 +6,7 @@ const {
 const { Post } = require("../models/post.model");
 const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
+const { deleteFile } = require("./media.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -255,6 +256,189 @@ module.exports.createCompetition = async (req, res, next) => {
     res.status(201).json({
       message: "competition created successfully",
       data: newCompetition,
+    });
+  } catch (e) {
+    next(e);
+  }
+};
+
+module.exports.editCompetition = async (req, res, next) => {
+  try {
+    const { data: strData } = req.body;
+    const data = JSON.parse(strData);
+    const {
+      _id,
+      name,
+      description,
+      is_paid,
+      amount,
+      type,
+      result_date,
+      rounds,
+    } = data;
+
+    const imageFile = req.file;
+
+    const oldCompetition = await Competition.findOne({
+      _id,
+      status: { $in: ["started", "scheduled"] },
+    });
+
+    if (!oldCompetition) {
+      return res.status(404).json({ message: "competition not found" });
+    }
+
+    if (!name || !type || rounds.length === 0 || !result_date) {
+      return res.status(400).json({
+        message:
+          "missing field. name, type, result date and rounds are required",
+      });
+    }
+
+    if (is_paid && !amount) {
+      return res
+        .status(400)
+        .json({ message: "payment amount is needed for paid competitions" });
+    }
+
+    if (type !== "video" && type !== "image" && type !== "any") {
+      return res
+        .status(400)
+        .json({ message: "invalid competition type given" });
+    }
+
+    const competitionData = {
+      name,
+      description,
+      type,
+      rounds_count: rounds.length,
+      result_date,
+    };
+
+    if (is_paid) {
+      competitionData.is_paid = is_paid;
+      competitionData.amount = amount;
+    } else {
+      competitionData.is_paid = false;
+      competitionData.amount = 0;
+    }
+
+    // set image and delete the old one
+    if (imageFile) {
+      competitionData.image = imageFile.filename;
+      if (oldCompetition.image) {
+        await deleteFile(oldCompetition.image);
+      }
+    }
+
+    // rounds to delete
+    const roundsDifference = rounds.length - oldCompetition.rounds_count;
+    if (roundsDifference < 0) {
+      await Round.deleteMany({
+        number: { $gt: rounds.length },
+        competition: oldCompetition._id,
+      });
+    }
+
+    // update competition fields
+    for (const key in competitionData) {
+      oldCompetition[key] = competitionData[key];
+    }
+
+    // create rounds
+    for (let i = 0; i < rounds.length; i++) {
+      const round = rounds[i];
+
+      if (!round.start_date || !round.end_date) {
+        return res
+          .status(400)
+          .json({ message: "found a round without start or end date" });
+      }
+
+      const start_date = new Date(round.start_date);
+      start_date.setHours(0, 0, 0, 0);
+      const end_date = new Date(round.end_date);
+      end_date.setHours(0, 0, 0, 0);
+
+      if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+        return res
+          .status(400)
+          .json({ message: "Invalid date format found in rounds" });
+      }
+
+      // Validate start and end dates
+      if (start_date > end_date) {
+        return res
+          .status(400)
+          .json({ message: "End date must be greater than start date" });
+      }
+
+      const roundData = {
+        name: round.name,
+        number: i + 1,
+        start_date,
+        end_date,
+        min_likes: round.min_likes,
+        is_first_round: i === 0,
+        is_last_round: i + 1 >= rounds.length,
+      };
+      let editedRound = null;
+
+      if (round._id) {
+        // edit existing round
+        editedRound = await Round.findById(round._id);
+
+        for (const key in roundData) {
+          editedRound[key] = roundData[key];
+        }
+      } else {
+        // create a new round
+        editedRound = new Round({
+          ...roundData,
+          competition: oldCompetition._id,
+        });
+      }
+      await editedRound.save();
+
+      if (editedRound.is_first_round) {
+        oldCompetition.start_date = editedRound.start_date;
+      } else if (editedRound.is_last_round) {
+        oldCompetition.end_date = editedRound.end_date;
+      }
+
+      if (start_date <= new Date().setHours(0, 0, 0, 0)) {
+        oldCompetition.status = "started";
+        oldCompetition.current_round = i + 1;
+      }
+    }
+
+    const competitionMatches = await Competition.find({
+      name: oldCompetition.name,
+      _id: { $ne: oldCompetition._id },
+    });
+
+    const start_date_str = new Date(
+      oldCompetition.start_date
+    ).toLocaleDateString();
+    const end_date_str = new Date(oldCompetition.end_date).toLocaleDateString();
+
+    for (const match of competitionMatches) {
+      if (
+        match.start_date?.toLocaleDateString()?.includes(start_date_str) &&
+        match.end_date?.toLocaleDateString(end_date_str)?.includes()
+      ) {
+        return res.status(400).json({
+          message:
+            "a competition with the same name, start date and end date found",
+        });
+      }
+    }
+
+    await oldCompetition.save();
+
+    res.status(201).json({
+      message: "competition updated successfully",
+      data: oldCompetition,
     });
   } catch (e) {
     next(e);

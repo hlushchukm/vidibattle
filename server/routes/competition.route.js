@@ -13,6 +13,8 @@ const {
   leaveCompetition,
   joinCompetition,
   getTopParticipants,
+  getCompetitionInfoForEdit,
+  editCompetition,
 } = require("../controllers/competition.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const { upload } = require("../services/storage");
@@ -26,6 +28,7 @@ router.get("/user/list/:id", adminAuthGuard, getCompetitorUsers);
 router.get("/rounds/:id", authGuard, getRounds);
 router.get("/admin/rounds/:id", adminAuthGuard, getRounds);
 router.get("/winners/:competition/:round", authGuard, getTopParticipants);
+router.get("/edit/:id", adminAuthGuard, getCompetitionInfoForEdit);
 
 // post
 router.post(
@@ -34,6 +37,7 @@ router.post(
   upload.single("file"),
   createCompetition
 );
+
 router.post("/start/:id", adminAuthGuard, startCompetition);
 router.post("/end/:id", adminAuthGuard, endCompetition);
 router.post("/cancel/:id", adminAuthGuard, cancelCompetition);
@@ -46,4 +50,6 @@ router.post(
   removeFromCompetition
 );
 
+// put
+router.put("/edit/:id", adminAuthGuard, upload.single("file"), editCompetition);
 module.exports = router;
