@@ -12,6 +12,7 @@ const staticPageRouter = require("./static-page.route");
 const competitionRouter = require("./competition.route");
 const walletRouter = require("./wallet.route");
 const adminRouter = require("./admin.route");
+const stickerRouter = require("./sticker.route");
 
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
@@ -24,5 +25,6 @@ router.use("/static-pages", staticPageRouter);
 router.use("/competition", competitionRouter);
 router.use("/wallet", authGuard, walletRouter);
 router.use("/admin", adminAuthGuard, adminRouter);
+router.use("/sticker", adminAuthGuard, stickerRouter);
 
 module.exports = router;
