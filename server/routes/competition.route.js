@@ -52,4 +52,5 @@ router.post(
 
 // put
 router.put("/edit/:id", adminAuthGuard, upload.single("file"), editCompetition);
+
 module.exports = router;

@@ -18,7 +18,7 @@ const postSchema = new Schema(
     is_deleted: { type: Boolean, default: false },
     competition: { type: Schema.Types.ObjectId, ref: "Competition" },
     round: { type: Number },
-    sticker: { type: Schema.Types.ObjectId, ref: "Media" },
+    sticker: { type: Schema.Types.ObjectId, ref: "Sticker" },
   },
   { timestamps: true }
 );
