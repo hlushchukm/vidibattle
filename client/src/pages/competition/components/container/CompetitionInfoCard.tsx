@@ -168,7 +168,7 @@ export default function CompetitionInfoCard({
                     <button
                       onClick={() =>
                         navigate(
-                          `/competition/${competition._id}/${competition.current_round}/create-post`
+                          `/competition/${competition.name}/${competition.current_round}/create-post?start_date=${competition.start_date}&end_date=${competition.end_date}`
                         )
                       }
                       className="btn btn-secondary"

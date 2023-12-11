@@ -2,22 +2,31 @@ import { useState, useEffect } from "react";
 import PageLoading from "../../components/PageLoading";
 import { get } from "../../services/crud";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import CreatePost from "./CreatePost";
 import TopNavBarWrapper from "../../components/TopNavBarWrapper";
 import BackBtn from "../../components/BackBtn";
 
 export default function CreateCompetitionPost() {
   const [pageLoading, setPageLoading] = useState(true);
-  const [competitionInfo, setCompetitionInfo] = useState<any>({});
+  const [competitionInfo, setCompetitionInfo] = useState<any>(null);
   const params = useParams();
 
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+
   useEffect(() => {
-    if (params.id) getBasicInfo(params.id);
+    if (params.name) getBasicInfo(params.name);
   }, []);
 
-  const getBasicInfo = (id: string) => {
-    get("competition/info/" + id)
+  const getBasicInfo = (name: string) => {
+    const query: any = {};
+    if (queryParams.get("start_date"))
+      query.start_date = queryParams.get("start_date");
+
+    if (queryParams.get("end_date"))
+      query.end_date = queryParams.get("end_date");
+    get("competition/info/" + name, query)
       .then((res) => {
         setCompetitionInfo(res.data);
         setPageLoading(false);
@@ -36,10 +45,11 @@ export default function CreateCompetitionPost() {
   }
 
   if (
-    competitionInfo.current_round?.toString() !== params.round?.toString() ||
-    !competitionInfo.competingUser ||
-    competitionInfo.post ||
-    competitionInfo.status !== "started"
+    !competitionInfo ||
+    competitionInfo?.current_round?.toString() !== params.round?.toString() ||
+    !competitionInfo?.competingUser ||
+    competitionInfo?.post ||
+    competitionInfo?.status !== "started"
   ) {
     return (
       <>
@@ -57,7 +67,9 @@ export default function CreateCompetitionPost() {
             </div>
             <div className="clearfix d-flex flex-column justify-content-center">
               <h2 className="title text-primary">
-                Can't Post for Current Round
+                {!competitionInfo
+                  ? "Competition Not Found"
+                  : "Can't Post for Current Round"}
               </h2>
             </div>
           </div>
@@ -69,9 +81,9 @@ export default function CreateCompetitionPost() {
   return (
     <>
       <CreatePost
-        competitionId={competitionInfo._id}
-        allowedTypes={competitionInfo.type}
-        round={competitionInfo.current_round}
+        competitionId={competitionInfo?._id}
+        allowedTypes={competitionInfo?.type}
+        round={competitionInfo?.current_round}
       />
     </>
   );
