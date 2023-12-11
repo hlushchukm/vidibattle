@@ -8,7 +8,7 @@ const mediaSchema = new Schema(
     contentType: { type: String, required: true },
     type: {
       type: String,
-      enum: ["image", "video", "sticker", "thumbnail"],
+      enum: ["image", "video", "thumbnail"],
       required: true,
     },
     thumbnail: { type: Schema.Types.ObjectId, ref: "Media" },

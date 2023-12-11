@@ -2,6 +2,7 @@ const { Post } = require("../models/post.model");
 const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
 const { Competition, CompetingUser } = require("../models/competition.model");
+const { getRandomSticker } = require("./sticker.controller");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -161,6 +162,8 @@ module.exports.create = async (req, res, next) => {
   }
 
   try {
+    let sticker = null;
+
     if (competition) {
       const competitionItem = await Competition.findOne({
         status: "started",
@@ -179,6 +182,13 @@ module.exports.create = async (req, res, next) => {
         return res.status(400).json({ message: "can't post for this round" });
       }
 
+      // get a random sticker if the competition has stickers
+      if (competitionItem.has_sticker) {
+        const stickerObj = await getRandomSticker(competitionItem._id);
+        sticker = stickerObj._id;
+      }
+
+      // get competitor info
       const competitor = await CompetingUser.findOne({
         user: _id,
         competition,
@@ -193,6 +203,8 @@ module.exports.create = async (req, res, next) => {
       }
     }
 
+    // TODO: add sticker to video here
+
     // create the media document
     const media = new Media({
       filename: mainFile.filename,
@@ -205,7 +217,7 @@ module.exports.create = async (req, res, next) => {
       const thumbnail = new Media({
         filename: thumbnailFile.filename,
         contentType: thumbnailFile.contentType,
-        type,
+        type: "thumbnail",
         owner: author,
       });
 
@@ -221,9 +233,11 @@ module.exports.create = async (req, res, next) => {
       media: [media._id],
       author,
     };
+
     if (competition) {
       postData.competition = competition;
       postData.round = parseInt(round) ?? 1;
+      postData.sticker = sticker;
     }
 
     const post = new Post(postData);

@@ -99,7 +99,8 @@ module.exports.feed = function ({
       match: { _id: currentUser._id },
       select: "_id",
     })
-    .populate("competition");
+    .populate("competition")
+    .populate("sticker");
 };
 
 // generate a timeline for a user
