@@ -76,13 +76,9 @@ export default function RoundsTable({
                           "/" +
                           competitionInfo.name +
                           "?start_date=" +
-                          new Date(
-                            competitionInfo.start_date
-                          ).toLocaleDateString() +
+                          competitionInfo.start_date +
                           "&end_date=" +
-                          new Date(
-                            competitionInfo.end_date
-                          ).toLocaleDateString()
+                          competitionInfo.end_date
                         }
                         className="btn btn-secondary btn-sm"
                       >

@@ -186,9 +186,9 @@ export default function CompetitionInfoCard({
                       "/competition/post/" +
                       competition.name +
                       "?start_date=" +
-                      new Date(competition.start_date).toLocaleDateString() +
+                      competition.start_date +
                       "&end_date=" +
-                      new Date(competition.end_date).toLocaleDateString()
+                      competition.end_date
                     }
                     className="btn btn-secondary"
                     style={{ fontSize: "12px" }}
@@ -204,9 +204,9 @@ export default function CompetitionInfoCard({
                         "/" +
                         competition.name +
                         "?start_date=" +
-                        new Date(competition.start_date).toLocaleDateString() +
+                        competition.start_date +
                         "&end_date=" +
-                        new Date(competition.end_date).toLocaleDateString()
+                        competition.end_date
                       }
                       className="btn btn-secondary"
                       style={{ fontSize: "12px" }}

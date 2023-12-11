@@ -148,9 +148,9 @@ export default function Post({
                   "/competition/info/" +
                     post.competition.name +
                     "?start_date=" +
-                    new Date(post.competition.start_date).toLocaleDateString() +
+                    post.competition.start_date +
                     "&end_date=" +
-                    new Date(post.competition.end_date).toLocaleDateString()
+                    post.competition.end_date
                 )
               }
             >

@@ -55,9 +55,9 @@ export default function Competition({ competition }: { competition: any }) {
                   "/competition/info/" +
                   competition.name +
                   "?start_date=" +
-                  new Date(competition.start_date).toLocaleDateString() +
+                  competition.start_date +
                   "&end_date=" +
-                  new Date(competition.end_date).toLocaleDateString()
+                  competition.end_date
                 }
                 className="btn btn-primary"
                 style={{ fontSize: "12px" }}
@@ -71,9 +71,9 @@ export default function Competition({ competition }: { competition: any }) {
                       "/competition/post/" +
                       competition.name +
                       "?start_date=" +
-                      new Date(competition.start_date).toLocaleDateString() +
+                      competition.start_date +
                       "&end_date=" +
-                      new Date(competition.end_date).toLocaleDateString()
+                      competition.end_date
                     }
                     className="btn btn-secondary"
                     style={{ fontSize: "12px" }}
@@ -89,9 +89,9 @@ export default function Competition({ competition }: { competition: any }) {
                         "/" +
                         competition.name +
                         "?start_date=" +
-                        new Date(competition.start_date).toLocaleDateString() +
+                        competition.start_date +
                         "&end_date=" +
-                        new Date(competition.end_date).toLocaleDateString()
+                        competition.end_date
                       }
                       className="btn btn-secondary"
                       style={{ fontSize: "12px" }}
