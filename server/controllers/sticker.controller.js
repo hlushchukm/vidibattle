@@ -1,3 +1,4 @@
+const createHttpError = require("http-errors");
 const { Sticker } = require("../models/sticker.model");
 
 module.exports.getStickersList = async (req, res, next) => {
@@ -29,7 +30,7 @@ module.exports.createSticker = async (req, res, next) => {
     if (!type || !position || !file) {
       return res
         .status(400)
-        .json({ message: "type, position and file are required" });
+        .json({ message: "type, position and image are required" });
     }
 
     if (type !== "small" && type !== "full-line") {
@@ -45,12 +46,12 @@ module.exports.createSticker = async (req, res, next) => {
       return res.status(400).json({ message: "invalid position type" });
     }
 
-    if (type === "full-line" && !["top", "bootom"].includes(position)) {
+    if (type === "full-line" && !["top", "bottom"].includes(position)) {
       return res.status(400).json({ message: "invalid position type" });
     }
 
     const newSticker = new Sticker({
-      name: file.filename,
+      image: file.filename,
       type,
       position,
       competition: null,
@@ -92,4 +93,46 @@ module.exports.getRandomSticker = async (competitionId = null) => {
     .limit(1);
 
   return stickers[0];
+};
+
+module.exports.createMultipleStickers = async (
+  stickers,
+  stickerImages,
+  competitionId = null
+) => {
+  const newStickers = [];
+
+  for (const s of stickers) {
+    const image = stickerImages[s.index];
+
+    if (!s.type || !s.position || !image) {
+      throw createHttpError(400, "type, position and image are required");
+    }
+
+    if (s.type !== "small" && s.type !== "full-line") {
+      return create(400, "invalid sticker type");
+    }
+
+    if (
+      s.type === "small" &&
+      !["top-left", "top-right", "bottom-left", "bottom-right"].includes(
+        s.position
+      )
+    ) {
+      return create(400, "invalid position type");
+    }
+
+    if (s.type === "full-line" && !["top", "bottom"].includes(s.position)) {
+      return create(400, "invalid position type");
+    }
+
+    newStickers.push({
+      image: image.filename,
+      type: s.type,
+      position: s.position,
+      competition: competitionId,
+    });
+  }
+
+  await Sticker.insertMany(newStickers);
 };
