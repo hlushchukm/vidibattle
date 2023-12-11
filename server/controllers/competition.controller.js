@@ -7,6 +7,7 @@ const { Post } = require("../models/post.model");
 const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
 const { deleteFile } = require("./media.controller");
+const { createMultipleStickers } = require("./sticker.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -132,10 +133,19 @@ module.exports.createCompetition = async (req, res, next) => {
   try {
     const { data: strData } = req.body;
     const data = JSON.parse(strData);
-    const { name, description, is_paid, amount, type, result_date, rounds } =
-      data;
+    const {
+      name,
+      description,
+      is_paid,
+      amount,
+      type,
+      result_date,
+      has_sticker,
+      rounds,
+      stickers = [],
+    } = data;
 
-    const imageFile = req.file;
+    const { file: imageFile, stickers: stickerImages } = req.files;
 
     if (!name || !type || rounds.length === 0 || !result_date) {
       return res.status(400).json({
@@ -164,6 +174,7 @@ module.exports.createCompetition = async (req, res, next) => {
       current_round: 1,
       rounds_count: rounds.length,
       result_date,
+      has_sticker,
     };
 
     if (is_paid) {
@@ -171,8 +182,8 @@ module.exports.createCompetition = async (req, res, next) => {
       competitionData.amount = amount;
     }
 
-    if (imageFile) {
-      competitionData.image = imageFile.filename;
+    if (imageFile[0]) {
+      competitionData.image = imageFile[0].filename;
     }
 
     const newCompetition = new Competition(competitionData);
@@ -252,6 +263,10 @@ module.exports.createCompetition = async (req, res, next) => {
     }
 
     await newCompetition.save();
+
+    if (newCompetition.has_sticker) {
+      await createMultipleStickers(stickers, stickerImages, newCompetition._id);
+    }
 
     res.status(201).json({
       message: "competition created successfully",

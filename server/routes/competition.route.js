@@ -34,7 +34,7 @@ router.get("/edit/:id", adminAuthGuard, getCompetitionInfoForEdit);
 router.post(
   "/create",
   adminAuthGuard,
-  upload.single("file"),
+  upload.fields([{ name: "file" }, { name: "stickers" }]),
   createCompetition
 );
 

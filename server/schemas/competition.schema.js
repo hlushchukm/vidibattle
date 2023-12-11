@@ -21,6 +21,7 @@ const competitionSchema = Schema(
     start_date: { type: Date },
     end_date: { type: Date },
     result_date: { type: Date, required: true },
+    has_sticker: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
