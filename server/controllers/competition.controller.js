@@ -457,10 +457,13 @@ module.exports.getCompetitionInfo = async (req, res, next) => {
     let competition = null;
 
     for (const c of competitions) {
-      console.log("start date ", c.start_date)
-      console.log("end date ", c.end_date)
-      console.log("start date str", c.start_date?.toLocaleDateString())
-      console.log("end date str", c.end_date?.toLocaleDateString())
+      console.log("start date ", c.start_date);
+      console.log("end date ", c.end_date);
+      console.log("start date str", c.start_date?.toLocaleDateString());
+      console.log("end date str", c.end_date?.toLocaleDateString());
+      console.log("start date input", new Date(start_date)?.toLocaleDateString());
+      console.log("end date input", new Date(end_date)?.toLocaleDateString());
+
       if (
         c.start_date?.toLocaleDateString()?.includes(start_date) &&
         c.end_date?.toLocaleDateString()?.includes(end_date)
