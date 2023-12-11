@@ -11,7 +11,7 @@ export default function AddPWA({ installPWA }: { installPWA: any }) {
     ) {
       showPWAModal();
     }
-  }, []);
+  }, [canvasRef.current, backdropRef.current]);
 
   const showPWAModal = () => {
     canvasRef.current?.classList.add("show");

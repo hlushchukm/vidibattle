@@ -187,24 +187,6 @@ Soziety = function(){
 		})        
     }
     
-	// Progressive Web App Modal ============
-	var handlePWAModal = function (){
-		if (!window.matchMedia('(display-mode: standalone)').matches) {
-		    setTimeout(function(){
-    			jQuery('.pwa-offcanvas').addClass('show');
-    			jQuery('.pwa-backdrop').addClass('fade show');
-    		}, 3000);
-    		jQuery('.pwa-backdrop, .pwa-close, .pwa-btn').on('click',function(){
-    			jQuery('.pwa-offcanvas').slideUp(500, function() {
-    				jQuery(this).removeClass('show');
-    			});
-    			setTimeout(function(){
-    				jQuery('.pwa-backdrop').removeClass('show');
-    			}, 500);
-    		}); 
-		}
-	}
-    
 	// Search Form ============
 	var handleSearch = function(){
         $('.search-input .form-control').on('change paste keyup',function(){
@@ -424,7 +406,6 @@ Soziety = function(){
 			handleCustomFileInput();
             handleMessageHandle();
             handleGoBack();
-            handlePWAModal();
             handleSearch();
             handleRemoveClass();
             handlePostLike();
