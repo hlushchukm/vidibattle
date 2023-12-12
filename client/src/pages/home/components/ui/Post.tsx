@@ -7,6 +7,7 @@ import {
   handleProfileImageError,
 } from "../../../../services/asset-paths";
 import { isLoggedIn } from "../../../../services/auth";
+import { CSSProperties, useRef } from "react";
 
 export default function Post({
   post,
@@ -20,6 +21,62 @@ export default function Post({
   const navigate = useNavigate();
   const setPostToShare = useShareStore((state) => state.setPostToShare);
   const setPostToReport = useReportStore((state) => state.setPostToReport);
+  const postImageRef = useRef<HTMLImageElement | null>(null);
+  const stickerContainerRef = useRef<HTMLDivElement | null>(null);
+
+  const getStickerStyle = (position: string): CSSProperties => {
+    switch (position) {
+      case "top-right":
+        return {
+          position: "absolute",
+          top: 0,
+          right: 0,
+          maxWidth: "20%",
+          maxHeight: "50%",
+        };
+      case "bottom-left":
+        return {
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          maxWidth: "20%",
+        };
+      case "bottom-right":
+        return {
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          maxWidth: "20%",
+        };
+      case "top":
+      case "bottom":
+        return {
+          // width: postImageRef.current?.width ?? 600,
+          height: postImageRef.current?.width
+            ? (postImageRef.current.width ?? 0) * 0.1
+            : 100,
+          overflowY: "hidden",
+        };
+      case "top-left":
+      default:
+        return {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          maxWidth: "20%",
+          maxHeight: "50%",
+        };
+    }
+  };
+
+  const putStickerOnTop = () => {
+    // Insert the sticker container dev before the post image
+    postImageRef.current?.parentNode?.insertBefore(
+      stickerContainerRef.current as HTMLDivElement,
+      postImageRef.current
+    );
+    console.log("here");
+  };
 
   return (
     <>
@@ -138,7 +195,7 @@ export default function Post({
             </div>
           )}
         </div>
-        {post.competition && (
+        {/* {post.competition && (
           <p>
             <span
               className=""
@@ -162,22 +219,44 @@ export default function Post({
               <span className="me-2 text-secondary fw-bold">{post.round}</span>
             </span>
           </p>
-        )}
+        )} */}
         <p className="text-black">{post.caption}</p>
         <div className="dz-media">
           {post.media?.[0]?.type === "image" && (
-            <img
-              style={{
-                width: "auto",
-                maxWidth: "100%",
-                height: "auto",
-                minHeight: "200px",
-                maxHeight: "600px",
-                objectFit: "contain",
-              }}
-              src={formatResourceURL(post.media?.[0]?.filename)}
-              alt="/"
-            />
+            <div style={{ position: "relative", width: "fit-content" }}>
+              <img
+                style={{
+                  width: "auto",
+                  maxWidth: "100%",
+                  height: "auto",
+                  minHeight: "200px",
+                  maxHeight: "600px",
+                  objectFit: "contain",
+                }}
+                src={formatResourceURL(post.media?.[0]?.filename)}
+                alt="/"
+                ref={(el) => (postImageRef.current = el)}
+              />
+              {/* sticker */}
+              {post.competition &&
+                post.competition.has_sticker &&
+                post.sticker && (
+                  <div
+                    style={getStickerStyle(post.sticker.position)}
+                    ref={(el) => (stickerContainerRef.current = el)}
+                    onLoad={() => {
+                      post.sticker.position === "top"
+                        ? putStickerOnTop()
+                        : null;
+                    }}
+                  >
+                    <img
+                      style={{ borderRadius: 0 }}
+                      src={formatResourceURL(post.sticker.image)}
+                    />
+                  </div>
+                )}
+            </div>
           )}
           {post.media?.[0]?.type === "video" && (
             <video
