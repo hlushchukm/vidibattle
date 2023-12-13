@@ -17,10 +17,12 @@ passport.use(
       scope: ["profile", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails?.[0]?.value;
       const user = {
         first_name: profile.name.givenName,
         last_name: profile.name.familyName,
-        email: profile.emails?.[0]?.value,
+        email,
+        username: email ? email.split("@")[0]?.replaceAll(".", "_") : null,
         profile_img: profile.photos[0]?.value,
         provider: "google",
         profile_id: profile.id,
@@ -63,10 +65,12 @@ passport.use(
       profileFields: ["id", "name", "photos", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails?.[0]?.value;
       const user = {
         first_name: profile.name.givenName,
         last_name: profile.name.familyName,
-        email: profile.emails?.[0]?.value,
+        email,
+        username: email ? email.split("@")[0]?.replaceAll(".", "_") : null,
         profile_img: profile.photos[0]?.value,
         provider: "facebook",
         profile_id: profile.id,
