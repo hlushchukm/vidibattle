@@ -44,7 +44,7 @@ const userSchema = Schema(
       unique: true,
       uniqueCaseInsensitive: true,
     },
-    whatsapp: { type: String },
+    contact_no: { type: String },
     bio: { type: String },
     password: { type: String },
     profile_img: { type: String },

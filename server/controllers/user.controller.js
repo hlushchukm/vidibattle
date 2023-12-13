@@ -297,7 +297,7 @@ module.exports.getUsersList = async (req, res, next) => {
       last_name,
       username,
       email,
-      whatsapp,
+      contact_no,
       provider,
       is_complete,
       status,
@@ -310,7 +310,7 @@ module.exports.getUsersList = async (req, res, next) => {
     if (first_name) filter.first_name = { $regex: first_name, $options: "i" };
     if (last_name) filter.last_name = { $regex: last_name, $options: "i" };
     if (email) filter.email = { $regex: email, $options: "i" };
-    if (whatsapp) filter.whatsapp = { $regex: whatsapp, $options: "i" };
+    if (contact_no) filter.contact_no = { $regex: contact_no, $options: "i" };
     if (provider) filter.provider = provider;
     if (is_complete) filter.is_complete = is_complete === "true";
     if (status) filter.status = status;
@@ -327,7 +327,7 @@ module.exports.getUsersList = async (req, res, next) => {
 
     // Apply pagination, sorting, and retrieve the users
     const selectedFields =
-      "first_name last_name profile_img email whatsapp provider is_complete status createdAt username";
+      "first_name last_name profile_img email contact_no provider is_complete status createdAt username";
     const users = await User.find(filter, selectedFields)
       .setOptions({ includeDeleted: true })
       .sort({ first_name: 1, last_name: 1, createdAt: -1 }) // Sort by name and createdAt
@@ -509,15 +509,15 @@ module.exports.updateSelfProfile = async (req, res, next) => {
       return res.status(400).json({ message: "invalid email pattern" });
     }
 
-    let whatsappRegex = /^[0-9]{7,15}$/;
+    let contactNoRegex = /^[0-9]{7,15}$/;
     if (
-      data.whatsapp &&
-      data.whatsapp.length > 0 &&
-      !whatsappRegex.test(data.whatsapp)
+      data.contact_no &&
+      data.contact_no.length > 0 &&
+      !contactNoRegex.test(data.contact_no)
     ) {
       return res
         .status(400)
-        .json({ message: "invalid WhatsApp number length" });
+        .json({ message: "invalid contact number length" });
     }
 
     const usernameMatch = await User.countDocuments({
@@ -544,7 +544,7 @@ module.exports.updateSelfProfile = async (req, res, next) => {
     user.last_name = data.last_name;
     user.email = data.email;
     user.username = data.username;
-    user.whatsapp = data.whatsapp;
+    user.contact_no = data.contact_no;
     user.bio = data.bio;
     user.interested_to_earn = data.interested_to_earn;
     user.address = data.address;

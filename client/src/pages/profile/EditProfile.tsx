@@ -132,18 +132,18 @@ export default function EditProfile({
       setErrors((e: any) => ({ ...e, email: null }));
     }
 
-    let whatsappRegex = /^[0-9]{7,15}$/;
+    let contactNo = /^[0-9]{7,15}$/;
     if (
-      formData.whatsapp.length > 0 &&
-      !whatsappRegex.test(formData.whatsapp)
+      formData.contact_no.length > 0 &&
+      !contactNo.test(formData.contact_no)
     ) {
       setErrors((e: any) => ({
         ...e,
-        whatsapp: "Invalid WhatsApp number length",
+        contact_no: "Invalid contact number length",
       }));
       valid = false;
     } else {
-      setErrors((e: any) => ({ ...e, whatsapp: null }));
+      setErrors((e: any) => ({ ...e, contact_no: null }));
     }
 
     // Social Media Links Validations
@@ -294,7 +294,7 @@ export default function EditProfile({
       last_name: data.last_name ?? "",
       email: data.email ?? "",
       username: data.username ?? "",
-      whatsapp: data.whatsapp ?? "",
+      contact_no: data.contact_no ?? "",
       bio: data.bio ?? "",
       address: {
         country: data.address?.country ?? "",
@@ -453,19 +453,19 @@ export default function EditProfile({
                 )}
               </div>
               <div className="mb-3 input-group input-mini">
-                {formData.whatsapp && (
-                  <div className="w-100 small">WhatsApp:</div>
+                {formData.contact_no && (
+                  <div className="w-100 small">Contact Number:</div>
                 )}
                 <input
                   type="number"
                   className="form-control numberInput"
-                  placeholder="WhatsApp number"
-                  value={formData.whatsapp}
-                  onChange={(e) => updateFormData("whatsapp", e.target.value)}
+                  placeholder="Contact Number"
+                  value={formData.contact_no}
+                  onChange={(e) => updateFormData("contact_no", e.target.value)}
                 />
-                {errors?.whatsapp && (
+                {errors?.contact_no && (
                   <div className="small text-danger w-100 py-1">
-                    {errors.whatsapp}
+                    {errors.contact_no}
                   </div>
                 )}
               </div>

@@ -3,7 +3,7 @@ export interface Profile {
   last_name: string;
   email: string;
   username: string;
-  whatsapp: string;
+  contact_no: string;
   bio: string;
   address: AddressFields;
   social_links: SocialLinks;
@@ -32,7 +32,7 @@ export const emptyProfileData: Profile = {
   last_name: "",
   email: "",
   username: "",
-  whatsapp: "",
+  contact_no: "",
   bio: "",
   address: {
     country: "",
