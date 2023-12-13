@@ -1,6 +1,6 @@
 const { Admin } = require("../models/admin.model");
 const { hash } = require("../services/hash");
-const { deleteProfileImg } = require("./media.controller");
+const { deleteFile } = require("./media.controller");
 const bcrypt = require("bcryptjs");
 
 module.exports.createAdminAccount = async (req, res, next) => {
@@ -69,7 +69,7 @@ module.exports.updateAdminProfile = async (req, res, next) => {
 
     if (file) {
       // change profile pic
-      await deleteProfileImg(admin.profile_img);
+      await deleteFile(admin.profile_img);
       admin.profile_img = file.filename;
     }
 
