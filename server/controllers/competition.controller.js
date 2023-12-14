@@ -231,7 +231,9 @@ module.exports.createCompetition = async (req, res, next) => {
 
       if (newRound.is_first_round) {
         newCompetition.start_date = newRound.start_date;
-      } else if (newRound.is_last_round) {
+      }
+
+      if (newRound.is_last_round) {
         newCompetition.end_date = newRound.end_date;
       }
 
