@@ -2,6 +2,9 @@ const { default: mongoose } = require("mongoose");
 const Grid = require("gridfs-stream");
 const request = require("request");
 const crypto = require("crypto");
+const Ffmpeg = require("fluent-ffmpeg");
+const fs = require("fs");
+const createHttpError = require("http-errors");
 
 // Init stream
 const conn = mongoose.connection;
@@ -67,7 +70,7 @@ module.exports.getMedia = async (req, res, next) => {
   }
 };
 
-downloadImageFromURL = (url) => {
+const downloadImageFromURL = (url) => {
   return new Promise((resolve, reject) => {
     request({ url, encoding: null }, (error, response, body) => {
       if (!error && response.statusCode === 200) {
@@ -79,7 +82,7 @@ downloadImageFromURL = (url) => {
   });
 };
 
-storeImageInGridFS = (imageData, contentType) => {
+const storeImageInGridFS = (imageData, contentType) => {
   return new Promise((resolve, reject) => {
     const filename =
       crypto.randomBytes(16).toString("hex") + "." + contentType.split("/")[1];
@@ -123,4 +126,106 @@ module.exports.deleteFile = async (filename) => {
   } catch (e) {
     throw new Error(e);
   }
+};
+
+// add a sticker from a video by retrieving both the video and the sticker from GridFS, saving the sticker locally, processing the video using Ffmpeg and saving the processed video locally
+module.exports.addStickerToVideo = async (videoName, sticker) => {
+  const stickerStream = gridfsBucket.openDownloadStreamByName(sticker.image);
+  const videoStream = gridfsBucket.openDownloadStreamByName(videoName);
+
+  // get filetypes
+  const videoExtension = videoName.split(".")?.[1];
+  const stickerExtension = sticker.image.split(".")?.[1];
+
+  // save the sticker to a temp file because ffmpeg doesn't support two imput streams
+  const stickerPath = this.getPathToTempFolder(
+    "temp_sticker." + stickerExtension
+  );
+  const stickerWriteStream = fs.createWriteStream(stickerPath);
+  await new Promise((resolve, reject) => {
+    stickerStream.pipe(stickerWriteStream);
+
+    stickerWriteStream.on("finish", () => {
+      resolve();
+    });
+
+    stickerWriteStream.on("error", (e) => {
+      console.log("Error while downloading sticker", e);
+      reject(createHttpError("Error while downloading sticker"));
+    });
+  });
+  stickerWriteStream.end();
+
+  const outputPath = this.getPathToTempFolder("output." + videoExtension);
+
+  return new Promise((resolve, reject) => {
+    // Add sticker to video using ffmpeg
+    Ffmpeg(videoStream)
+      .input(stickerPath)
+      .complexFilter(this.getStickerPostitionCommand(sticker.position))
+      .output(outputPath)
+      .on("end", () => {
+        resolve(outputPath);
+      })
+      .on("error", (err) => {
+        console.error("Error adding sticker to video:", err);
+        reject(createHttpError(500, "Error adding sticker to video"));
+      })
+      .run();
+  });
+
+  // TODO: cleanup temp files after success or failure
+};
+
+module.exports.getStickerPostitionCommand = (position) => {
+  switch (position) {
+    case "top-right":
+      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=W-w-10:10";
+    case "bottom-left":
+      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=10:H-h-10";
+    case "bottom-right":
+      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=W-w-10:H-h-10";
+    case "top":
+      return "[1:v]scale=-1:100 [sticker]; [0:v][sticker]overlay=(W-w)/2:0";
+    case "bottom":
+      return "[1:v]scale=-1:100 [sticker]; [0:v][sticker]overlay=(W-w)/2:H-h-0";
+    case "top-left":
+    default:
+      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=10:10";
+  }
+};
+
+module.exports.getPathToTempFolder = (filename) => {
+  const tempPath = "temp/";
+  return tempPath + filename;
+};
+
+module.exports.storeFileFromLocalToGridFS = (
+  sourcePath,
+  filename,
+  contentType
+) => {
+  return new Promise((resolve, reject) => {
+    // open upload stream to gridfs
+    const writestream = gridfsBucket.openUploadStream(filename, {
+      contentType,
+    });
+
+    // read from the local file
+    const readStream = fs.createReadStream(sourcePath);
+    readStream.pipe(writestream); // save to GridFs
+
+    readStream.on("end", () => {
+      writestream.end();
+    });
+
+    writestream.on("finish", (file) => {
+      resolve(file);
+    });
+
+    writestream.on("error", (uploadError) => {
+      console.log("upload error: ", uploadError);
+      reject(createHttpError("Error while uploading file"));
+    });
+  });
 };

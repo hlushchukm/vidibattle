@@ -3,6 +3,11 @@ const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
 const { Competition, CompetingUser } = require("../models/competition.model");
 const { getRandomSticker } = require("./sticker.controller");
+const {
+  addStickerToVideo,
+  storeFileFromLocalToGridFS,
+  deleteFile,
+} = require("./media.controller");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -186,6 +191,22 @@ module.exports.create = async (req, res, next) => {
       if (competitionItem.has_sticker) {
         const stickerObj = await getRandomSticker(competitionItem._id);
         sticker = stickerObj._id;
+        // add sticker to video
+        if (stickerObj && type === "video") {
+          // add sticker to video and save to temp folder
+          const filePath = await addStickerToVideo(
+            mainFile.filename,
+            stickerObj
+          );
+          // delete old video file(the uploaded file)
+          await deleteFile(mainFile.filename);
+          // upload the new video with the sticker from temp folder
+          await storeFileFromLocalToGridFS(
+            filePath,
+            mainFile.filename,
+            mainFile.contentType
+          );
+        }
       }
 
       // get competitor info
@@ -202,8 +223,6 @@ module.exports.create = async (req, res, next) => {
           .json({ message: "this person can't post in this round" });
       }
     }
-
-    // TODO: add sticker to video here
 
     // create the media document
     const media = new Media({
