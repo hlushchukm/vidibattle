@@ -80,7 +80,13 @@ module.exports.deleteSticker = async (req, res, next) => {
 };
 
 module.exports.getRandomSticker = async (competitionId = null) => {
-  const count = await Sticker.countDocuments({ competition: competitionId });
+  let count = await Sticker.countDocuments({ competition: competitionId });
+  let query = { competition: competitionId };
+
+  if (!count) {
+    query = { competition: null };
+    count = await Sticker.countDocuments({ competition: null });
+  }
 
   if (!count) {
     return null;
@@ -88,9 +94,7 @@ module.exports.getRandomSticker = async (competitionId = null) => {
 
   const randomNumber = Math.floor(Math.random() * count);
 
-  const stickers = await Sticker.find({ competition: competitionId })
-    .skip(randomNumber)
-    .limit(1);
+  const stickers = await Sticker.find(query).skip(randomNumber).limit(1);
 
   return stickers[0];
 };
