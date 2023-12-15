@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import CreatePostHeader from "./components/CreatePostHeader";
-import { upload } from "../../services/crud";
+import { get, upload } from "../../services/crud";
 import { useNavigate } from "react-router-dom";
 import { getUser, getUserId } from "../../services/auth";
 import { ProgressBarStriped } from "../../components/ProgressBar";
@@ -10,6 +10,12 @@ import {
   handleProfileImageError,
 } from "../../services/asset-paths";
 import { toast } from "react-toastify";
+import PageLoading from "../../components/PageLoading";
+import {
+  validateImageSize,
+  validateVideoLength,
+  validateVideoSize,
+} from "../../services/validateFile";
 
 export default function CreatePost({
   allowedTypes = "any",
@@ -30,13 +36,53 @@ export default function CreatePost({
   const thumbnailInputRef = useRef<any>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [configData, setConfigData] = useState<any>({});
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (selectedFile) setPostBtnDisabled(false);
-    else setPostBtnDisabled(true);
+    getConfigurationData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedFile) {
+      validateMedia();
+    } else {
+      setPostBtnDisabled(true);
+    }
   }, [selectedFile]);
+
+  useEffect(() => {
+    if (thumbnail) {
+      validateMedia();
+    }
+  }, [thumbnail]);
+
+  const getConfigurationData = () => {
+    setLoading(true);
+    get("configuration", {
+      keys: [
+        "max_image_upload_size",
+        "max_video_upload_size",
+        "max_video_duration",
+      ],
+    })
+      .then((res) => {
+        if (res.data?.length > 0) {
+          const data: any = {};
+          for (const entry of res.data) {
+            data[entry.key] = entry;
+          }
+          setConfigData(data);
+        }
+        setLoading(false);
+      })
+      .catch((e) => {
+        console.log(e);
+        setLoading(false);
+      });
+  };
 
   const openPhotoDialog = () => {
     photoInputRef.current.value = null;
@@ -63,7 +109,6 @@ export default function CreatePost({
   };
 
   const handleVideoChange = (event: any) => {
-    console.log("Here", event.target.files);
     setSelectedFile(event.target.files[0]);
     setThumbnail(null);
   };
@@ -77,7 +122,7 @@ export default function CreatePost({
   };
 
   const handleUpload = () => {
-    if (selectedFile) {
+    if (selectedFile && validateMedia()) {
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("author", getUserId() ?? "");
@@ -91,7 +136,6 @@ export default function CreatePost({
 
       upload("post", formData, onUploadProgress)
         .then((response) => {
-          console.log("Upload successful:", response.data);
           setUploading(false);
           navigate("/home");
         })
@@ -100,6 +144,8 @@ export default function CreatePost({
           toast.error(error.response?.data?.message ?? "Error uploading file");
           console.error("Error uploading file:", error);
         });
+    } else {
+      toast.info("Unable to upload post!");
     }
   };
 
@@ -111,6 +157,39 @@ export default function CreatePost({
     setSelectedFile(null);
     setThumbnail(null);
   };
+
+  // TODO: validate video length
+  const validateMedia = () => {
+    let valid = false;
+    if (selectedFile) {
+      if (fileType === "video") {
+        valid = validateVideoSize(
+          selectedFile,
+          configData["max_video_upload_size"]
+        );
+        if (thumbnail && valid) {
+          valid = validateImageSize(
+            thumbnail,
+            configData["max_image_upload_size"]
+          );
+        }
+      } else {
+        valid = validateImageSize(
+          selectedFile,
+          configData["max_image_upload_size"]
+        );
+      }
+    } else {
+      valid = false;
+    }
+
+    setPostBtnDisabled(!valid);
+    return valid;
+  };
+
+  if (loading) {
+    return <PageLoading />;
+  }
 
   return (
     <>
@@ -213,28 +292,62 @@ export default function CreatePost({
           <ul className="element-list">
             {(!selectedFile || fileType === "image") &&
               (allowedTypes === "any" || allowedTypes === "image") && (
-                <li style={{ cursor: "pointer" }}>
-                  <a onClick={openPhotoDialog}>
-                    <i className="fa-solid fa-file-image"></i>Photo
-                  </a>
-                </li>
+                <>
+                  <li style={{ cursor: "pointer" }}>
+                    <a onClick={openPhotoDialog}>
+                      <i className="fa-solid fa-file-image"></i>Photo
+                    </a>
+                  </li>
+                  {configData["max_image_upload_size"] && (
+                    <span className="text-secondary small fw-bold">
+                      Maximum image size allowed is&nbsp;
+                      {configData["max_image_upload_size"].value}
+                      {configData["max_image_upload_size"].unit}
+                    </span>
+                  )}
+                </>
               )}
             {(allowedTypes === "any" || allowedTypes === "video") && (
               <>
                 {(!selectedFile || fileType === "video") && (
-                  <li style={{ cursor: "pointer" }}>
-                    <a onClick={openVideoDialog}>
-                      <i className="fa-solid fa-video"></i>Video
-                    </a>
-                  </li>
+                  <>
+                    <li style={{ cursor: "pointer" }}>
+                      <a onClick={openVideoDialog}>
+                        <i className="fa-solid fa-video"></i>Video
+                      </a>
+                    </li>
+                    {configData["max_video_upload_size"] && (
+                      <span className="text-secondary small fw-bold">
+                        Maximum video size allowed is&nbsp;
+                        {configData["max_video_upload_size"].value}
+                        {configData["max_video_upload_size"].unit}
+                      </span>
+                    )}
+                    {configData["max_video_duration"] && (
+                      <span className="text-secondary small fw-bold mt-1">
+                        Maximum video duration allowed is&nbsp;
+                        {configData["max_video_duration"].value}
+                        {configData["max_video_duration"].unit}
+                      </span>
+                    )}
+                  </>
                 )}
                 {selectedFile && fileType === "video" && (
-                  <li style={{ cursor: "pointer" }}>
-                    <a onClick={openThumbnailDialog}>
-                      <i className="fa-solid fa-file-image"></i>Thumbnail
-                      (optional)
-                    </a>
-                  </li>
+                  <>
+                    <li style={{ cursor: "pointer" }}>
+                      <a onClick={openThumbnailDialog}>
+                        <i className="fa-solid fa-file-image"></i>Thumbnail
+                        (optional)
+                      </a>
+                    </li>
+                    {configData["max_image_upload_size"] && (
+                      <span className="text-secondary small fw-bold">
+                        Maximum thumbnail size allowed is&nbsp;
+                        {configData["max_image_upload_size"].value}
+                        {configData["max_image_upload_size"].unit}
+                      </span>
+                    )}
+                  </>
                 )}
               </>
             )}

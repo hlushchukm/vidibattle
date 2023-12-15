@@ -50,6 +50,7 @@ export default function PostPreview({
               )}
               {type === "video" && (
                 <video
+                  id="videoPreview"
                   style={{
                     width: "100%",
                     maxWidth: "900px",
