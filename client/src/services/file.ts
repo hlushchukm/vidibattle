@@ -9,3 +9,12 @@ export function formatFileSize(sizeInBytes: number): string {
     return sizeInMB + " MB";
   }
 }
+
+export function getFileSizeInKB(sizeInBytes: number): number {
+  if (sizeInBytes < 1024) {
+    return sizeInBytes;
+  } else {
+    const sizeInKB = sizeInBytes / 1024;
+    return sizeInKB;
+  }
+}
