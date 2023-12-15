@@ -12,6 +12,7 @@ const configurationSchema = new Schema(
       uniqueCaseInsensitive: true,
     },
     value: { type: Schema.Types.Mixed, required: true },
+    unit: { type: String },
     metadata: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true }

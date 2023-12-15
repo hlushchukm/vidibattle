@@ -19,6 +19,31 @@ module.exports.getConfigurations = async (req, res, next) => {
 
 module.exports.updateConfiguration = async (req, res, next) => {
   try {
+    const { data } = req.body;
+
+    if (!data) {
+      return res.status(400).json({ message: "couldn't find data" });
+    }
+
+    for (const key in data) {
+      await Configuration.findOneAndUpdate(
+        { key },
+        {
+          key,
+          value: data[key]?.value,
+          unit: data[key]?.unit,
+          metadata: data[key]?.metadata,
+        },
+        {
+          upsert: true, // Create a new document if not found
+          new: true, // Return the updated document
+        }
+      );
+    }
+
+    res
+      .status(200)
+      .json({ message: "configuration data updated successfully" });
   } catch (e) {
     next(e);
   }
