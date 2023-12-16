@@ -51,6 +51,11 @@ router.post(
 );
 
 // put
-router.put("/edit/:id", adminAuthGuard, upload.single("file"), editCompetition);
+router.put(
+  "/edit/:id",
+  adminAuthGuard,
+  upload.fields([{ name: "file" }, { name: "stickers" }]),
+  editCompetition
+);
 
 module.exports = router;

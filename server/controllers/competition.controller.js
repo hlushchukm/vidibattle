@@ -4,6 +4,7 @@ const {
   CompetingUser,
 } = require("../models/competition.model");
 const { Post } = require("../models/post.model");
+const { Sticker } = require("../models/sticker.model");
 const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
 const { deleteFile } = require("./media.controller");
@@ -292,9 +293,11 @@ module.exports.editCompetition = async (req, res, next) => {
       type,
       result_date,
       rounds,
+      has_sticker,
+      stickers = [],
     } = data;
 
-    const imageFile = req.file;
+    const { file: imageFile, stickers: stickerImages } = req.files;
 
     const oldCompetition = await Competition.findOne({
       _id,
@@ -330,6 +333,7 @@ module.exports.editCompetition = async (req, res, next) => {
       type,
       rounds_count: rounds.length,
       result_date,
+      has_sticker,
     };
 
     if (is_paid) {
@@ -453,6 +457,10 @@ module.exports.editCompetition = async (req, res, next) => {
 
     await oldCompetition.save();
 
+    if (oldCompetition.has_sticker) {
+      await createMultipleStickers(stickers, stickerImages, oldCompetition._id);
+    }
+
     res.status(201).json({
       message: "competition updated successfully",
       data: oldCompetition,
@@ -532,6 +540,12 @@ module.exports.getCompetitionInfoForEdit = async (req, res, next) => {
 
     const competitionData = competition.toObject();
     competitionData.rounds = rounds;
+
+    // get stickers
+    if (competition.has_sticker) {
+      const stickers = await Sticker.find({ competition: competition._id });
+      competitionData.stickers = stickers;
+    }
 
     res.status(200).json({ data: competitionData });
   } catch (e) {
