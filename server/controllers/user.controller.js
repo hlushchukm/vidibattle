@@ -515,9 +515,7 @@ module.exports.updateSelfProfile = async (req, res, next) => {
       data.contact_no.length > 0 &&
       !contactNoRegex.test(data.contact_no)
     ) {
-      return res
-        .status(400)
-        .json({ message: "invalid contact number length" });
+      return res.status(400).json({ message: "invalid contact number length" });
     }
 
     const usernameMatch = await User.countDocuments({
@@ -578,7 +576,6 @@ module.exports.searchUsers = async (req, res) => {
       excludeFollowing = false,
     } = req.query;
     const requesterId = req.user._id;
-    const allUsers = await User.find({}, "first_name last_name username");
 
     const requester = await User.findById(requesterId);
     if (!requester) {
@@ -632,8 +629,28 @@ module.exports.searchUsers = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
+    const usersList = [];
+    // check if there is any follower/following relationship with a user and the requester
+    for (const user of users) {
+      const userCopy = user.toObject();
+
+      if (requester.following.includes(userCopy._id)) {
+        userCopy.is_following = true;
+      } else {
+        userCopy.is_following = false;
+      }
+
+      if (requester.followers.includes(userCopy._id)) {
+        userCopy.is_follower = true;
+      } else {
+        userCopy.is_follower = false;
+      }
+
+      usersList.push(userCopy);
+    }
+
     res.json({
-      data: users,
+      data: usersList,
       page: parseInt(page),
       totalPages,
       totalCount,
