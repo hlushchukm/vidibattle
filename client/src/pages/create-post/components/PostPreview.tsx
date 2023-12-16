@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { formatFileSize } from "../../../services/file";
 
 interface PostPreviewProps {
@@ -6,6 +7,7 @@ interface PostPreviewProps {
   file: File | null;
   thumbnail?: File | null;
   deleteFiles: () => void;
+  onVideoLengthChanged: (duration: number) => void;
 }
 export default function PostPreview({
   caption,
@@ -13,7 +15,14 @@ export default function PostPreview({
   file,
   thumbnail,
   deleteFiles,
+  onVideoLengthChanged,
 }: PostPreviewProps) {
+  const videoPreviewRef = useRef<HTMLVideoElement | null>(null);
+
+  const handleLoadedMetadata = () => {
+    onVideoLengthChanged(videoPreviewRef.current?.duration ?? 0);
+  };
+
   return (
     <div className="container">
       <div className="col-12">
@@ -60,6 +69,8 @@ export default function PostPreview({
                   poster={thumbnail ? URL.createObjectURL(thumbnail) : ""}
                   controls
                   src={URL.createObjectURL(file as File)}
+                  ref={videoPreviewRef}
+                  onLoadedMetadata={handleLoadedMetadata}
                 ></video>
               )}
               <div className="position-absolute top-0 p-3">

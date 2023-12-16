@@ -38,6 +38,7 @@ export default function CreatePost({
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [configData, setConfigData] = useState<any>({});
+  const [videoLength, setVideoLength] = useState(0);
 
   const navigate = useNavigate();
 
@@ -52,6 +53,10 @@ export default function CreatePost({
       setPostBtnDisabled(true);
     }
   }, [selectedFile]);
+
+  useEffect(() => {
+    validateMedia();
+  }, [videoLength]);
 
   useEffect(() => {
     if (thumbnail) {
@@ -135,7 +140,7 @@ export default function CreatePost({
       setUploading(true);
 
       upload("post", formData, onUploadProgress)
-        .then((response) => {
+        .then((_) => {
           setUploading(false);
           navigate("/home");
         })
@@ -158,7 +163,6 @@ export default function CreatePost({
     setThumbnail(null);
   };
 
-  // TODO: validate video length
   const validateMedia = () => {
     let valid = false;
     if (selectedFile) {
@@ -167,6 +171,14 @@ export default function CreatePost({
           selectedFile,
           configData["max_video_upload_size"]
         );
+
+        if (valid && videoLength) {
+          valid = validateVideoLength(
+            videoLength,
+            configData["max_video_duration"]
+          );
+        }
+
         if (thumbnail && valid) {
           valid = validateImageSize(
             thumbnail,
@@ -284,6 +296,7 @@ export default function CreatePost({
           file={selectedFile}
           thumbnail={thumbnail}
           deleteFiles={clearFileSelections}
+          onVideoLengthChanged={setVideoLength}
         />
       )}
 
@@ -299,7 +312,7 @@ export default function CreatePost({
                     </a>
                   </li>
                   {configData["max_image_upload_size"] && (
-                    <span className="text-secondary small fw-bold">
+                    <span className="text-secondary small fw-bold mt-1">
                       Maximum image size allowed is&nbsp;
                       {configData["max_image_upload_size"].value}
                       {configData["max_image_upload_size"].unit}
@@ -317,7 +330,7 @@ export default function CreatePost({
                       </a>
                     </li>
                     {configData["max_video_upload_size"] && (
-                      <span className="text-secondary small fw-bold">
+                      <span className="text-secondary small fw-bold mt-1">
                         Maximum video size allowed is&nbsp;
                         {configData["max_video_upload_size"].value}
                         {configData["max_video_upload_size"].unit}
@@ -341,7 +354,7 @@ export default function CreatePost({
                       </a>
                     </li>
                     {configData["max_image_upload_size"] && (
-                      <span className="text-secondary small fw-bold">
+                      <span className="text-secondary small fw-bold mt-1">
                         Maximum thumbnail size allowed is&nbsp;
                         {configData["max_image_upload_size"].value}
                         {configData["max_image_upload_size"].unit}

@@ -32,7 +32,7 @@ export function validateVideoSize(
 }
 
 export function validateVideoLength(
-  video: HTMLVideoElement,
+  duration: number,
   validationRule: { value: number; unit: string }
 ): boolean {
   if (!validationRule) return true;
@@ -43,5 +43,5 @@ export function validateVideoLength(
     "sec"
   );
 
-  return normalizedRule >= video.duration;
+  return normalizedRule >= duration;
 }
