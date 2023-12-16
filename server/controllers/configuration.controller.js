@@ -6,7 +6,7 @@ module.exports.getConfigurations = async (req, res, next) => {
     let query = {};
 
     if (keys && Array.isArray(keys)) {
-      query = { $in: [...keys] };
+      query = { key: { $in: [...keys] } };
     }
 
     const configurations = await Configuration.find(query);
