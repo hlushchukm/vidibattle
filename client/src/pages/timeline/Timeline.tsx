@@ -169,6 +169,7 @@ export default function Timeline() {
                   showMoreBtn={!noMoreSearchUsers}
                   loadMore={() => searchUsers(searchPage, searchText)}
                   closeSearchResults={closeSearchResults}
+                  updateSearchResults={setSearchResults}
                 />
               )}
             </div>

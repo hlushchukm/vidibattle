@@ -6,6 +6,8 @@ import {
   handleProfileImageError,
 } from "../../../../services/asset-paths";
 import { getName } from "../../../../services/utils";
+import { create } from "../../../../services/crud";
+import { toast } from "react-toastify";
 
 export default function SearchResultsContainer({
   users,
@@ -13,14 +15,38 @@ export default function SearchResultsContainer({
   showMoreBtn,
   loadMore,
   closeSearchResults,
+  updateSearchResults,
 }: {
   users: any[];
   loading: boolean;
   showMoreBtn: boolean;
   loadMore: () => void;
   closeSearchResults: () => void;
+  updateSearchResults: (users: any[]) => void;
 }) {
   const navigate = useNavigate();
+
+  const toggleFollow = (id: string, isFollow: boolean) => {
+    changeFollowStatus(id, isFollow);
+    create("user/" + (isFollow ? "follow" : "unfollow") + "/" + id, {}).catch(
+      (e) => {
+        console.log(e);
+        toast.error("Error! action failed");
+        changeFollowStatus(id, !isFollow);
+      }
+    );
+  };
+
+  const changeFollowStatus = (id: string, isFollow: boolean) => {
+    const usersCopy = users.map((user: any) => {
+      if (user._id === id) {
+        user.is_following = isFollow;
+      }
+      return user;
+    });
+
+    updateSearchResults(usersCopy);
+  };
 
   if (users.length === 0 && !loading) {
     return (
@@ -58,26 +84,42 @@ export default function SearchResultsContainer({
           <div className="dz-user-list row g-2">
             {users.map((user: any) => (
               <div key={user._id} className="col-6">
-                <div
-                  style={{ cursor: "pointer" }}
-                  className="user-grid"
-                  onClick={() => navigate("/profile/" + user.username)}
-                >
-                  <a className="media status media-60">
+                <div style={{ cursor: "pointer" }} className="user-grid">
+                  <a
+                    className="media status media-60"
+                    onClick={() => navigate("/profile/" + user.username)}
+                  >
                     <img
                       src={formatResourceURL(user.profile_img)}
                       onError={handleProfileImageError}
                       alt="/"
                     />
                   </a>
-                  <a className="name">{getName(user)}</a>
-                  <div className="small mb-3">
+                  <a
+                    className="name"
+                    onClick={() => navigate("/profile/" + user.username)}
+                  >
+                    {getName(user)}
+                  </a>
+                  <div
+                    className="small mb-3"
+                    onClick={() => navigate("/profile/" + user.username)}
+                  >
                     <span style={{ color: "#555" }}>@{user.username}</span>
                     <span className="text-black">{" | "}</span>
                     <span style={{ color: "#555" }}>
                       {user.followers_count} Followers
                     </span>
                   </div>
+                  <a
+                    onClick={() =>
+                      toggleFollow(user._id, user.is_following ? false : true)
+                    }
+                    style={{ cursor: "pointer" }}
+                    className="follow-btn"
+                  >
+                    {user?.is_following ? "UNFOLLOW" : "FOLLOW"}
+                  </a>
                 </div>
               </div>
             ))}
@@ -92,13 +134,11 @@ export default function SearchResultsContainer({
           <div className="dz-user-list row g-3">
             {users.map((user: any) => (
               <div key={user._id} className="col-12">
-                <div
-                  className="user-grid style-2"
-                  onClick={() => navigate("/profile/" + user.username)}
-                >
+                <div className="user-grid style-2">
                   <a
                     style={{ cursor: "pointer" }}
                     className="d-flex align-items-center"
+                    onClick={() => navigate("/profile/" + user.username)}
                   >
                     <div className="media status media-50">
                       <img
@@ -129,6 +169,15 @@ export default function SearchResultsContainer({
                         </span>
                       </div>
                     </div>
+                  </a>
+                  <a
+                    onClick={() =>
+                      toggleFollow(user._id, user.is_following ? false : true)
+                    }
+                    style={{ cursor: "pointer" }}
+                    className="follow-btn"
+                  >
+                    {user?.is_following ? "UNFOLLOW" : "FOLLOW"}
                   </a>
                 </div>
               </div>
