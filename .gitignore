@@ -132,3 +132,6 @@ dist
 
 # todo file
 TODO
+
+# temp folder
+server/temp/
