@@ -212,7 +212,21 @@ export default function CreatePost({
 
       {uploading && (
         <div className="container">
-          <ProgressBarStriped value={uploadProgress} />
+          {uploadProgress < 100 ? (
+            <ProgressBarStriped value={uploadProgress} />
+          ) : (
+            <>
+              <div className="d-flex align-items-center gap-2 ms-3">
+                <div
+                  className="spinner-border spinner-md me-2 mb-2 text-info"
+                  role="status"
+                >
+                  <span className="sr-only">Loading...</span>
+                </div>
+                <div className="text-info h6">Processing Post ...</div>
+              </div>
+            </>
+          )}
         </div>
       )}
 
