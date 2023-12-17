@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const Ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
 const createHttpError = require("http-errors");
+const { getPathToTempFolder, deleteFile } = require("../services/file");
 
 // Init stream
 const conn = mongoose.connection;
@@ -138,9 +139,7 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
   const stickerExtension = sticker.image.split(".")?.[1];
 
   // save the sticker to a temp file because ffmpeg doesn't support two imput streams
-  const stickerPath = this.getPathToTempFolder(
-    "temp_sticker." + stickerExtension
-  );
+  const stickerPath = getPathToTempFolder("temp_sticker." + stickerExtension);
   const stickerWriteStream = fs.createWriteStream(stickerPath);
   await new Promise((resolve, reject) => {
     stickerStream.pipe(stickerWriteStream);
@@ -156,7 +155,7 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
   });
   stickerWriteStream.end();
 
-  const outputPath = this.getPathToTempFolder("output." + videoExtension);
+  const outputPath = getPathToTempFolder("output." + videoExtension);
 
   return new Promise((resolve, reject) => {
     // Add sticker to video using ffmpeg
@@ -165,16 +164,16 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
       .complexFilter(this.getStickerPostitionCommand(sticker.position))
       .output(outputPath)
       .on("end", () => {
+        deleteFile(stickerPath); // remove sticker file
         resolve(outputPath);
       })
       .on("error", (err) => {
+        deleteFile(stickerPath); // remove sticker file
         console.error("Error adding sticker to video:", err);
         reject(createHttpError(500, "Error adding sticker to video"));
       })
       .run();
   });
-
-  // TODO: cleanup temp files after success or failure
 };
 
 module.exports.getStickerPostitionCommand = (position) => {
@@ -193,11 +192,6 @@ module.exports.getStickerPostitionCommand = (position) => {
     default:
       return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=10:10";
   }
-};
-
-module.exports.getPathToTempFolder = (filename) => {
-  const tempPath = "temp/";
-  return tempPath + filename;
 };
 
 module.exports.storeFileFromLocalToGridFS = (
@@ -220,6 +214,7 @@ module.exports.storeFileFromLocalToGridFS = (
     });
 
     writestream.on("finish", (file) => {
+      deleteFile(sourcePath);
       resolve(file);
     });
 
