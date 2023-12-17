@@ -6,6 +6,8 @@ const Ffmpeg = require("fluent-ffmpeg");
 const fs = require("fs");
 const createHttpError = require("http-errors");
 const { getPathToTempFolder, deleteFile } = require("../services/file");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+Ffmpeg.setFfmpegPath(ffmpegPath);
 
 // Init stream
 const conn = mongoose.connection;
