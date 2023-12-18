@@ -19,6 +19,8 @@ const stickerSchema = Schema(
       required: true,
     },
     competition: { type: Schema.Types.ObjectId, ref: "Competition" },
+    usage_limit: { type: Number, required: true },
+    usage_count: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
