@@ -86,7 +86,7 @@ module.exports.getRandomSticker = async (
 ) => {
   let query = { competition: competitionId };
   if (for_video) {
-    query.usage_count = { $lt: "$usage_limit" };
+    query.$expr = { $lt: ["$usage_count", "$usage_limit"] };
   }
 
   let count = await Sticker.countDocuments(query);
