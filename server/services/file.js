@@ -1,7 +1,7 @@
 const fs = require("fs");
 
 module.exports.getPathToTempFolder = (filename) => {
-  const tempPath = "temp/";
+  const tempPath = "tmp/";
   return tempPath + filename;
 };
 
