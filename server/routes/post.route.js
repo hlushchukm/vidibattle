@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const postsController = require("../controllers/posts.controller");
+const postsController = require("../controllers/post.controller");
 const { upload } = require("../services/storage");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 
