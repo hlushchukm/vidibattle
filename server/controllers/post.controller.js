@@ -189,7 +189,10 @@ module.exports.create = async (req, res, next) => {
 
       // get a random sticker if the competition has stickers
       if (competitionItem.has_sticker) {
-        const stickerObj = await getRandomSticker(competitionItem._id);
+        const stickerObj = await getRandomSticker(
+          competitionItem._id,
+          type === "video"
+        );
         sticker = stickerObj._id;
         // add sticker to video
         if (stickerObj && type === "video") {
@@ -206,6 +209,9 @@ module.exports.create = async (req, res, next) => {
             mainFile.filename,
             mainFile.contentType
           );
+
+          stickerObj.usage_count = stickerObj.usage_count + 1;
+          await stickerObj.save();
         }
       }
 
