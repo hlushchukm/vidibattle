@@ -193,7 +193,7 @@ module.exports.create = async (req, res, next) => {
           competitionItem._id,
           type === "video"
         );
-        sticker = stickerObj._id;
+        sticker = stickerObj ? stickerObj._id : null;
         // add sticker to video
         if (stickerObj && type === "video") {
           // add sticker to video and save to temp folder
