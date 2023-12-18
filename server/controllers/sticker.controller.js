@@ -24,13 +24,13 @@ module.exports.getStickersList = async (req, res, next) => {
 
 module.exports.createSticker = async (req, res, next) => {
   try {
-    const { type, position } = req.body;
+    const { type, position, usage_limit } = req.body;
     const file = req.file;
 
-    if (!type || !position || !file) {
-      return res
-        .status(400)
-        .json({ message: "type, position and image are required" });
+    if (!type || !position || !file || usage_limit === undefined) {
+      return res.status(400).json({
+        message: "type, position, image and usage limit are required",
+      });
     }
 
     if (type !== "small" && type !== "full-line") {
@@ -55,6 +55,7 @@ module.exports.createSticker = async (req, res, next) => {
       type,
       position,
       competition: null,
+      usage_limit,
     });
 
     await newSticker.save();
@@ -79,13 +80,19 @@ module.exports.deleteSticker = async (req, res, next) => {
   }
 };
 
-module.exports.getRandomSticker = async (competitionId = null) => {
-  let count = await Sticker.countDocuments({ competition: competitionId });
+module.exports.getRandomSticker = async (
+  competitionId = null,
+  for_video = false
+) => {
   let query = { competition: competitionId };
+  if (for_video) {
+    query.usage_count = { $lt: "$usage_limit" };
+  }
 
+  let count = await Sticker.countDocuments(query);
   if (!count) {
-    query = { competition: null };
-    count = await Sticker.countDocuments({ competition: null });
+    query.competition = null;
+    count = await Sticker.countDocuments(query);
   }
 
   if (!count) {
@@ -135,6 +142,7 @@ module.exports.createMultipleStickers = async (
       type: s.type,
       position: s.position,
       competition: competitionId,
+      usage_limit: s.usage_limit,
     });
   }
 
