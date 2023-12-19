@@ -19,7 +19,6 @@ passport.use(
     async (accessToken, refreshToken, profile, done) => {
       try {
         const email = profile.emails?.[0]?.value;
-        console.log(email)
         const user = {
           first_name: profile.name.givenName,
           last_name: profile.name.familyName,
