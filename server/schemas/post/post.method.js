@@ -1,9 +1,10 @@
 const createHttpError = require("http-errors");
 const { default: mongoose } = require("mongoose");
 const { User } = require("../../models/user.model");
+const { Competition } = require("../../models/competition.model");
 
 // generate feed for a user
-module.exports.feed = function ({
+module.exports.feed = async function ({
   lastDate,
   lastPostId,
   pageSize,
@@ -24,6 +25,15 @@ module.exports.feed = function ({
   if (competitionId) {
     query.competition = competitionId;
     if (round) query.round = round;
+  } else {
+    // exclude posts in active competition from the feed
+    const activeCompetitions = await Competition.find(
+      {
+        status: { $in: ["scheduled", "started"] },
+      },
+      "_id"
+    );
+    query.competition = { $nin: activeCompetitions };
   }
 
   if (!allPosts) {
