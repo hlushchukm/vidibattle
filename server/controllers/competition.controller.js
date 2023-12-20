@@ -146,7 +146,7 @@ module.exports.createCompetition = async (req, res, next) => {
       stickers = [],
     } = data;
 
-    const { file: imageFile, stickers: stickerImages } = req.files;
+    const { file: imageFile = [], stickers: stickerImages = [] } = req.files;
 
     if (!name || !type || rounds.length === 0 || !result_date) {
       return res.status(400).json({
@@ -297,7 +297,7 @@ module.exports.editCompetition = async (req, res, next) => {
       stickers = [],
     } = data;
 
-    const { file: imageFile, stickers: stickerImages } = req.files;
+    const { file: imageFile = [], stickers: stickerImages = [] } = req.files;
 
     const oldCompetition = await Competition.findOne({
       _id,
