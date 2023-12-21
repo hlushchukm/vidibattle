@@ -16,6 +16,7 @@ export default function Wallet() {
   const [pageLoading, setPageLoading] = useState(true);
   const [rechargeLoading, setRechargeLoading] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState(0);
+  const [paymentPageContent, setPaymentPageContent] = useState<any>();
   const userId = getUserId();
   const navigate = useNavigate();
 
@@ -39,17 +40,20 @@ export default function Wallet() {
       });
   };
 
-  const rechargeWallet = () => {
+  const loadToWallet = () => {
     if (!rechargeAmount) {
       return;
     }
 
     setRechargeLoading(true);
-    create("wallet/recharge", {
-      userId,
+    create("wallet/load", {
+      // userId,
       amount: rechargeAmount,
+      email: "test@gmail.com", //TODO: change email
     })
       .then((res) => {
+        console.log(res);
+        setPaymentPageContent(res);
         toast.success(res.message ?? "Balance updated successfully");
         setRechargeLoading(false);
       })
@@ -62,17 +66,47 @@ export default function Wallet() {
       });
   };
 
-  const rechargeClicked = () => {
-    console.log("recharge clicked");
-    rechargeWallet();
-  };
-
   const navigateToUserProfile = () => {
     navigate("/profile/" + walletInfo?.user?.username);
   };
 
   if (pageLoading) {
     return <PageLoading />;
+  }
+
+  if (paymentPageContent) {
+    return (
+      <div>
+        <head>
+          <title>Show Payment Page</title>
+        </head>
+        <div>
+          <center>
+            <h1>Please do not refresh this page...</h1>
+          </center>
+          <form
+            method="post"
+            action={`https://securegw-stage.paytm.in/theia/api/v1/showPaymentPage?mid=${paymentPageContent.mid}&orderId=${paymentPageContent.orderId}`}
+            name="paytm"
+          >
+            <table>
+              <input type="hidden" name="mid" value={paymentPageContent.mid} />
+              <input
+                type="hidden"
+                name="orderId"
+                value={paymentPageContent.orderId}
+              />
+              <input
+                type="hidden"
+                name="txnToken"
+                value={paymentPageContent.txnToken}
+              />
+            </table>
+            <script type="text/javascript"> document.paytm.submit(); </script>
+          </form>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -122,7 +156,15 @@ export default function Wallet() {
               </h4>
             </div>
 
-            <div className="d-flex align-items-center flex-column">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (rechargeAmount && !rechargeLoading) {
+                  loadToWallet();
+                }
+              }}
+              className="d-flex align-items-center flex-column"
+            >
               <div className="mb-3 px-1">
                 <label className="w-100 mb-2" htmlFor="amount">
                   Amount:
@@ -141,16 +183,16 @@ export default function Wallet() {
                 <button
                   disabled={!rechargeAmount || rechargeLoading}
                   className="btn btn-secondary"
-                  onClick={rechargeClicked}
+                  type="submit"
                 >
                   {rechargeLoading ? (
                     <i className="fa fa-spinner fa-spin"></i>
                   ) : (
-                    <span>Recharge</span>
+                    <span>Load to Wallet</span>
                   )}
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>
