@@ -24,7 +24,7 @@ router.use("/comment", commentRouter);
 router.use("/report", reportRouter);
 router.use("/static-pages", staticPageRouter);
 router.use("/competition", competitionRouter);
-router.use("/wallet", authGuard, walletRouter);
+router.use("/wallet", walletRouter); // TODO: add authguard
 router.use("/admin", adminAuthGuard, adminRouter);
 router.use("/sticker", adminAuthGuard, stickerRouter);
 router.use("/configuration", configurationRouter);
