@@ -345,8 +345,8 @@ module.exports.editCompetition = async (req, res, next) => {
     }
 
     // set image and delete the old one
-    if (imageFile) {
-      competitionData.image = imageFile.filename;
+    if (imageFile.length > 0) {
+      competitionData.image = imageFile[0].filename;
       if (oldCompetition.image) {
         await deleteFile(oldCompetition.image);
       }
