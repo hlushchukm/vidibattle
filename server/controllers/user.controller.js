@@ -23,14 +23,9 @@ module.exports.getProfileInfo = async (req, res, next) => {
       requestingUserId = req.user._id;
     }
 
-    let fields =
-      "first_name last_name profile_img bio posts_count followers_count following_count followers blocked_users username address social_links";
+    let excludeFields = "-following -chats -blocked_by -posts";
 
-    if (req.user.is_admin) {
-      fields += " status is_complete provider createdAt";
-    }
-
-    const user = await User.findOne({ username }, fields);
+    const user = await User.findOne({ username }, excludeFields);
 
     // if user doesn't exist or has blocked the person making the request
     if (
