@@ -144,7 +144,6 @@ export default function Messages() {
 
   const handleSendMessage = () => {
     if (newMessage.length === 0) return;
-    console.log("Here", newMessage, receiver);
 
     let payload: any = {
       sender: currentUserId,
