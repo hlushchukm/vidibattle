@@ -42,6 +42,28 @@ module.exports.createReport = async (req, res, next) => {
     const { post, comment } = req.body;
     const { _id: reported_by } = req.user;
 
+    const existingReport = await Report.findOne({
+      post,
+      reported_by,
+      status: "pending",
+    });
+
+    if (existingReport) {
+      return res
+        .status(400)
+        .json({ message: "report already submitted for this post" });
+    }
+
+    const existingPost = await Post.findById(post);
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "post not found" });
+    } else if (existingPost.author?.toString() === reported_by) {
+      return res
+        .status(400)
+        .json({ message: "you cannot report your own post" });
+    }
+
     const report = new Report({ post, reported_by, comment });
     await report.save();
 

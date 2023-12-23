@@ -59,7 +59,9 @@ export default function PostsContainer({
         })
         .catch((e) => {
           console.log(e);
-          toast.error("Error! Report Not Submitted");
+          toast.error(
+            e.response?.data?.message ?? "Error! Report Not Submitted"
+          );
         });
     }
     closeReportModal();
