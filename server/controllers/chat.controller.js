@@ -246,6 +246,7 @@ module.exports.getMessages = async (req, res, next) => {
             first_name: specifiedUser.first_name,
             last_name: specifiedUser.last_name,
             profile_img: specifiedUser.profile_img,
+            username: specifiedUser.username,
           },
           lastDate: lastDate,
           lastMessageId: lastMessageId,
