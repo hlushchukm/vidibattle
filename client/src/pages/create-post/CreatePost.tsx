@@ -39,6 +39,7 @@ export default function CreatePost({
   const [loading, setLoading] = useState(false);
   const [configData, setConfigData] = useState<any>({});
   const [videoLength, setVideoLength] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -51,6 +52,7 @@ export default function CreatePost({
       validateMedia();
     } else {
       setPostBtnDisabled(true);
+      setErrorMessage("");
     }
   }, [selectedFile]);
 
@@ -165,6 +167,13 @@ export default function CreatePost({
 
   const validateMedia = () => {
     let valid = false;
+    let errorType:
+      | "video_size"
+      | "video_duration"
+      | "image"
+      | "thumbnail"
+      | null = null;
+
     if (selectedFile) {
       if (fileType === "video") {
         valid = validateVideoSize(
@@ -172,11 +181,15 @@ export default function CreatePost({
           configData["max_video_upload_size"]
         );
 
+        errorType = !valid ? "video_size" : null;
+
         if (valid && videoLength) {
           valid = validateVideoLength(
             videoLength,
             configData["max_video_duration"]
           );
+
+          errorType = !valid ? "video_duration" : null;
         }
 
         if (thumbnail && valid) {
@@ -184,19 +197,45 @@ export default function CreatePost({
             thumbnail,
             configData["max_image_upload_size"]
           );
+          errorType = !valid ? "thumbnail" : null;
         }
       } else {
         valid = validateImageSize(
           selectedFile,
           configData["max_image_upload_size"]
         );
+        errorType = !valid ? "image" : null;
       }
     } else {
       valid = false;
     }
 
     setPostBtnDisabled(!valid);
+
+    setErrorMessage(valid ? "" : getErrorMessage(errorType));
+
     return valid;
+  };
+
+  const getErrorMessage = (
+    errorType: "video_size" | "video_duration" | "image" | "thumbnail" | null
+  ) => {
+    if (!errorType) {
+      return "";
+    }
+
+    switch (errorType) {
+      case "image":
+        return `Maximum image size allowed is ${configData["max_image_upload_size"].value}${configData["max_image_upload_size"].unit}`;
+      case "thumbnail":
+        return `Maximum thumbnail size allowed is ${configData["max_image_upload_size"].value}${configData["max_image_upload_size"].unit}`;
+      case "video_size":
+        return `Maximum video size allowed is ${configData["max_video_upload_size"].value}${configData["max_video_upload_size"].unit}`;
+      case "video_duration":
+        return `Maximum video duration allowed is ${configData["max_video_duration"].value}${configData["max_video_duration"].unit}`;
+      default:
+        return "unknown error";
+    }
   };
 
   if (loading) {
@@ -233,6 +272,13 @@ export default function CreatePost({
       <div className="page-content">
         <div className="container">
           <div className="post-profile">
+            {postBtnDisabled && (
+              <div className="p-3">
+                <h1 className="text-danger small fw-bold mt-1">
+                  {errorMessage}
+                </h1>
+              </div>
+            )}
             <div className="left-content">
               <div className="media media-50 rounded-circle">
                 <img
@@ -325,13 +371,6 @@ export default function CreatePost({
                       <i className="fa-solid fa-file-image"></i>Photo
                     </a>
                   </li>
-                  {configData["max_image_upload_size"] && (
-                    <span className="text-secondary small fw-bold mt-1">
-                      Maximum image size allowed is&nbsp;
-                      {configData["max_image_upload_size"].value}
-                      {configData["max_image_upload_size"].unit}
-                    </span>
-                  )}
                 </>
               )}
             {(allowedTypes === "any" || allowedTypes === "video") && (
@@ -343,20 +382,6 @@ export default function CreatePost({
                         <i className="fa-solid fa-video"></i>Video
                       </a>
                     </li>
-                    {configData["max_video_upload_size"] && (
-                      <span className="text-secondary small fw-bold mt-1">
-                        Maximum video size allowed is&nbsp;
-                        {configData["max_video_upload_size"].value}
-                        {configData["max_video_upload_size"].unit}
-                      </span>
-                    )}
-                    {configData["max_video_duration"] && (
-                      <span className="text-secondary small fw-bold mt-1">
-                        Maximum video duration allowed is&nbsp;
-                        {configData["max_video_duration"].value}
-                        {configData["max_video_duration"].unit}
-                      </span>
-                    )}
                   </>
                 )}
                 {selectedFile && fileType === "video" && (
@@ -367,13 +392,6 @@ export default function CreatePost({
                         (optional)
                       </a>
                     </li>
-                    {configData["max_image_upload_size"] && (
-                      <span className="text-secondary small fw-bold mt-1">
-                        Maximum thumbnail size allowed is&nbsp;
-                        {configData["max_image_upload_size"].value}
-                        {configData["max_image_upload_size"].unit}
-                      </span>
-                    )}
                   </>
                 )}
               </>
