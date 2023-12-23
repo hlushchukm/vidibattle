@@ -19,7 +19,7 @@ export default function ReportModal({
         <textarea
           className="w-100 form-control"
           name="comment"
-          placeholder="Write your comment about the video ... "
+          placeholder="Write your comment about the post ... "
           rows={8}
           value={comment}
           onChange={(e) => setComment(e.target.value)}
