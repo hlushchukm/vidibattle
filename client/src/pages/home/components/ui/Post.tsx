@@ -6,7 +6,7 @@ import {
   formatResourceURL,
   handleProfileImageError,
 } from "../../../../services/asset-paths";
-import { isLoggedIn } from "../../../../services/auth";
+import { getUserId, isLoggedIn } from "../../../../services/auth";
 import { CSSProperties, useRef } from "react";
 
 export default function Post({
@@ -170,28 +170,30 @@ export default function Post({
                   />
                 </svg>
               </a>
-              <div className="dropdown">
-                <a
-                  onClick={() => setPostToReport(post)}
-                  style={{ cursor: "pointer" }}
-                  className="item-content item-link dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                >
-                  <i className="fa fa-bars" aria-hidden="true"></i>
-                </a>
-                <div className="dropdown-menu">
+              {post.author?._id !== getUserId() && (
+                <div className="dropdown">
                   <a
-                    className="dropdown-item text-primary"
+                    onClick={() => setPostToReport(post)}
                     style={{ cursor: "pointer" }}
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasBottomModal"
-                    aria-controls="offcanvasBottom"
+                    className="item-content item-link dropdown-toggle"
+                    data-bs-toggle="dropdown"
                   >
-                    <i className="fa fa-ban me-2"></i>
-                    <span>Report Post</span>
+                    <i className="fa fa-bars" aria-hidden="true"></i>
                   </a>
+                  <div className="dropdown-menu">
+                    <a
+                      className="dropdown-item text-primary"
+                      style={{ cursor: "pointer" }}
+                      data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottomModal"
+                      aria-controls="offcanvasBottom"
+                    >
+                      <i className="fa fa-ban me-2"></i>
+                      <span>Report Post</span>
+                    </a>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
