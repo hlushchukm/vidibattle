@@ -119,7 +119,7 @@ export default function Profile() {
             toggleBlock={() => toggleBlock(!profileData.is_blocked)}
             toggleFollow={() => toggleFollow(!profileData.is_followed)}
           />
-          <div className="w-100 d-flex justify-content-center">
+          <div className="w-100 d-flex justify-content-center mt-3">
             <SocialMediaLinks social_links={profileData.social_links} />
           </div>
           <div className="contant-section pb-5">
