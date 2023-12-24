@@ -17,7 +17,7 @@ export default function Top10ParticipantsTable({
         </h1>
 
         <div
-          className="d-flex justify-content-center"
+          className="d-flex justify-content-md-center"
           style={{ width: "100%", overflowX: "auto" }}
         >
           <table>
