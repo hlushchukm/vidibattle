@@ -7,6 +7,7 @@ const { Post } = require("../models/post.model");
 const { Sticker } = require("../models/sticker.model");
 const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
+const { dateToUTC } = require("../services/date");
 const { deleteFile } = require("./media.controller");
 const { createMultipleStickers } = require("./sticker.controller");
 
@@ -29,7 +30,7 @@ module.exports.updateCompetitionStartsForToday = async () => {
     let changes = 0;
 
     const rounds = await Round.find({
-      start_date: { $gte: startOfDay, $lt: endOfDay },
+      start_date: { $gte: startOfDay.getTime(), $lt: endOfDay.getTime() },
     }).populate("competition");
 
     for (const round of rounds) {
@@ -88,9 +89,9 @@ module.exports.updateCompetitionEndsForToday = async () => {
   endOfDay.setHours(0, 0, 0, 0);
 
   try {
-    const rounds = await Round.find({ end_date: { $lt: startOfDay } }).populate(
-      "competition"
-    );
+    const rounds = await Round.find({
+      end_date: { $lt: startOfDay.getTime() },
+    }).populate("competition");
 
     let changes = 0;
 
@@ -167,6 +168,7 @@ module.exports.createCompetition = async (req, res, next) => {
         .json({ message: "invalid competition type given" });
     }
 
+    const UTCResultDate = dateToUTC(result_date);
     const competitionData = {
       name,
       description,
@@ -174,7 +176,7 @@ module.exports.createCompetition = async (req, res, next) => {
       type,
       current_round: 1,
       rounds_count: rounds.length,
-      result_date,
+      result_date: UTCResultDate,
       has_sticker,
     };
 
@@ -199,22 +201,28 @@ module.exports.createCompetition = async (req, res, next) => {
           .json({ message: "found a round without start or end date" });
       }
 
-      const start_date = new Date(round.start_date);
-      start_date.setHours(0, 0, 0, 0);
-      const end_date = new Date(round.end_date);
-      end_date.setHours(0, 0, 0, 0);
+      let start_date = null;
+      let end_date = null;
+      try {
+        start_date = dateToUTC(round.start_date);
+        end_date = dateToUTC(round.end_date);
 
-      if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+        if (!start_date || !end_date) {
+          return res
+            .status(400)
+            .json({ message: "Invalid date format found in rounds" });
+        }
+
+        // Validate start and end dates
+        if (start_date > end_date) {
+          return res
+            .status(400)
+            .json({ message: "End date must be greater than start date" });
+        }
+      } catch (e) {
         return res
           .status(400)
           .json({ message: "Invalid date format found in rounds" });
-      }
-
-      // Validate start and end dates
-      if (start_date > end_date) {
-        return res
-          .status(400)
-          .json({ message: "End date must be greater than start date" });
       }
 
       const newRound = new Round({
@@ -246,23 +254,15 @@ module.exports.createCompetition = async (req, res, next) => {
 
     const competitionMatches = await Competition.find({
       name: newCompetition.name,
+      start_date: newCompetition.start_date,
+      end_date: newCompetition.end_date,
     });
 
-    const start_date_str = new Date(
-      newCompetition.start_date
-    ).toLocaleDateString();
-    const end_date_str = new Date(newCompetition.end_date).toLocaleDateString();
-
-    for (const match of competitionMatches) {
-      if (
-        match.start_date?.toLocaleDateString()?.includes(start_date_str) &&
-        match.end_date?.toLocaleDateString(end_date_str)?.includes()
-      ) {
-        return res.status(400).json({
-          message:
-            "a competition with the same name, start date and end date found",
-        });
-      }
+    if (competitionMatches.length > 0) {
+      return res.status(400).json({
+        message:
+          "a competition with the same name, start date and end date found",
+      });
     }
 
     await newCompetition.save();
@@ -327,12 +327,13 @@ module.exports.editCompetition = async (req, res, next) => {
         .json({ message: "invalid competition type given" });
     }
 
+    const UTCResultDate = dateToUTC(result_date);
     const competitionData = {
       name,
       description,
       type,
       rounds_count: rounds.length,
-      result_date,
+      result_date: UTCResultDate,
       has_sticker,
     };
 
@@ -376,22 +377,29 @@ module.exports.editCompetition = async (req, res, next) => {
           .json({ message: "found a round without start or end date" });
       }
 
-      const start_date = new Date(round.start_date);
-      start_date.setHours(0, 0, 0, 0);
-      const end_date = new Date(round.end_date);
-      end_date.setHours(0, 0, 0, 0);
+      let start_date = null;
+      let end_date = null;
 
-      if (isNaN(start_date.getTime()) || isNaN(end_date.getTime())) {
+      try {
+        start_date = dateToUTC(round.start_date);
+        end_date = dateToUTC(round.end_date);
+
+        if (!start_date || !end_date) {
+          return res
+            .status(400)
+            .json({ message: "Invalid date format found in rounds" });
+        }
+
+        // Validate start and end dates
+        if (start_date > end_date) {
+          return res
+            .status(400)
+            .json({ message: "End date must be greater than start date" });
+        }
+      } catch (e) {
         return res
           .status(400)
           .json({ message: "Invalid date format found in rounds" });
-      }
-
-      // Validate start and end dates
-      if (start_date > end_date) {
-        return res
-          .status(400)
-          .json({ message: "End date must be greater than start date" });
       }
 
       const roundData = {
@@ -436,23 +444,15 @@ module.exports.editCompetition = async (req, res, next) => {
     const competitionMatches = await Competition.find({
       name: oldCompetition.name,
       _id: { $ne: oldCompetition._id },
+      start_date: oldCompetition.start_date,
+      end_date: oldCompetition.end_date,
     });
 
-    const start_date_str = new Date(
-      oldCompetition.start_date
-    ).toLocaleDateString();
-    const end_date_str = new Date(oldCompetition.end_date).toLocaleDateString();
-
-    for (const match of competitionMatches) {
-      if (
-        match.start_date?.toLocaleDateString()?.includes(start_date_str) &&
-        match.end_date?.toLocaleDateString(end_date_str)?.includes()
-      ) {
-        return res.status(400).json({
-          message:
-            "a competition with the same name, start date and end date found",
-        });
-      }
+    if (competitionMatches.length > 0) {
+      return res.status(400).json({
+        message:
+          "a competition with the same name, start date and end date found",
+      });
     }
 
     await oldCompetition.save();

@@ -38,3 +38,16 @@ export function getDateAndTime(dateStr: string): string {
 
   return formattedDate + " " + formattedTime;
 }
+
+export function dateToUTC(date: Date | string) {
+  if (typeof date === "string") {
+    date = new Date(date);
+  }
+  const utcDate = date.getTime();
+  return utcDate;
+}
+
+export function UTCtoDate(utcDate: string) {
+  const date = new Date(utcDate);
+  return date;
+}
