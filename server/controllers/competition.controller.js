@@ -1014,3 +1014,45 @@ module.exports.getTopParticipants = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.searchCompetition = async (req, res, next) => {
+  try {
+    const { text, page = 1, limit = 10 } = req.query;
+
+    const regex = new RegExp(text, "i");
+
+    const query = { name: { $regex: regex } };
+
+    const total = await Competition.countDocuments(query);
+    let competitions = await Competition.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!req.user?.is_admin) {
+      const user = req.user?._id;
+
+      if (user) {
+        // if the searching user has joined/left a competition, add that info to the response
+        for (let i = 0; i < competitions.length; i++) {
+          competitions[i] = competitions[i].toObject();
+          const competitor = await CompetingUser.findOne({
+            competition: competitions[i]._id,
+            user,
+          });
+
+          competitions[i].competingUser = competitor;
+        }
+      }
+    }
+
+    res.status(200).json({
+      data: competitions,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+    });
+  } catch (e) {
+    next(e);
+  }
+};

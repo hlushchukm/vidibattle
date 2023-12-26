@@ -15,6 +15,7 @@ const {
   getTopParticipants,
   getCompetitionInfoForEdit,
   editCompetition,
+  searchCompetition,
 } = require("../controllers/competition.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const { upload } = require("../services/storage");
@@ -29,6 +30,7 @@ router.get("/rounds/:id", authGuard, getRounds);
 router.get("/admin/rounds/:id", adminAuthGuard, getRounds);
 router.get("/winners/:competition/:round", authGuard, getTopParticipants);
 router.get("/edit/:id", adminAuthGuard, getCompetitionInfoForEdit);
+router.get("/search", authGuard, searchCompetition);
 
 // post
 router.post(
