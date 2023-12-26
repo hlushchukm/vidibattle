@@ -30,7 +30,7 @@ export default function Competition({ competition }: { competition: any }) {
 
   return (
     <>
-      <div className="col-sm-6">
+      <div className="col-md-4">
         <div className="card">
           <img
             src={formatResourceURL(competition.image)}
@@ -59,8 +59,8 @@ export default function Competition({ competition }: { competition: any }) {
                   "&end_date=" +
                   competition.end_date
                 }
-                className="btn btn-primary"
-                style={{ fontSize: "12px" }}
+                className="btn btn-primary px-3"
+                style={{ fontSize: "11px" }}
               >
                 Details
               </Link>
@@ -75,8 +75,8 @@ export default function Competition({ competition }: { competition: any }) {
                       "&end_date=" +
                       competition.end_date
                     }
-                    className="btn btn-secondary"
-                    style={{ fontSize: "12px" }}
+                    className="btn btn-secondary px-3"
+                    style={{ fontSize: "11px" }}
                   >
                     All Posts
                   </Link>
@@ -93,8 +93,8 @@ export default function Competition({ competition }: { competition: any }) {
                         "&end_date=" +
                         competition.end_date
                       }
-                      className="btn btn-secondary"
-                      style={{ fontSize: "12px" }}
+                      className="btn btn-secondary px-3"
+                      style={{ fontSize: "11px" }}
                     >
                       {competition.status === "started"
                         ? "Current Round"
