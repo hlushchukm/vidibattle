@@ -10,16 +10,7 @@ export default function CompetitionsList() {
         <div className="content-inner pt-0">
           <div className="container bottom-content">
             <div className="">
-              <CompetitionsListContainer status="started" />
-            </div>
-            <div className="">
-              <CompetitionsListContainer status="scheduled" />
-            </div>
-            <div className="">
-              <CompetitionsListContainer status="ended" />
-            </div>
-            <div className="">
-              <CompetitionsListContainer status="cancelled" />
+              <CompetitionsListContainer />
             </div>
           </div>
         </div>

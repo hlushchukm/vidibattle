@@ -4,22 +4,22 @@ import Competition from "../ui/Competition";
 import { toast } from "react-toastify";
 import BlinkingLoadingCircles from "../../../../components/BlinkingLoadingCircles";
 import SearchBar from "../../../../components/SearchBar";
+import StatusTabs from "../ui/StatusTabs";
 
-export default function CompetitionsListContainer({
-  status,
-}: {
-  status: "scheduled" | "started" | "ended" | "cancelled";
-}) {
+export default function CompetitionsListContainer({}: {}) {
   const [competitions, setCompetitions] = useState<any>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [noMoreCompetitions, setNoMoreCompetitions] = useState(false);
-  const limit = 10;
   const [searchText, setSearchText] = useState("");
+  const [status, setStatus] = useState<"scheduled" | "started" | "ended">(
+    "started"
+  );
+  const limit = 10;
 
   useEffect(() => {
     fetchCompetitions(0);
-  }, []);
+  }, [status]);
 
   const fetchCompetitions = (page: number) => {
     setLoading(true);
@@ -44,6 +44,13 @@ export default function CompetitionsListContainer({
         );
         setLoading(false);
       });
+  };
+
+  const handleStatusChange = (status: "scheduled" | "started" | "ended") => {
+    setPage(0);
+    setNoMoreCompetitions(false);
+    setCompetitions([]);
+    setStatus(status);
   };
 
   const searchCompetition = (text: string, page: number) => {
@@ -111,13 +118,6 @@ export default function CompetitionsListContainer({
     }
   };
 
-  if (
-    (status === "ended" || status === "cancelled") &&
-    competitions.length === 0
-  ) {
-    return;
-  }
-
   return (
     <>
       <div className="mb-2">
@@ -128,8 +128,21 @@ export default function CompetitionsListContainer({
             onChange={(e) => searchInputChanged(e.target.value)}
           />
         </div>
-        <h3>{getStatusLabel(status)}</h3>
-        <div className="divider"></div>
+
+        <div
+          style={{
+            background: "var(--bg-white)",
+            margin: "50px -15px",
+            padding: "20px 15px 0",
+            borderRadius: "16px 16px 0 0",
+            boxShadow: "0px -10px 17px 0px rgba(141, 141, 113, 0.17)",
+          }}
+        >
+          <StatusTabs
+            onStatusChange={handleStatusChange}
+            currentStatus={status}
+          />
+        </div>
 
         {competitions.length === 0 && !loading ? (
           <>
