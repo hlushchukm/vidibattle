@@ -1,5 +1,6 @@
 const createHttpError = require("http-errors");
 const { Sticker } = require("../models/sticker.model");
+const { deleteFile } = require("./media.controller");
 
 module.exports.getStickersList = async (req, res, next) => {
   try {
@@ -147,4 +148,55 @@ module.exports.createMultipleStickers = async (
   }
 
   await Sticker.insertMany(newStickers);
+};
+
+module.exports.updateMultipleStickers = async (stickers, stickerImages) => {
+  for (const s of stickers) {
+    if (!s._id) {
+      throw createHttpError(400, "old sticker id not found");
+    }
+
+    if (!s.type || !s.position) {
+      throw createHttpError(400, "type, position and image are required");
+    }
+
+    if (s.type !== "small" && s.type !== "full-line") {
+      return create(400, "invalid sticker type");
+    }
+
+    if (
+      s.type === "small" &&
+      !["top-left", "top-right", "bottom-left", "bottom-right"].includes(
+        s.position
+      )
+    ) {
+      return create(400, "invalid position type");
+    }
+
+    if (s.type === "full-line" && !["top", "bottom"].includes(s.position)) {
+      return create(400, "invalid position type");
+    }
+
+    const oldSticker = await Sticker.findById(s._id);
+
+    if (!oldSticker) {
+      return create(404, "old sticker not found");
+    }
+
+    oldSticker.type = s.type;
+    oldSticker.position = s.position;
+    oldSticker.usage_limit = s.usage_limit;
+
+    if (s.index !== undefined) {
+      const image = stickerImages[s.index];
+
+      // delete old sticker image file from gridfs
+      if (image) {
+        await deleteFile(oldSticker.image);
+        oldSticker.image = image.filename;
+      }
+    }
+
+    await oldSticker.save();
+  }
 };

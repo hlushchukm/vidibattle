@@ -9,7 +9,10 @@ const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
 const { dateToUTC } = require("../services/date");
 const { deleteFile } = require("./media.controller");
-const { createMultipleStickers } = require("./sticker.controller");
+const {
+  createMultipleStickers,
+  updateMultipleStickers,
+} = require("./sticker.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -458,7 +461,25 @@ module.exports.editCompetition = async (req, res, next) => {
     await oldCompetition.save();
 
     if (oldCompetition.has_sticker) {
-      await createMultipleStickers(stickers, stickerImages, oldCompetition._id);
+      const newStickers = [];
+      const editStickers = [];
+      for (const sticker of stickers) {
+        if (sticker._id) {
+          editStickers.push(sticker);
+        } else {
+          newStickers.push(sticker);
+        }
+      }
+
+      if (editStickers.length > 0)
+        await updateMultipleStickers(editStickers, stickerImages);
+
+      if (newStickers.length > 0)
+        await createMultipleStickers(
+          newStickers,
+          stickerImages,
+          oldCompetition._id
+        );
     }
 
     res.status(201).json({
