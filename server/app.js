@@ -84,8 +84,8 @@ const connect = mongoose
       return;
     });
 
-    // Schedule the cron job to run every day at midnight (00:00)
-    cron.schedule("0 0 * * *", async () => {
+    // Schedule the cron job to run every hour
+    cron.schedule("0 * * * *", async () => {
       await updateCompetitionStartsForToday();
       await updateCompetitionEndsForToday();
     });
