@@ -7,7 +7,7 @@ const { Post } = require("../models/post.model");
 const { Sticker } = require("../models/sticker.model");
 const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
-const { dateToUTC } = require("../services/date");
+const { stringDateToUTC, getDateStrFromDate } = require("../services/date");
 const { deleteFile } = require("./media.controller");
 const {
   createMultipleStickers,
@@ -171,7 +171,7 @@ module.exports.createCompetition = async (req, res, next) => {
         .json({ message: "invalid competition type given" });
     }
 
-    const UTCResultDate = dateToUTC(result_date);
+    const UTCResultDate = stringDateToUTC(result_date);
     const competitionData = {
       name,
       description,
@@ -207,8 +207,8 @@ module.exports.createCompetition = async (req, res, next) => {
       let start_date = null;
       let end_date = null;
       try {
-        start_date = dateToUTC(round.start_date);
-        end_date = dateToUTC(round.end_date);
+        start_date = stringDateToUTC(round.start_date);
+        end_date = stringDateToUTC(round.end_date);
 
         if (!start_date || !end_date) {
           return res
@@ -249,7 +249,9 @@ module.exports.createCompetition = async (req, res, next) => {
         newCompetition.end_date = newRound.end_date;
       }
 
-      if (start_date <= new Date().setHours(0, 0, 0, 0)) {
+      let today = getDateStrFromDate(new Date());
+      today = stringDateToUTC(today);
+      if (start_date <= today) {
         newCompetition.status = "started";
         newCompetition.current_round = i + 1;
       }
@@ -330,7 +332,7 @@ module.exports.editCompetition = async (req, res, next) => {
         .json({ message: "invalid competition type given" });
     }
 
-    const UTCResultDate = dateToUTC(result_date);
+    const UTCResultDate = stringDateToUTC(result_date);
     const competitionData = {
       name,
       description,
@@ -384,8 +386,8 @@ module.exports.editCompetition = async (req, res, next) => {
       let end_date = null;
 
       try {
-        start_date = dateToUTC(round.start_date);
-        end_date = dateToUTC(round.end_date);
+        start_date = stringDateToUTC(round.start_date);
+        end_date = stringDateToUTC(round.end_date);
 
         if (!start_date || !end_date) {
           return res
@@ -438,7 +440,9 @@ module.exports.editCompetition = async (req, res, next) => {
         oldCompetition.end_date = editedRound.end_date;
       }
 
-      if (start_date <= new Date().setHours(0, 0, 0, 0)) {
+      let today = getDateStrFromDate(new Date());
+      today = stringDateToUTC(today);
+      if (start_date <= today) {
         oldCompetition.status = "started";
         oldCompetition.current_round = i + 1;
       }
