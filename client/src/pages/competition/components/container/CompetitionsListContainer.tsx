@@ -48,11 +48,15 @@ export default function CompetitionsListContainer({}: {}) {
       });
   };
 
-  const handleStatusChange = (status: "scheduled" | "started" | "ended") => {
+  const handleStatusChange = (newStatus: "scheduled" | "started" | "ended") => {
+    if (newStatus === status) {
+      return;
+    }
+
     setPage(0);
     setNoMoreCompetitions(false);
     setCompetitions([]);
-    setStatus(status);
+    setStatus(newStatus);
   };
 
   const searchCompetition = (text: string, page: number) => {
