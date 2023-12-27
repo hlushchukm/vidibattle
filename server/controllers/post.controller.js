@@ -171,7 +171,7 @@ module.exports.create = async (req, res, next) => {
 
     if (competition) {
       const competitionItem = await Competition.findOne({
-        status: "started",
+        status: { $in: ["started", "scheduled"] },
         _id: competition,
         current_round: round ?? 1,
       });
@@ -185,6 +185,37 @@ module.exports.create = async (req, res, next) => {
         return res.status(400).json({ message: "can't post for this round" });
       } else if (!round && competition.current_round !== 1) {
         return res.status(400).json({ message: "can't post for this round" });
+      }
+
+      // get competitor info
+      const competitor = await CompetingUser.findOne({
+        user: _id,
+        competition,
+        status: "playing",
+        current_round: parseInt(round ?? 1),
+      });
+
+      if (!competitor) {
+        return res
+          .status(400)
+          .json({ message: "this person can't post in this round" });
+      }
+
+      // check if there is already a post for the current round, if so, delete it
+      const existingPost = await Post.findOne({
+        author,
+        competition,
+        round: parseInt(round) ?? 1,
+      });
+
+      if (existingPost) {
+        const existingMedia = await Media.findById(existingPost.media);
+        if (existingMedia) {
+          const filename = existingMedia.filename;
+          await deleteFile(filename);
+          await Media.deleteOne({ _id: existingMedia._id });
+        }
+        await Post.deleteOne({ _id: existingPost._id });
       }
 
       // get a random sticker if the competition has stickers
@@ -213,20 +244,6 @@ module.exports.create = async (req, res, next) => {
           stickerObj.usage_count = stickerObj.usage_count + 1;
           await stickerObj.save();
         }
-      }
-
-      // get competitor info
-      const competitor = await CompetingUser.findOne({
-        user: _id,
-        competition,
-        status: "playing",
-        current_round: parseInt(round ?? 1),
-      });
-
-      if (!competitor) {
-        return res
-          .status(400)
-          .json({ message: "this person can't post in this round" });
       }
     }
 
