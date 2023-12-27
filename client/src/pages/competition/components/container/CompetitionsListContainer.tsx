@@ -15,6 +15,7 @@ export default function CompetitionsListContainer({}: {}) {
   const [status, setStatus] = useState<"scheduled" | "started" | "ended">(
     "started"
   );
+  const [showingSearchResult, setShowingSearchResult] = useState(false);
   const limit = 10;
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function CompetitionsListContainer({}: {}) {
 
   const fetchCompetitions = (page: number) => {
     setLoading(true);
+    setShowingSearchResult(false);
     get("competition/list", {
       status,
       page: page + 1,
@@ -55,6 +57,7 @@ export default function CompetitionsListContainer({}: {}) {
 
   const searchCompetition = (text: string, page: number) => {
     setLoading(true);
+    setShowingSearchResult(true);
     get("competition/search", {
       text,
       status,
@@ -153,7 +156,11 @@ export default function CompetitionsListContainer({}: {}) {
         ) : (
           <div className="row">
             {competitions.map((competition: any) => (
-              <Competition key={competition._id} competition={competition} />
+              <Competition
+                key={competition._id}
+                competition={competition}
+                isSearchResult={showingSearchResult}
+              />
             ))}
             {loading && <BlinkingLoadingCircles />}
 

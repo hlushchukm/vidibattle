@@ -4,7 +4,13 @@ import {
   handleCompetitionImageError,
 } from "../../../../services/asset-paths";
 
-export default function Competition({ competition }: { competition: any }) {
+export default function Competition({
+  competition,
+  isSearchResult,
+}: {
+  competition: any;
+  isSearchResult: boolean;
+}) {
   // const descriptionTextLength = 210;
 
   const getCompetitionStatusBadge = (status: string) => {
@@ -28,6 +34,19 @@ export default function Competition({ competition }: { competition: any }) {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "scheduled":
+        return <span className="badge badge-primary">{status}</span>;
+      case "started":
+        return <span className="badge badge-success">{status}</span>;
+      case "ended":
+        return <span className="badge badge-danger">{status}</span>;
+      case "cancelled":
+        return <span className="badge badge-dark">{status}</span>;
+    }
+  };
+
   return (
     <>
       <div className="col-md-4">
@@ -43,10 +62,17 @@ export default function Competition({ competition }: { competition: any }) {
             <p className="card-text text-justify flex-grow-1">
               {/* {competition.description?.length > descriptionTextLength
                 ? competition.description?.slice(0, descriptionTextLength) +
-                  "..."
-                : competition.description} */}
-              {competition.competingUser &&
-                getCompetitionStatusBadge(competition.competingUser.status)}
+                "..."
+              : competition.description} */}
+              {isSearchResult && (
+                <span className="me-2">
+                  {getStatusBadge(competition.status)}
+                </span>
+              )}
+              <span>
+                {competition.competingUser &&
+                  getCompetitionStatusBadge(competition.competingUser.status)}
+              </span>
             </p>
 
             <div className="d-flex gap-2" style={{ flexWrap: "wrap" }}>
