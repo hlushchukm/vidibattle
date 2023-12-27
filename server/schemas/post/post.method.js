@@ -152,9 +152,16 @@ module.exports.timeline = async function ({
 
 // like post
 module.exports.like = async function (userId, postId) {
-  const post = await this.findById(postId);
+  const post = await this.findById(postId).populate("competition");
   if (!post) {
     throw createHttpError(404, "post not found");
+  }
+
+  if (post.competition && post.competition.status === "scheduled") {
+    throw createHttpError(
+      400,
+      "can't like this post before the competition is started"
+    );
   }
 
   if (!post.likes.includes(userId)) {
