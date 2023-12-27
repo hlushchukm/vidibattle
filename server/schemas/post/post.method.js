@@ -24,6 +24,11 @@ module.exports.feed = async function ({
 
   if (competitionId) {
     query.competition = competitionId;
+    const competition = await Competition.findById(competitionId);
+    if (competition && competition.status === "scheduled") {
+      // if the competition is not started yet, show the user only his/her posts
+      query.author = currentUser._id;
+    }
     if (round) query.round = round;
   } else {
     // exclude posts in active competition from the feed
