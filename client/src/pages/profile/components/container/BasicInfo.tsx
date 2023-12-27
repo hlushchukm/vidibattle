@@ -97,6 +97,7 @@ export default function BasicInfo({
 
         <div className="main-profile">
           <div className="left-content">
+            <span>@{profile.username}</span>
             <h5 className="mt-1">{getName(profile)}</h5>
             <div className="info pe-sm-5 text-justify">
               <p className="mb-0">{profile?.bio} </p>
