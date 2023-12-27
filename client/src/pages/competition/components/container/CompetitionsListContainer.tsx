@@ -16,7 +16,7 @@ export default function CompetitionsListContainer({}: {}) {
     "started"
   );
   const [showingSearchResult, setShowingSearchResult] = useState(false);
-  const limit = 10;
+  const limit = 9;
 
   useEffect(() => {
     fetchCompetitions(0);
