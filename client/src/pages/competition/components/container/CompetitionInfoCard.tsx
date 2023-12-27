@@ -158,8 +158,9 @@ export default function CompetitionInfoCard({
                 )}
 
               {/* Post Putton */}
-              {competition.status === "started" &&
-                !competition.post &&
+              {(competition.status === "started" ||
+                competition.status === "scheduled") &&
+                (!competition.post || competition.status === "scheduled") &&
                 competition.competingUser &&
                 competition.competingUser.status === "playing" &&
                 competition.competingUser.current_round ===

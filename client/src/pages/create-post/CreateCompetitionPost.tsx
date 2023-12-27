@@ -48,8 +48,9 @@ export default function CreateCompetitionPost() {
     !competitionInfo ||
     competitionInfo?.current_round?.toString() !== params.round?.toString() ||
     !competitionInfo?.competingUser ||
-    competitionInfo?.post ||
-    competitionInfo?.status !== "started"
+    (competitionInfo?.post && competitionInfo.status !== "scheduled") ||
+    competitionInfo?.status === "cancelled" ||
+    competitionInfo?.status === "ended"
   ) {
     return (
       <>
