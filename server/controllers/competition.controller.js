@@ -211,9 +211,10 @@ module.exports.createCompetition = async (req, res, next) => {
         end_date = stringDateToUTC(round.end_date);
 
         if (!start_date || !end_date) {
+          console.log(round.start_date, round.end_date)
           return res
             .status(400)
-            .json({ message: "Invalid date format found in rounds" });
+            .json({ message: "Invalid date format found in rounds." });
         }
 
         // Validate start and end dates
@@ -223,6 +224,7 @@ module.exports.createCompetition = async (req, res, next) => {
             .json({ message: "End date must be greater than start date" });
         }
       } catch (e) {
+        console.log(e)
         return res
           .status(400)
           .json({ message: "Invalid date format found in rounds" });
