@@ -1,6 +1,6 @@
 {
-  "name": "Twinphy",
-  "short_name": "Twinphy",
+  "name": "VidiBattle",
+  "short_name": "VidiBattle",
   "start_url": "./",
   "display": "standalone",
   "theme_color": "#ffffff",

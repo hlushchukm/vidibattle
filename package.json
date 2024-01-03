@@ -1,5 +1,5 @@
 {
-  "name": "twinphy",
+  "name": "vidibattle",
   "version": "1.0.0",
   "scripts": {
     "server": "cd server && nodemon app.js",
