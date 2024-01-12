@@ -25,6 +25,7 @@ export default function EditProfile({
   const [updateLoading, setUpdateLoading] = useState(false);
   const [newProfileImg, setNewProfileImg] = useState<any>();
   const profileImgInputRef = useRef<any>();
+  const [disableEmail, setDisableEmail] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,6 +44,12 @@ export default function EditProfile({
         assignDataToFormData(res.data as Profile);
         setPageLoading(false);
         setNewProfileImg(null);
+
+        if (res.data?.email && res.data?.email.length > 0) {
+          setDisableEmail(true);
+        } else {
+          setDisableEmail(false);
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -77,6 +84,12 @@ export default function EditProfile({
         setNewProfileImg(null);
         if (isAccountSetup) {
           navigate("/account-setup/suggestion");
+        }
+
+        if (res.data?.email && res.data?.email.length > 0) {
+          setDisableEmail(true);
+        } else {
+          setDisableEmail(false);
         }
       })
       .catch((e) => {
@@ -237,6 +250,12 @@ export default function EditProfile({
         setNewProfileImg(null);
         if (isAccountSetup) {
           navigate("/account-setup/suggestion");
+        }
+
+        if (res.data?.email && res.data?.email.length > 0) {
+          setDisableEmail(true);
+        } else {
+          setDisableEmail(false);
         }
       })
       .catch((e) => {
@@ -441,10 +460,11 @@ export default function EditProfile({
                 {formData.email && <div className="w-100 small">Email:</div>}
                 <input
                   type="text"
-                  className="form-control"
+                  className={`form-control ${disableEmail ? "text-muted" : ""}`}
                   placeholder="Email"
                   value={formData.email}
                   onChange={(e) => updateFormData("email", e.target.value)}
+                  disabled={disableEmail}
                 />
                 {errors?.email && (
                   <div className="small text-danger w-100 py-1">
