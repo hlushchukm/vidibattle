@@ -16212,6 +16212,12 @@ ul.list-check {
     animation-delay: 1.2s; }
   #loading-area .load-text .text-load:nth-child(8):before {
     animation-delay: 1.4s; }
+  #loading-area .load-text .text-load:nth-child(9):before {
+    animation-delay: 1.6s; }
+  #loading-area .load-text .text-load:nth-child(10):before {
+    animation-delay: 1.8s; }
+  #loading-area .load-text .text-load:nth-child(11):before {
+    animation-delay: 2s; }
 
 @keyframes letters-loading {
   0%,
