@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   formatResourceURL,
   handleCompetitionImageError,
@@ -22,8 +22,6 @@ export default function CompetitionInfoCard({
   payForCompetition: () => void;
   leaveCompetition: () => void;
 }) {
-  const navigate = useNavigate();
-
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "scheduled":
