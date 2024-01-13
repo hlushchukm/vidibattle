@@ -157,29 +157,6 @@ export default function CompetitionInfoCard({
                   </>
                 )}
 
-              {/* Post Putton */}
-              {(competition.status === "started" ||
-                competition.status === "scheduled") &&
-                (!competition.post || competition.status === "scheduled") &&
-                competition.competingUser &&
-                competition.competingUser.status === "playing" &&
-                competition.competingUser.current_round ===
-                  competition.current_round && (
-                  <>
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/competition/${competition.name}/${competition.current_round}/create-post?start_date=${competition.start_date}&end_date=${competition.end_date}`
-                        )
-                      }
-                      className="btn btn-secondary"
-                      style={{ fontSize: "12px" }}
-                    >
-                      Post
-                    </button>
-                  </>
-                )}
-
               {competition.status !== "scheduled" && (
                 <>
                   <Link

@@ -82,9 +82,31 @@ export default function RoundsTable({
                         }
                         className="btn btn-secondary btn-sm"
                       >
-                        Posts
+                        View Posts
                       </Link>
                     )}
+                    {(competitionInfo.status === "started" ||
+                      competitionInfo.status === "scheduled") &&
+                      (!competitionInfo.post ||
+                        competitionInfo.status === "scheduled") &&
+                      competitionInfo.competingUser &&
+                      competitionInfo.competingUser.status === "playing" &&
+                      competitionInfo.competingUser.current_round ===
+                        competitionInfo.current_round &&
+                      (competitionInfo.current_round === round.number ||
+                        (competitionInfo.status === "scheduled" &&
+                          competitionInfo.current_round === 1 &&
+                          round.number === 1)) && (
+                        <>
+                          <Link
+                            to={`/competition/${competitionInfo.name}/${competitionInfo.current_round}/create-post?start_date=${competitionInfo.start_date}&end_date=${competitionInfo.end_date}`}
+                            className="btn btn-secondary btn-sm ms-2"
+                            style={{ fontSize: "12px" }}
+                          >
+                            Upload Post
+                          </Link>
+                        </>
+                      )}
                   </th>
                 </tr>
               ))}
