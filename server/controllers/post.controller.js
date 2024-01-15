@@ -227,22 +227,27 @@ module.exports.create = async (req, res, next) => {
         sticker = stickerObj ? stickerObj._id : null;
         // add sticker to video
         if (stickerObj && type === "video") {
-          // add sticker to video and save to temp folder
-          const filePath = await addStickerToVideo(
-            mainFile.filename,
-            stickerObj
-          );
-          // delete old video file(the uploaded file)
-          await deleteFile(mainFile.filename);
-          // upload the new video with the sticker from temp folder
-          await storeFileFromLocalToGridFS(
-            filePath,
-            mainFile.filename,
-            mainFile.contentType
-          );
+          try {
+            // add sticker to video and save to temp folder
+            const filePath = await addStickerToVideo(
+              mainFile.filename,
+              stickerObj
+            );
+            // delete old video file(the uploaded file)
+            await deleteFile(mainFile.filename);
+            // upload the new video with the sticker from temp folder
+            await storeFileFromLocalToGridFS(
+              filePath,
+              mainFile.filename,
+              mainFile.contentType
+            );
 
-          stickerObj.usage_count = stickerObj.usage_count + 1;
-          await stickerObj.save();
+            stickerObj.usage_count = stickerObj.usage_count + 1;
+            await stickerObj.save();
+          } catch (e) {
+            console.log("Error on sticker");
+            console.log(e);
+          }
         }
       }
     }
