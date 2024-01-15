@@ -219,7 +219,7 @@ module.exports.create = async (req, res, next) => {
       }
 
       // get a random sticker if the competition has stickers
-      if (competitionItem.has_sticker && false) {
+      if (competitionItem.has_sticker) {
         const stickerObj = await getRandomSticker(
           competitionItem._id,
           type === "video"
