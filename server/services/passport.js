@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const { User } = require("../models/user.model");
 const { Admin } = require("../models/admin.model");
 const { storeProfile } = require("../controllers/media.controller");
+const { createWallet } = require("../controllers/wallet.controller");
 
 passport.use(
   new GoogleStrategy(
@@ -47,6 +48,10 @@ passport.use(
         const newUser = new User(user);
 
         await newUser.save();
+
+        // create wallet
+        await createWallet(newUser._id);
+
         return done(null, newUser);
       } catch (err) {
         return done(err);
@@ -95,6 +100,10 @@ passport.use(
         const newUser = new User(user);
 
         await newUser.save();
+
+        // create wallet
+        await createWallet(newUser._id);
+
         return done(null, newUser);
       } catch (err) {
         return done(err);
