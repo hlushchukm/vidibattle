@@ -4,24 +4,34 @@ import {
   handleCompetitionImageError,
 } from "../../../../services/asset-paths";
 import { getDate } from "../../../../services/timeAndDate";
+import ConfirmationModal from "../../../../components/ConfirmationModal";
+import { get } from "../../../../services/crud";
+import { getUserId } from "../../../../services/auth";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import PaymentModal from "../ui/PaymentModal";
 
 export default function CompetitionInfoCard({
   competition,
-  payLoading,
   joinLoading,
   leaveLoading,
   joinCompetition,
-  payForCompetition,
   leaveCompetition,
 }: {
   competition: any;
-  payLoading?: boolean;
   joinLoading?: boolean;
   leaveLoading?: boolean;
   joinCompetition: () => void;
-  payForCompetition: () => void;
   leaveCompetition: () => void;
 }) {
+  useEffect(() => {
+    if (!joinLoading && !leaveLoading) {
+      closeAllModals();
+    }
+  }, [joinLoading, leaveLoading]);
+
+  const [wallet, setWallet] = useState<any>({});
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "scheduled":
@@ -47,6 +57,49 @@ export default function CompetitionInfoCard({
 
     return 0;
   };
+
+  const joinIntentConfirmed = () => {
+    openWalletModal();
+    get("wallet/" + getUserId() + "/info")
+      .then((res) => {
+        setWallet(res.data);
+      })
+      .catch((e) => {
+        console.log(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't load wallet info"
+        );
+      });
+  };
+
+  const openWalletModal = () => {
+    const btn = document.createElement("button");
+    btn.setAttribute("data-bs-toggle", "offcanvas");
+    btn.setAttribute("data-bs-target", "#walletInfoModal");
+    btn.setAttribute("aria-controls", "offcanvasBottom");
+    const body = document.getElementsByTagName("body")[0];
+    body.appendChild(btn);
+    btn.click();
+    body.removeChild(btn);
+  };
+
+  const closeWalletModal = () => {
+    const btn = document.getElementById("paymentModalClose");
+    if (btn) btn.click();
+  };
+
+  const closeConfirmModal = () => {
+    const modal = document.getElementById("leaveCompetitionConfirmationModal");
+    if (!modal) return;
+    const btn = modal.getElementsByTagName("button")[0];
+    if (btn) btn.click();
+  };
+
+  const closeAllModals = () => {
+    closeWalletModal();
+    closeConfirmModal();
+  };
+
   return (
     <>
       <div className="card mb-3">
@@ -132,10 +185,12 @@ export default function CompetitionInfoCard({
                     {competition.is_paid ? (
                       <>
                         <button
-                          disabled={payLoading}
-                          onClick={payForCompetition}
+                          disabled={joinLoading}
                           className="btn btn-secondary"
                           style={{ fontSize: "12px" }}
+                          data-bs-toggle="offcanvas"
+                          data-bs-target="#joinCompetitionConfirmationModal"
+                          aria-controls="offcanvasBottom"
                         >
                           Pay and Join
                         </button>
@@ -204,9 +259,11 @@ export default function CompetitionInfoCard({
                 <>
                   <button
                     disabled={leaveLoading}
-                    onClick={leaveCompetition}
                     className="btn btn-danger"
                     style={{ fontSize: "12px" }}
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#leaveCompetitionConfirmationModal"
+                    aria-controls="offcanvasBottom"
                   >
                     Leave
                   </button>
@@ -274,6 +331,23 @@ export default function CompetitionInfoCard({
             )}
         </div>
       </div>
+
+      <ConfirmationModal
+        modalId="joinCompetitionConfirmationModal"
+        message="Would you like to join this competition?"
+        confirmed={joinIntentConfirmed}
+      />
+      <ConfirmationModal
+        modalId="leaveCompetitionConfirmationModal"
+        message="Would you like to leave this competition?"
+        confirmed={leaveCompetition}
+      />
+      <PaymentModal
+        modalId="walletInfoModal"
+        wallet={wallet}
+        paymentAmount={competition.amount ?? 0}
+        payClicked={joinCompetition}
+      />
     </>
   );
 }

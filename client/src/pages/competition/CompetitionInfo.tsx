@@ -13,7 +13,6 @@ export default function CompetitionInfo() {
   const [competitionInfo, setCompetitionInfo] = useState<any>({});
   const [competitionName, setCompetitionName] = useState<string>();
   const [joinLoading, setJoinLoading] = useState(false);
-  const [payLoading, setPayLoading] = useState(false);
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [rounds, setRounds] = useState<any>([]);
 
@@ -56,8 +55,6 @@ export default function CompetitionInfo() {
       });
   };
 
-  // TODO: show confirmation dialogue
-
   const leaveCompetition = () => {
     setLeaveLoading(true);
     create("competition/" + competitionInfo._id + "/leave", {})
@@ -92,10 +89,6 @@ export default function CompetitionInfo() {
       });
   };
 
-  const payForCompetition = () => {
-    setPayLoading(false);
-  };
-
   const showResults = (result_date_str: string) => {
     const result_date = new Date(result_date_str);
     result_date.setHours(0, 0, 0, 0);
@@ -119,9 +112,7 @@ export default function CompetitionInfo() {
             <CompetitionInfoCard
               competition={competitionInfo}
               joinCompetition={joinCompetition}
-              payForCompetition={payForCompetition}
               leaveCompetition={leaveCompetition}
-              payLoading={payLoading}
               joinLoading={joinLoading}
               leaveLoading={leaveLoading}
             />
@@ -129,14 +120,13 @@ export default function CompetitionInfo() {
 
             {competitionInfo.status === "ended" &&
               showResults(competitionInfo.result_date) && (
-            
-              <div className="py-2">
-                <TopParticipantsList
-                  competitionId={competitionInfo._id}
-                  round={competitionInfo.current_round}
-                />
-              </div>
-            )}
+                <div className="py-2">
+                  <TopParticipantsList
+                    competitionId={competitionInfo._id}
+                    round={competitionInfo.current_round}
+                  />
+                </div>
+              )}
           </div>
         </div>
       </div>
