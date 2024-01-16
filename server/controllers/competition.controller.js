@@ -13,6 +13,7 @@ const {
   createMultipleStickers,
   updateMultipleStickers,
 } = require("./sticker.controller");
+const { refundCompetitionPayment } = require("./wallet.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -211,7 +212,7 @@ module.exports.createCompetition = async (req, res, next) => {
         end_date = stringDateToUTC(round.end_date);
 
         if (!start_date || !end_date) {
-          console.log(round.start_date, round.end_date)
+          console.log(round.start_date, round.end_date);
           return res
             .status(400)
             .json({ message: "Invalid date format found in rounds." });
@@ -224,7 +225,7 @@ module.exports.createCompetition = async (req, res, next) => {
             .json({ message: "End date must be greater than start date" });
         }
       } catch (e) {
-        console.log(e)
+        console.log(e);
         return res
           .status(400)
           .json({ message: "Invalid date format found in rounds" });
@@ -685,6 +686,14 @@ module.exports.cancelCompetition = async (req, res, next) => {
       return res.status(404).json({ message: "competition not found" });
     }
 
+    if (competition.is_paid && competition.amount > 0) {
+      const competitors = await CompetingUser.find({ competition });
+      for (const competitor of competitors) {
+        await refundCompetitionPayment(competition.amount, competitor.user);
+        competitor.paid_amount = competitor.paid_amount - competition.amount;
+        await competitor.save();
+      }
+    }
     competition.status = "cancelled";
     await competition.save();
 
@@ -862,7 +871,6 @@ module.exports.joinCompetition = async (req, res, next) => {
   try {
     const { competition } = req.params;
     const { _id } = req.user;
-    const { payment } = req.body;
 
     const user = await User.findById(_id);
 
@@ -912,10 +920,6 @@ module.exports.joinCompetition = async (req, res, next) => {
       (!competitor.paid_amount ||
         competitor.paid_amount < selectedCompetition.amount)
     ) {
-      if (payment === undefined || payment < selectedCompetition.amount) {
-        return res.status(400).json({ message: "payment not sufficient" });
-      }
-
       let paymentAmount = selectedCompetition.amount;
       if (competitor.paid_amount) {
         paymentAmount = paymentAmount - competitor.paid_amount;
@@ -944,12 +948,12 @@ module.exports.joinCompetition = async (req, res, next) => {
 
 module.exports.leaveCompetition = async (req, res, next) => {
   try {
-    const { competition } = req.params;
+    const { competition: competitionId } = req.params;
     const { _id } = req.user;
 
     const competitor = await CompetingUser.findOne({
       user: _id,
-      competition,
+      competition: competitionId,
       status: "playing",
     });
 
@@ -959,10 +963,27 @@ module.exports.leaveCompetition = async (req, res, next) => {
         .json({ message: "user is not in the given competition" });
     }
 
+    let has_refund = false;
+    const competition = await Competition.findById(competitionId);
+    if (
+      competition &&
+      competition.is_paid &&
+      competition.status === "scheduled"
+    ) {
+      await refundCompetitionPayment(competition.amount, _id);
+      competitor.paid_amount = competitor.paid_amount - competition.amount;
+      has_refund = true;
+    }
+
     competitor.status = "left";
     await competitor.save();
 
-    res.status(200).json({ message: "competition left", data: competitor });
+    res.status(200).json({
+      message: has_refund
+        ? "competition left, money refunded to wallet"
+        : "competition left",
+      data: competitor,
+    });
   } catch (e) {
     next(e);
   }

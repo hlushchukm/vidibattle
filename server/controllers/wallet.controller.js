@@ -46,6 +46,20 @@ module.exports.updateBalance = async (userId, balance) => {
   return wallet;
 };
 
+module.exports.refundCompetitionPayment = async (amount, userId) => {
+  const wallet = await Wallet.findOne({ user: userId });
+
+  if (!wallet) {
+    throw createHttpError(404, "wallet not found");
+  }
+
+  wallet.balance = wallet.balance + amount;
+
+  await wallet.save();
+
+  return wallet;
+};
+
 module.exports.getWalletInfo = async (req, res, next) => {
   try {
     const { userId } = req.params;
