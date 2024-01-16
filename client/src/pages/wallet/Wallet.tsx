@@ -10,17 +10,21 @@ import {
 } from "../../services/asset-paths";
 import { getName } from "../../services/utils";
 import { useNavigate } from "react-router-dom";
+import { env } from "../../env";
 
 export default function Wallet() {
   const [walletInfo, setWalletInfo] = useState<any>(null);
   const [pageLoading, setPageLoading] = useState(true);
   const [rechargeLoading, setRechargeLoading] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState(0);
-  const [paymentPageContent, setPaymentPageContent] = useState<any>();
   const userId = getUserId();
   const navigate = useNavigate();
 
   useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    const head = document.getElementsByTagName("head")[0];
+    head.appendChild(script);
     fetchWalletInfo();
   }, []);
 
@@ -46,19 +50,68 @@ export default function Wallet() {
     }
 
     setRechargeLoading(true);
-    create("wallet/load", {
-      // userId,
+    create("wallet/create-order", {
       amount: rechargeAmount,
-      email: "test@gmail.com", //TODO: change email
     })
       .then((res) => {
-        console.log(res);
-        setPaymentPageContent(res);
-        toast.success(res.message ?? "Balance updated successfully");
-        setRechargeLoading(false);
+        showRazorPay(res.data);
       })
       .catch((e) => {
         console.error(e);
+        toast.error(
+          e?.response?.data?.message ?? "Error! couldn't update balance"
+        );
+        setRechargeLoading(false);
+      });
+  };
+
+  const showRazorPay = (order: any) => {
+    const userInfo: any = { name: getName(walletInfo.user) };
+    if (walletInfo.user?.email) userInfo.email = walletInfo.user?.email;
+    if (walletInfo.user?.contact_no)
+      userInfo.contact = walletInfo.user?.contact_no;
+
+    const options: any = {
+      key: env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: "INR",
+      name: env.VITE_APP_NAME,
+      description: "Load to your VidiBattle wallet",
+      image: "./assets/images/icon.png",
+      order_id: order.id,
+      handler: (response: any) => {
+        verifyPayment(response, order.amount / 100);
+      },
+      prefill: userInfo,
+      theme: {
+        color: "#FE9063",
+      },
+    };
+
+    const rzp1 = new (window as any).Razorpay(options);
+
+    rzp1.on("payment.failed", function (response: any) {
+      console.log(response.error.code);
+      console.log(response.error.description);
+      console.log(response.error.source);
+      console.log(response.error.step);
+      console.log(response.error.reason);
+      console.log(response.error.metadata.order_id);
+      console.log(response.error.metadata.payment_id);
+      toast.error("Error! payment failed.");
+    });
+    rzp1.open();
+  };
+
+  const verifyPayment = (paymentInfo: any, amount: number) => {
+    create("wallet/verify", { ...paymentInfo, amount, userId })
+      .then((res) => {
+        toast.success("Balance updated successfully");
+        setWalletInfo(res.data);
+        setRechargeLoading(false);
+        setRechargeAmount(0);
+      })
+      .catch((e) => {
         toast.error(
           e?.response?.data?.message ?? "Error! couldn't update balance"
         );
@@ -72,41 +125,6 @@ export default function Wallet() {
 
   if (pageLoading) {
     return <PageLoading />;
-  }
-
-  if (paymentPageContent) {
-    return (
-      <div>
-        <head>
-          <title>Show Payment Page</title>
-        </head>
-        <div>
-          <center>
-            <h1>Please do not refresh this page...</h1>
-          </center>
-          <form
-            method="post"
-            action={`https://securegw-stage.paytm.in/theia/api/v1/showPaymentPage?mid=${paymentPageContent.mid}&orderId=${paymentPageContent.orderId}`}
-            name="paytm"
-          >
-            <table>
-              <input type="hidden" name="mid" value={paymentPageContent.mid} />
-              <input
-                type="hidden"
-                name="orderId"
-                value={paymentPageContent.orderId}
-              />
-              <input
-                type="hidden"
-                name="txnToken"
-                value={paymentPageContent.txnToken}
-              />
-            </table>
-            <script type="text/javascript"> document.paytm.submit(); </script>
-          </form>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -152,7 +170,7 @@ export default function Wallet() {
               <h3 className="m-3 align-center">Wallet Balance</h3>
               <h4 className="text-secondary">
                 <i className="fa fa-inr me-1"></i>
-                <span>100</span>
+                <span>{walletInfo.balance}</span>
               </h4>
             </div>
 
@@ -166,6 +184,22 @@ export default function Wallet() {
               className="d-flex align-items-center flex-column"
             >
               <div className="mb-3 px-1">
+                {walletInfo.user?.contact_no && (
+                  <label className="w-100 mb-2">
+                    <span>Contact number:</span>
+                    &nbsp;
+                    <span className="fw-bold">
+                      {walletInfo.user.contact_no}
+                    </span>
+                  </label>
+                )}
+                {walletInfo.user?.email && (
+                  <label className="w-100 mb-2">
+                    <span>Email:</span>
+                    &nbsp;
+                    <span className="fw-bold">{walletInfo.user.email}</span>
+                  </label>
+                )}
                 <label className="w-100 mb-2" htmlFor="amount">
                   Amount:
                 </label>
