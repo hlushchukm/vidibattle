@@ -29,6 +29,32 @@ export default function RoundsTable({
     setSortedRounds(sortedList);
   }, [rounds]);
 
+  const shouldRenderUploadButton = (competition: any, round: any) => {
+    const isStartedOrScheduled =
+      competition.status === "started" || competition.status === "scheduled";
+
+    const isUserPlaying =
+      competition.competingUser &&
+      competition.competingUser.status === "playing";
+
+    const isUserOnCurrentRound =
+      isUserPlaying &&
+      competition.competingUser.current_round === competition.current_round;
+
+    const canUploadForCurrentRound =
+      (!competition.post && competition.current_round === round.number) ||
+      (competition.status === "scheduled" && competition.current_round === 1) ||
+      competition.current_round < round.number;
+
+    const res =
+      isStartedOrScheduled &&
+      isUserPlaying &&
+      isUserOnCurrentRound &&
+      canUploadForCurrentRound;
+
+    return res;
+  };
+
   return (
     <>
       <div className="d-flex flex-column justify-content-center align-items-center">
@@ -71,7 +97,7 @@ export default function RoundsTable({
                     className="px-4 py-2 border text-center"
                     style={{ minWidth: "160px" }}
                   >
-                    {round.number <= competitionInfo.current_round && (
+                    {
                       <Link
                         to={
                           "/competition/post/round/" +
@@ -87,29 +113,19 @@ export default function RoundsTable({
                       >
                         View Posts
                       </Link>
+                    }
+
+                    {shouldRenderUploadButton(competitionInfo, round) && (
+                      <>
+                        <Link
+                          to={`/competition/${competitionInfo.name}/${round.number}/create-post?start_date=${competitionInfo.start_date}&end_date=${competitionInfo.end_date}`}
+                          className="btn btn-secondary btn-sm ms-2 my-1"
+                          style={{ fontSize: "12px" }}
+                        >
+                          Upload Post
+                        </Link>
+                      </>
                     )}
-                    {(competitionInfo.status === "started" ||
-                      competitionInfo.status === "scheduled") &&
-                      (!competitionInfo.post ||
-                        competitionInfo.status === "scheduled") &&
-                      competitionInfo.competingUser &&
-                      competitionInfo.competingUser.status === "playing" &&
-                      competitionInfo.competingUser.current_round ===
-                        competitionInfo.current_round &&
-                      (competitionInfo.current_round === round.number ||
-                        (competitionInfo.status === "scheduled" &&
-                          competitionInfo.current_round === 1 &&
-                          round.number === 1)) && (
-                        <>
-                          <Link
-                            to={`/competition/${competitionInfo.name}/${competitionInfo.current_round}/create-post?start_date=${competitionInfo.start_date}&end_date=${competitionInfo.end_date}`}
-                            className="btn btn-secondary btn-sm ms-2 my-1"
-                            style={{ fontSize: "12px" }}
-                          >
-                            Upload Post
-                          </Link>
-                        </>
-                      )}
                   </th>
                 </tr>
               ))}
