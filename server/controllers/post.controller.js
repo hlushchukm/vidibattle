@@ -351,3 +351,36 @@ module.exports.removePost = async (req, res, next) => {
     next(e);
   }
 };
+
+module.exports.deletePostsFromCompetition = async (
+  competitionId,
+  userId,
+  start_round = 1
+) => {
+  try {
+    const posts = await Post.find({
+      author: userId,
+      competition: competitionId,
+      round: { $gte: start_round },
+    }).populate("media");
+
+    if (posts.length === 0) return;
+
+    for (const post of posts) {
+      const filename = post.media[0]?.filename;
+      filename && (await deleteFile(filename));
+      await Media.deleteMany({ filename });
+    }
+
+    await Post.deleteMany({
+      author: userId,
+      competition: competitionId,
+      round: { $gte: start_round },
+    });
+
+    console.log("posts deleted");
+  } catch (e) {
+    console.log("Error while deleting a post: ", e);
+    return;
+  }
+};

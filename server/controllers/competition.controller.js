@@ -9,6 +9,7 @@ const { User } = require("../models/user.model");
 const { Wallet } = require("../models/wallet.model");
 const { stringDateToUTC, getDateStrFromDate } = require("../services/date");
 const { deleteFile } = require("./media.controller");
+const { deletePostsFromCompetition } = require("./post.controller");
 const {
   createMultipleStickers,
   updateMultipleStickers,
@@ -697,6 +698,15 @@ module.exports.cancelCompetition = async (req, res, next) => {
     competition.status = "cancelled";
     await competition.save();
 
+    const competitors = await CompetingUser.find({ competition: id });
+    for (const competitor of competitors) {
+      deletePostsFromCompetition(
+        id,
+        competitor.user,
+        competition.current_round + 1
+      );
+    }
+
     return res.status(200).json({ message: "competition cancelled" });
   } catch (e) {
     next(e);
@@ -772,6 +782,11 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
     if (!post) {
       competitor.status = "lost";
       await competitor.save();
+      deletePostsFromCompetition(
+        competition._id,
+        competitor.user?._id,
+        competition.current_round
+      );
       continue;
     }
 
@@ -779,6 +794,11 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
       competitor.current_round = competition.current_round;
     } else {
       competitor.status = "lost";
+      deletePostsFromCompetition(
+        competition._id,
+        competitor.user?._id,
+        competition.current_round
+      );
     }
     await competitor.save();
   }
@@ -978,6 +998,8 @@ module.exports.leaveCompetition = async (req, res, next) => {
     competitor.status = "left";
     await competitor.save();
 
+    deletePostsFromCompetition(competitionId, _id, competitor.current_round);
+
     res.status(200).json({
       message: has_refund
         ? "competition left, money refunded to wallet"
@@ -1013,6 +1035,8 @@ module.exports.removeFromCompetition = async (req, res, next) => {
     competitor.status = "removed";
     competitor.removed_reason = reason;
     await competitor.save();
+
+    deletePostsFromCompetition(competition, user, competitor.current_round);
 
     res.status(200).json({ message: "user removed from competition" });
   } catch (e) {
