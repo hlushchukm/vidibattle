@@ -30,10 +30,17 @@ module.exports.feed = async function ({
       (competition.status === "scheduled" ||
         (round && parseInt(round) > competition.current_round))
     ) {
-      // if the competition is not started yet, show the user only his/her posts
+      // if the competition or the round is not started yet, show the user only his/her posts
       query.author = currentUser._id;
     }
-    if (round) query.round = round;
+
+    if (round) {
+      query.round = round;
+    } else {
+      query.round = { $lte: competition.current_round };
+    }
+
+    console.log(query)
   } else {
     // exclude posts in active competition from the feed
     const activeCompetitions = await Competition.find(
