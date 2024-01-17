@@ -790,7 +790,7 @@ module.exports.getCompetitionsList = async (req, res, next) => {
 
     const total = await Competition.countDocuments({ status });
     let competitions = await Competition.find({ status })
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
