@@ -46,9 +46,11 @@ export default function CreateCompetitionPost() {
 
   if (
     !competitionInfo ||
-    competitionInfo?.current_round?.toString() !== params.round?.toString() ||
+    competitionInfo?.current_round > parseInt(params.round ?? "1") ||
     !competitionInfo?.competingUser ||
-    (competitionInfo?.post && competitionInfo.status !== "scheduled") ||
+    (competitionInfo.current_round === parseInt(params.round ?? "1") &&
+      competitionInfo?.post &&
+      competitionInfo.status !== "scheduled") ||
     competitionInfo?.status === "cancelled" ||
     competitionInfo?.status === "ended"
   ) {
@@ -84,7 +86,7 @@ export default function CreateCompetitionPost() {
       <CreatePost
         competitionId={competitionInfo?._id}
         allowedTypes={competitionInfo?.type}
-        round={competitionInfo?.current_round}
+        round={parseInt(params.round ?? "1")}
       />
     </>
   );
