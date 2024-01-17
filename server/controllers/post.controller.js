@@ -173,14 +173,14 @@ module.exports.create = async (req, res, next) => {
       const competitionItem = await Competition.findOne({
         status: { $in: ["started", "scheduled"] },
         _id: competition,
-        current_round: round ?? 1,
+        current_round: { $lte: round ?? 1 },
       });
 
       if (!competitionItem) {
         return res.status(400).json({ message: "competition not found" });
       } else if (
         round !== null &&
-        parseInt(round) !== parseInt(competitionItem.current_round)
+        parseInt(round) < parseInt(competitionItem.current_round)
       ) {
         return res.status(400).json({ message: "can't post for this round" });
       } else if (!round && competition.current_round !== 1) {
@@ -192,7 +192,7 @@ module.exports.create = async (req, res, next) => {
         user: _id,
         competition,
         status: "playing",
-        current_round: parseInt(round ?? 1),
+        current_round: { $lte: parseInt(round ?? 1) },
       });
 
       if (!competitor) {
