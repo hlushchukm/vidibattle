@@ -67,7 +67,10 @@ export default function RoundsTable({
                   <th className="px-4 py-2 border">
                     {getDate(round.end_date)}
                   </th>
-                  <th className="px-4 py-2 border">
+                  <th
+                    className="px-4 py-2 border text-center"
+                    style={{ minWidth: "160px" }}
+                  >
                     {round.number <= competitionInfo.current_round && (
                       <Link
                         to={
@@ -80,7 +83,7 @@ export default function RoundsTable({
                           "&end_date=" +
                           competitionInfo.end_date
                         }
-                        className="btn btn-secondary btn-sm"
+                        className="btn btn-secondary btn-sm my-1"
                       >
                         View Posts
                       </Link>
@@ -100,7 +103,7 @@ export default function RoundsTable({
                         <>
                           <Link
                             to={`/competition/${competitionInfo.name}/${competitionInfo.current_round}/create-post?start_date=${competitionInfo.start_date}&end_date=${competitionInfo.end_date}`}
-                            className="btn btn-secondary btn-sm ms-2"
+                            className="btn btn-secondary btn-sm ms-2 my-1"
                             style={{ fontSize: "12px" }}
                           >
                             Upload Post
