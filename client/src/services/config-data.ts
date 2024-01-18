@@ -1,6 +1,10 @@
 import { get } from "./crud";
 import { isWideScreen } from "./device-type";
-import { getAllConfigData, setConfigData } from "./local-config-data";
+import {
+  getAllConfigData,
+  getConfigByKey,
+  setConfigData,
+} from "./local-config-data";
 
 export const fetchImageConfig = async () => {
   try {
@@ -39,4 +43,10 @@ export const getBackgroundImage = () => {
     mobile_url = config["home_bgd_mobile"].value ?? "";
 
   return isWideScreen() ? desktop_url : mobile_url;
+};
+
+export const getLoaderImage = () => {
+  const config = getConfigByKey("loading_screen_image");
+
+  return config ? config.value : "";
 };
