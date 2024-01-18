@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { getUserId } from "../services/auth";
-import { CommentState, PostState, ReportState, ShareState } from "./interface";
+import {
+  BgdImgState,
+  CommentState,
+  PostState,
+  ReportState,
+  ShareState,
+} from "./interface";
 
 export const useCurrentUserStore = create((set) => ({
   id: getUserId(),
@@ -8,6 +14,11 @@ export const useCurrentUserStore = create((set) => ({
   setCurrentUser: (user: any) =>
     set(() => ({ currentUser: user, id: user._id })),
   setCurrentUserId: (id: any) => set(() => ({ id: id })),
+}));
+
+export const useBgdImgStore = create<BgdImgState>((set) => ({
+  url: "",
+  setImage: (url: string) => set({ url }),
 }));
 
 // export const useChatsStore = create((set) => ({

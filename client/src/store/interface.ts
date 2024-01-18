@@ -33,3 +33,10 @@ export interface ReportState {
   post: any;
   setPostToReport: (post: any) => void;
 }
+
+
+export interface BgdImgState {
+  url: string;
+  setImage: (url: string) => void;
+  
+}
