@@ -1,4 +1,3 @@
-
 .numberInput::-webkit-inner-spin-button,
 .numberInput::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -7,4 +6,9 @@
 
 .numberInput {
   -moz-appearance: textfield;
+}
+
+.background-image {
+  background-size: cover !important;
+  background-attachment: fixed !important;
 }

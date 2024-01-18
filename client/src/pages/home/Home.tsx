@@ -5,10 +5,15 @@ import StoryBar from "./components/container/StoryBar";
 import PostsContainer from "./components/container/PostsContainer";
 import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
-import { usePostStore } from "../../store";
+import { useBgdImgStore, usePostStore } from "../../store";
 import ShareModal from "../../components/ShareModal";
 import { toast } from "react-toastify";
 import AddPWA, { usePwaInstallPrompt } from "../../components/AddPWA";
+import {
+  fetchImageConfig,
+  getBackgroundImage,
+} from "../../services/config-data";
+import { formatResourceURL } from "../../services/asset-paths";
 
 export default function Home() {
   const installPWA: any = usePwaInstallPrompt();
@@ -23,14 +28,22 @@ export default function Home() {
   const addToFeed = usePostStore((state) => state.addToFeed);
   const clearPosts = usePostStore((state) => state.clearPosts);
 
+  const bgdImage = useBgdImgStore((s) => s.url);
+  const setBgdImage = useBgdImgStore((s) => s.setImage);
+
   useEffect(() => {
     getFeed();
 
     // add event listener for scorll event to fetch additional posts on the bottom of the page
     window.addEventListener("scroll", handleScroll);
 
+    // add event listener for resize event to handle background image
+    setBackgroundImage();
+    window.addEventListener("resize", handleScreenResize);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScreenResize);
       clearPosts();
     };
   }, []);
@@ -74,6 +87,21 @@ export default function Home() {
       });
   };
 
+  const setBackgroundImage = async () => {
+    setBackground(); // until new data is fetched, display old one
+    await fetchImageConfig();
+    setBackground();
+  };
+
+  const handleScreenResize = () => {
+    setBackground();
+  };
+
+  const setBackground = () => {
+    const url = formatResourceURL(getBackgroundImage());
+    setBgdImage(url);
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -83,7 +111,10 @@ export default function Home() {
       <HomeHeader installPWA={installPWA} />
 
       {/* Page Content  */}
-      <div className="page-content min-vh-100">
+      <div
+        className="page-content min-vh-100 background-image"
+        style={{ background: `url(${bgdImage})` }}
+      >
         <div className="content-inner pt-0">
           <div className="container bottom-content">
             {/* STORY  */}
