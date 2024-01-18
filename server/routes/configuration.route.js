@@ -4,6 +4,7 @@ const {
   updateConfiguration,
   getConfigurations,
 } = require("../controllers/configuration.controller");
+const { upload } = require("../services/storage");
 const router = express.Router();
 
 // get
@@ -11,6 +12,15 @@ router.get("/all", adminAuthGuard, getConfigurations);
 router.get("/", authGuard, getConfigurations);
 
 // post
-router.post("/", adminAuthGuard, updateConfiguration);
+router.post(
+  "/",
+  adminAuthGuard,
+  upload.fields([
+    { name: "loading_screen_image" },
+    { name: "home_bgd_desktop" },
+    { name: "home_bgd_mobile" },
+  ]),
+  updateConfiguration
+);
 
 module.exports = router;
