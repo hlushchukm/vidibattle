@@ -37,22 +37,20 @@ module.exports.updateConfiguration = async (req, res, next) => {
         case "home_bgd_desktop":
           if (home_bgd_desktop) {
             value = home_bgd_desktop.filename;
-            await this.deleteExistingConfigurationFile(key);
           }
+          await this.deleteExistingConfigurationFile(key, value);
           break;
         case "home_bgd_mobile":
           if (home_bgd_mobile) {
             value = home_bgd_mobile.filename;
-            await this.deleteExistingConfigurationFile(key);
           }
+          await this.deleteExistingConfigurationFile(key, value);
           break;
         case "loading_screen_image":
           if (loading_screen_image) {
             value = loading_screen_image.filename;
-            await this.deleteExistingConfigurationFile(key);
-          } else {
-            value = data[key]?.value;
           }
+          await this.deleteExistingConfigurationFile(key, value);
           break;
         default:
           value = data[key]?.value;
@@ -82,9 +80,9 @@ module.exports.updateConfiguration = async (req, res, next) => {
   }
 };
 
-module.exports.deleteExistingConfigurationFile = async (key) => {
+module.exports.deleteExistingConfigurationFile = async (key, newFileName) => {
   const existingRecord = await Configuration.findOne({ key });
-  if (existingRecord) {
+  if (existingRecord && existingRecord.value !== newFileName) {
     // delete the old file
     await deleteFile(existingRecord.value);
   }
