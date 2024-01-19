@@ -2,7 +2,10 @@ const { Post } = require("../models/post.model");
 const { Media } = require("../models/media.model");
 const { User } = require("../models/user.model");
 const { Competition, CompetingUser } = require("../models/competition.model");
-const { getRandomSticker } = require("./sticker.controller");
+const {
+  getRandomSticker,
+  decrementStickerCount,
+} = require("./sticker.controller");
 const {
   addStickerToVideo,
   storeFileFromLocalToGridFS,
@@ -214,6 +217,11 @@ module.exports.create = async (req, res, next) => {
           const filename = existingMedia.filename;
           await deleteFile(filename);
           await Media.deleteOne({ _id: existingMedia._id });
+
+          if (existingPost.sticker && existingMedia.type === "video") {
+            // if it has a stciker, decrement the sticker count
+            await decrementStickerCount(existingPost.sticker);
+          }
         }
         await Post.deleteOne({ _id: existingPost._id });
       }
@@ -370,6 +378,8 @@ module.exports.deletePostsFromCompetition = async (
       const filename = post.media[0]?.filename;
       filename && (await deleteFile(filename));
       await Media.deleteMany({ filename });
+      // if post has a sticker, decrement its count
+      if (post.sticker) await decrementStickerCount(post.sticker);
     }
 
     await Post.deleteMany({

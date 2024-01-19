@@ -200,3 +200,14 @@ module.exports.updateMultipleStickers = async (stickers, stickerImages) => {
     await oldSticker.save();
   }
 };
+
+module.exports.decrementStickerCount = async (stickerId) => {
+  const sticker = await Sticker.findById(stickerId);
+  if (!sticker) return null;
+
+  sticker.usage_count = sticker.usage_count - 1;
+  if (sticker.usage_count < 0) sticker.usage_count = 0;
+
+  await sticker.save();
+  return sticker;
+};
