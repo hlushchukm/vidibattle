@@ -11,16 +11,14 @@ export default function PageLoading() {
 
   return (
     <>
-      <div
-        id="preloader"
-        style={{
-          background: `url(${formatResourceURL(bgd)})`,
-          backgroundSize: "cover",
-          backgroundAttachment: "fixed",
-          backgroundPosition: "center",
-        }}
-      >
-        {!bgd && <div className="spinner"></div>}
+      <div id="preloader">
+        {bgd ? (
+          <>
+            <img src={formatResourceURL(bgd)} width={100} />
+          </>
+        ) : (
+          <div className="spinner"></div>
+        )}
       </div>
     </>
   );
