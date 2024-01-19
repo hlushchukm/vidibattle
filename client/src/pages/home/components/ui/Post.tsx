@@ -7,7 +7,7 @@ import {
   handleProfileImageError,
 } from "../../../../services/asset-paths";
 import { getUserId, isLoggedIn } from "../../../../services/auth";
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 
 export default function Post({
   post,
@@ -18,11 +18,35 @@ export default function Post({
   toggleComment: (id: string) => void;
   togglePostLike: (id: string, liked: boolean) => void;
 }) {
+  const [isVideoVisible, setIsVideoVisible] = useState(false);
   const navigate = useNavigate();
   const setPostToShare = useShareStore((state) => state.setPostToShare);
   const setPostToReport = useReportStore((state) => state.setPostToReport);
   const postImageRef = useRef<HTMLImageElement | null>(null);
   const stickerContainerRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    // detect is video is visible in the window
+    if (videoRef.current) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setIsVideoVisible(entry.isIntersecting);
+        },
+        { rootMargin: "-300px" }
+      );
+      observer.observe(videoRef.current);
+
+      return () => observer.disconnect();
+    }
+  }, [videoRef]);
+
+  useEffect(() => {
+    // if video is scrolled out of view, then pause it
+    if (!isVideoVisible && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [isVideoVisible]);
 
   const getStickerStyle = (position: string): CSSProperties => {
     switch (position) {
@@ -75,7 +99,6 @@ export default function Post({
       stickerContainerRef.current as HTMLDivElement,
       postImageRef.current
     );
-    console.log("here");
   };
 
   return (
@@ -277,6 +300,7 @@ export default function Post({
                 objectFit: "contain",
               }}
               controls
+              ref={videoRef}
             >
               <source
                 src={formatResourceURL(post.media?.[0]?.filename)}
