@@ -846,7 +846,13 @@ module.exports.getCompetitorUsers = async (req, res, next) => {
     const { page = 1, limit = 10, round = 1 } = req.query;
     const { id } = req.params;
 
-    const query = { competition: id, current_round: { $gte: round } };
+    const query = {
+      competition: id,
+      $or: [
+        { current_round: { $gte: round } },
+        { $and: [{ status: "playing" }, { current_round: { $lte: round } }] },
+      ],
+    };
 
     const total = await CompetingUser.find(query).count();
 
@@ -863,7 +869,7 @@ module.exports.getCompetitorUsers = async (req, res, next) => {
 
       const q = {
         competition: id,
-        round: round,
+        round: { $gte: round },
         author: competitorCopy.user?._id,
         is_deleted: false,
       };
