@@ -59,6 +59,12 @@ export default function CompetitionInfoCard({
   };
 
   const joinIntentConfirmed = () => {
+    if (!competition.is_paid) {
+      closePayConfirmModal();
+      joinCompetition();
+      return;
+    }
+
     openWalletModal();
     get("wallet/" + getUserId() + "/info")
       .then((res) => {
@@ -88,8 +94,15 @@ export default function CompetitionInfoCard({
     if (btn) btn.click();
   };
 
-  const closeConfirmModal = () => {
+  const closeLeaveConfirmModal = () => {
     const modal = document.getElementById("leaveCompetitionConfirmationModal");
+    if (!modal) return;
+    const btn = modal.getElementsByTagName("button")[0];
+    if (btn) btn.click();
+  };
+
+  const closePayConfirmModal = () => {
+    const modal = document.getElementById("joinCompetitionConfirmationModal");
     if (!modal) return;
     const btn = modal.getElementsByTagName("button")[0];
     if (btn) btn.click();
@@ -97,7 +110,8 @@ export default function CompetitionInfoCard({
 
   const closeAllModals = () => {
     closeWalletModal();
-    closeConfirmModal();
+    closeLeaveConfirmModal();
+    closePayConfirmModal();
   };
 
   return (
@@ -199,9 +213,11 @@ export default function CompetitionInfoCard({
                       <>
                         <button
                           disabled={joinLoading}
-                          onClick={joinCompetition}
                           className="btn btn-secondary"
                           style={{ fontSize: "12px" }}
+                          data-bs-toggle="offcanvas"
+                          data-bs-target="#joinCompetitionConfirmationModal"
+                          aria-controls="offcanvasBottom"
                         >
                           Join
                         </button>
