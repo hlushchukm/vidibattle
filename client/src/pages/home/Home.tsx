@@ -14,6 +14,7 @@ import {
   getBackgroundImage,
 } from "../../services/config-data";
 import { formatResourceURL } from "../../services/asset-paths";
+import { isLoggedIn } from "../../services/auth";
 
 export default function Home() {
   const installPWA: any = usePwaInstallPrompt();
@@ -118,7 +119,7 @@ export default function Home() {
         <div className="content-inner pt-0">
           <div className="container bottom-content">
             {/* STORY  */}
-            <StoryBar />
+            {isLoggedIn() && <StoryBar />}
 
             {/* POSTS */}
             <PostsContainer feed={posts} />
