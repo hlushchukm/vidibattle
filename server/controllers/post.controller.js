@@ -22,13 +22,11 @@ module.exports.getFeed = async (req, res, next) => {
       lastLikesCount,
       round,
     } = req.query;
-    const { _id: userId } = req.user;
+    const userId = req.user?._id;
 
     if (!pageSize) pageSize = 10;
 
     const currentUser = await User.findById(userId);
-    if (!currentUser)
-      return res.status(400).json({ message: "user not found" });
 
     const posts = await Post.feed({
       lastDate,
@@ -36,7 +34,7 @@ module.exports.getFeed = async (req, res, next) => {
       pageSize,
       currentUser,
       competitionId: competitionId,
-      allPosts: competitionId ? true : false,
+      allPosts: competitionId || (competitionId && currentUser) ? true : false,
       lastLikesCount: competitionId ? lastLikesCount : null,
       round: competitionId ? (round ? round : null) : null,
     });

@@ -5,7 +5,7 @@ const { upload } = require("../services/storage");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 
 //get
-router.get("/feed", authGuard, postsController.getFeed);
+router.get("/feed", postsController.getFeed);
 router.get("/timeline/:username", authGuard, postsController.getTimeline);
 router.get("/userPosts/:username", adminAuthGuard, postsController.getTimeline);
 router.get("/:postId", postsController.getPost);

@@ -16,17 +16,22 @@ module.exports.feed = async function ({
 }) {
   let query = {
     is_deleted: false,
-    $and: [
+  }; // undeleted posts
+
+  if (currentUser) {
+    // posts by unblocked people
+    query.$and = [
       { author: { $nin: currentUser.blocked_users } },
       { author: { $nin: currentUser.blocked_by } },
-    ],
-  }; // undeleted posts and posts by unblocked people
+    ];
+  }
 
   if (competitionId) {
     query.competition = competitionId;
     const competition = await Competition.findById(competitionId);
     if (
       competition &&
+      currentUser &&
       (competition.status === "scheduled" ||
         (round && parseInt(round) > competition.current_round))
     ) {
@@ -39,8 +44,6 @@ module.exports.feed = async function ({
     } else {
       query.round = { $lte: competition.current_round };
     }
-
-    console.log(query)
   } else {
     // exclude posts in active competition from the feed
     const activeCompetitions = await Competition.find(
@@ -52,7 +55,7 @@ module.exports.feed = async function ({
     query.competition = { $nin: activeCompetitions };
   }
 
-  if (!allPosts) {
+  if (!allPosts && currentUser) {
     const unblockedFollowings = [];
 
     currentUser.following.map((f) => {
@@ -122,7 +125,7 @@ module.exports.feed = async function ({
     })
     .populate({
       path: "likes",
-      match: { _id: currentUser._id },
+      match: { _id: currentUser?._id },
       select: "_id",
     })
     .populate("competition")
