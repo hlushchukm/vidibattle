@@ -1,11 +1,15 @@
 export default function ConfirmationModal({
   message,
   modalId,
+  disableYesBtn,
   confirmed,
+  children,
 }: {
-  message: string;
+  message?: string;
   modalId: string;
+  disableYesBtn?: boolean;
   confirmed: () => void;
+  children?: any;
 }) {
   return (
     <>
@@ -20,9 +24,19 @@ export default function ConfirmationModal({
         ></button>
 
         <div className="offcanvas-body container p-3 pb-4">
-          <h5 className="text-center mb-3">{message}</h5>
+          {children ? (
+            <>{children}</>
+          ) : (
+            <>
+              <h5 className="text-center mb-3">{message}</h5>
+            </>
+          )}
           <div className="text-center d-flex justify-content-center gap-3">
-            <button onClick={confirmed} className="btn btn-sm px-4 btn-primary">
+            <button
+              onClick={confirmed}
+              className="btn btn-sm px-4 btn-primary"
+              disabled={disableYesBtn}
+            >
               Yes
             </button>
             <button

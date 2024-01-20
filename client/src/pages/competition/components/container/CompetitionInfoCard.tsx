@@ -31,6 +31,7 @@ export default function CompetitionInfoCard({
   }, [joinLoading, leaveLoading]);
 
   const [wallet, setWallet] = useState<any>({});
+  const [agreementsRead, setAgreementsRead] = useState(false);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -92,6 +93,7 @@ export default function CompetitionInfoCard({
   const closeWalletModal = () => {
     const btn = document.getElementById("paymentModalClose");
     if (btn) btn.click();
+    setAgreementsRead(false)
   };
 
   const closeLeaveConfirmModal = () => {
@@ -106,6 +108,7 @@ export default function CompetitionInfoCard({
     if (!modal) return;
     const btn = modal.getElementsByTagName("button")[0];
     if (btn) btn.click();
+    setAgreementsRead(false)
   };
 
   const closeAllModals = () => {
@@ -350,9 +353,39 @@ export default function CompetitionInfoCard({
 
       <ConfirmationModal
         modalId="joinCompetitionConfirmationModal"
-        message="Would you like to join this competition?"
         confirmed={joinIntentConfirmed}
-      />
+        disableYesBtn={!agreementsRead}
+      >
+        <h5 className="text-center mb-3">
+          Would you like to join this competition?
+        </h5>
+        <div className="mb-3 d-flex form-check align-items-center justify-content-center">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="agreementsRead"
+            checked={agreementsRead}
+            onChange={(e) => {
+              setAgreementsRead(e.target.checked);
+            }}
+          />
+          <label
+            className="form-check-label"
+            style={{ lineHeight: "0" }}
+            htmlFor="agreementsRead"
+          >
+            I have read the&nbsp;
+            <Link
+              to="/terms-and-conditions"
+              style={{ textDecoration: "underline" }}
+            >
+              Terms and Conditions
+            </Link>
+            .
+          </label>
+        </div>
+      </ConfirmationModal>
+
       <ConfirmationModal
         modalId="leaveCompetitionConfirmationModal"
         message="Would you like to leave this competition?"
