@@ -9,11 +9,12 @@ export default function SplashScreen() {
           <div className="circle-5"></div>
           <div className="circle-6"></div>
           <div className="brand-logo">
-            <div className="logo">
+            <div className="text-center">
               <img
-                src="/assets/images/vector.svg"
+                src="/assets/images/favicon.png"
                 alt="spoon-1"
                 className="wow bounceInDown"
+                style={{ width: "100px" }}
               />
             </div>
             <div id="loading-area" className="loading-page-4">
