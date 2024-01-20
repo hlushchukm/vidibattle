@@ -86,50 +86,50 @@ export default function Router() {
             />
             <Route path="suggestion" element={<SuggestUsersToFollow />} />
           </Route>
+          <Route
+            path="/home"
+            element={
+              <MainLayout active="home">
+                <Home />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/competition"
+            element={
+              <MainLayout>
+                <CompetitionsList />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/competition/info/:name"
+            element={
+              <MainLayout>
+                <CompetitionInfo />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/competition/post/:name"
+            element={
+              <MainLayout>
+                <CompetitionPosts />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/competition/post/round/:number/:name"
+            element={
+              <MainLayout>
+                <CompetitionPosts />
+              </MainLayout>
+            }
+          />
 
           {/* Private Routes */}
           {loggedIn ? (
             <>
-              <Route
-                path="/home"
-                element={
-                  <MainLayout active="home">
-                    <Home />
-                  </MainLayout>
-                }
-              />
-              <Route
-                path="/competition"
-                element={
-                  <MainLayout>
-                    <CompetitionsList />
-                  </MainLayout>
-                }
-              />
-              <Route
-                path="/competition/info/:name"
-                element={
-                  <MainLayout>
-                    <CompetitionInfo />
-                  </MainLayout>
-                }
-              />
-              <Route
-                path="/competition/post/:name"
-                element={
-                  <MainLayout>
-                    <CompetitionPosts />
-                  </MainLayout>
-                }
-              />
-              <Route
-                path="/competition/post/round/:number/:name"
-                element={
-                  <MainLayout>
-                    <CompetitionPosts />
-                  </MainLayout>
-                }
-              />
               <Route
                 path="/timeline"
                 element={
