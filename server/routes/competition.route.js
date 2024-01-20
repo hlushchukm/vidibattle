@@ -22,8 +22,8 @@ const { upload } = require("../services/storage");
 const router = express.Router();
 
 // get
-router.get("/info/:name", authGuard, getCompetitionInfo);
-router.get("/list/", authGuard, getCompetitionsList);
+router.get("/info/:name", getCompetitionInfo);
+router.get("/list/", getCompetitionsList);
 router.get("/admin/list", adminAuthGuard, getCompetitionsList);
 router.get("/user/list/:id", adminAuthGuard, getCompetitorUsers);
 router.get("/rounds/:id", authGuard, getRounds);
