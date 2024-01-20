@@ -10,6 +10,7 @@ import { getUserId } from "../../../../services/auth";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import PaymentModal from "../ui/PaymentModal";
+import TruncatedText from "../../../../components/TurncatedText";
 
 export default function CompetitionInfoCard({
   competition,
@@ -93,7 +94,7 @@ export default function CompetitionInfoCard({
   const closeWalletModal = () => {
     const btn = document.getElementById("paymentModalClose");
     if (btn) btn.click();
-    setAgreementsRead(false)
+    setAgreementsRead(false);
   };
 
   const closeLeaveConfirmModal = () => {
@@ -108,7 +109,7 @@ export default function CompetitionInfoCard({
     if (!modal) return;
     const btn = modal.getElementsByTagName("button")[0];
     if (btn) btn.click();
-    setAgreementsRead(false)
+    setAgreementsRead(false);
   };
 
   const closeAllModals = () => {
@@ -132,9 +133,7 @@ export default function CompetitionInfoCard({
             <span>{getStatusBadge(competition.status)}</span>
           </h5>
           <div className="card-text">
-            <div
-              dangerouslySetInnerHTML={{ __html: competition?.description }}
-            />
+            <TruncatedText text={competition?.description} />
           </div>
           <div className="divider"></div>
           <p className="card-text d-flex flex-column flex-md-row gap-2">
