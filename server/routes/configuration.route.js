@@ -9,7 +9,7 @@ const router = express.Router();
 
 // get
 router.get("/all", adminAuthGuard, getConfigurations);
-router.get("/", authGuard, getConfigurations);
+router.get("/", getConfigurations);
 
 // post
 router.post(
