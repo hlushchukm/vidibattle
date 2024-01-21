@@ -15,8 +15,8 @@ export default function MessageHeader({ user }: { user: any }) {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn />
           <HeaderLogo />
+          <BackBtn />
           <div
             onClick={() => navigate("/profile/" + user.username)}
             className="d-flex align-items-center"

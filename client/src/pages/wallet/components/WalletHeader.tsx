@@ -6,8 +6,8 @@ export default function WalletHeader() {
   return (
     <TopNavBarWrapper>
       <div className="left-content">
-        <BackBtn />
         <HeaderLogo />
+        <BackBtn />
         <h4 className="title mb-0">Wallet</h4>
       </div>
       <div className="mid-content"></div>

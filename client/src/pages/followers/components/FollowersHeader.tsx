@@ -6,8 +6,8 @@ export default function FollowersHeader({ name }: { name?: string }) {
   return (
     <TopNavBarWrapper>
       <div className="left-content">
-        <BackBtn />
         <HeaderLogo />
+        <BackBtn />
         <h4 className="title mb-0">{name}</h4>
       </div>
       <div className="mid-content"></div>

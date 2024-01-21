@@ -7,8 +7,8 @@ export default function CompetitionPostsHeader({ text }: { text: string }) {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn />
           <HeaderLogo />
+          <BackBtn />
           <h4 className="title mb-0">{text}</h4>
         </div>
         <div className="mid-content"></div>

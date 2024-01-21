@@ -7,8 +7,8 @@ export default function CompetitionInfoHeader() {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn />
           <HeaderLogo />
+          <BackBtn />
           <h4 className="title mb-0">Competition Details</h4>
         </div>
         <div className="mid-content"></div>

@@ -16,6 +16,7 @@ export default function EditProfileHeader({
   return (
     <TopNavBarWrapper>
       <div className="left-content">
+        <HeaderLogo />
         {!disableCancel && (
           <a
             onClick={() => navigate(-1)}
@@ -39,7 +40,6 @@ export default function EditProfileHeader({
             </svg>
           </a>
         )}
-        <HeaderLogo />
         <h4 className="title mb-0">Edit profile</h4>
       </div>
       <div className="mid-content"></div>

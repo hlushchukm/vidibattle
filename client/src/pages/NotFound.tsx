@@ -8,8 +8,8 @@ export default function NotFound() {
       {/* Header */}
       <TopNavBarWrapper>
         <div className="left-content">
-          <BackBtn />
           <HeaderLogo />
+          <BackBtn />
           <h4 className="title mb-0">Not Found</h4>
         </div>
         <div className="mid-content"></div>

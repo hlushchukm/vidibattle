@@ -15,10 +15,10 @@ export default function CreatePostHeader({
     <>
       <TopNavBarWrapper>
         <div className="left-content">
+          <HeaderLogo />
           <button onClick={() => navigate(-1)} className="back-btn btn">
             <i className="fa-solid fa-arrow-left"></i>
           </button>
-          <HeaderLogo />
           <h4 className="title mb-0">Create Post</h4>
         </div>
         <div className="mid-content"></div>
