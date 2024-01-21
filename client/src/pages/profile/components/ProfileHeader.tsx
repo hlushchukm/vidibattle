@@ -1,6 +1,7 @@
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 import BackBtn from "../../../components/BackBtn";
 import { useNavigate } from "react-router-dom";
+import HeaderLogo from "../../../components/HeaderLogo";
 
 export default function ProfileHeader({
   isOwnProfile,
@@ -12,6 +13,7 @@ export default function ProfileHeader({
     <TopNavBarWrapper>
       <div className="left-content">
         <BackBtn />
+        <HeaderLogo />
         <h4 className="title mb-0">User Profile</h4>
       </div>
       <div className="mid-content"></div>

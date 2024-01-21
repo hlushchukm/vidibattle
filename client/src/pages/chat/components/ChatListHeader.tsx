@@ -1,3 +1,4 @@
+import HeaderLogo from "../../../components/HeaderLogo";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function ChatListHeader() {
@@ -5,6 +6,7 @@ export default function ChatListHeader() {
     <>
       <TopNavBarWrapper>
         <div className="left-content">
+          <HeaderLogo />
           <h4 className="title mb-0">Chat</h4>
         </div>
         <div className="mid-content"></div>

@@ -1,5 +1,6 @@
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 import BackBtn from "../../../components/BackBtn";
+import HeaderLogo from "../../../components/HeaderLogo";
 
 export default function CompetitionListHeader() {
   return (
@@ -7,6 +8,7 @@ export default function CompetitionListHeader() {
       <TopNavBarWrapper>
         <div className="left-content">
           <BackBtn />
+          <HeaderLogo />
           <h4 className="title mb-0">Competitions</h4>
         </div>
         <div className="mid-content"></div>

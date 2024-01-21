@@ -6,6 +6,7 @@ import {
   formatResourceURL,
   handleProfileImageError,
 } from "../../../services/asset-paths";
+import HeaderLogo from "../../../components/HeaderLogo";
 
 export default function MessageHeader({ user }: { user: any }) {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function MessageHeader({ user }: { user: any }) {
       <TopNavBarWrapper>
         <div className="left-content">
           <BackBtn />
+          <HeaderLogo />
           <div
             onClick={() => navigate("/profile/" + user.username)}
             className="d-flex align-items-center"

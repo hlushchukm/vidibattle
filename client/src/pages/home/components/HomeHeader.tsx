@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
+import HeaderLogo from "../../../components/HeaderLogo";
 
 export default function HomeHeader({ installPWA }: { installPWA: any }) {
   const handleInstallClick = () => {
@@ -14,6 +15,7 @@ export default function HomeHeader({ installPWA }: { installPWA: any }) {
 
       <TopNavBarWrapper>
         <div className="left-content">
+          <HeaderLogo />
           <h4 className="title mb-0">Home</h4>
         </div>
         <div className="mid-content"></div>

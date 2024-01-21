@@ -1,4 +1,5 @@
 import BackBtn from "../../../components/BackBtn";
+import HeaderLogo from "../../../components/HeaderLogo";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function FollowersHeader({ name }: { name?: string }) {
@@ -6,6 +7,7 @@ export default function FollowersHeader({ name }: { name?: string }) {
     <TopNavBarWrapper>
       <div className="left-content">
         <BackBtn />
+        <HeaderLogo />
         <h4 className="title mb-0">{name}</h4>
       </div>
       <div className="mid-content"></div>

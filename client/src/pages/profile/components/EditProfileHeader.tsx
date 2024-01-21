@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
+import HeaderLogo from "../../../components/HeaderLogo";
 
 export default function EditProfileHeader({
   loading,
@@ -38,6 +39,7 @@ export default function EditProfileHeader({
             </svg>
           </a>
         )}
+        <HeaderLogo />
         <h4 className="title mb-0">Edit profile</h4>
       </div>
       <div className="mid-content"></div>

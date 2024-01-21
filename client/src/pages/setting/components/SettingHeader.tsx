@@ -1,4 +1,5 @@
 import BackBtn from "../../../components/BackBtn";
+import HeaderLogo from "../../../components/HeaderLogo";
 import TopNavBarWrapper from "../../../components/TopNavBarWrapper";
 
 export default function SettingHeader() {
@@ -6,6 +7,7 @@ export default function SettingHeader() {
     <TopNavBarWrapper>
       <div className="left-content">
         <BackBtn to="/profile" />
+        <HeaderLogo />
         <h4 className="title mb-0">Setting</h4>
       </div>
       <div className="mid-content"></div>
