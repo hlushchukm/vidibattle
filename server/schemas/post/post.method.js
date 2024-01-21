@@ -31,12 +31,11 @@ module.exports.feed = async function ({
     const competition = await Competition.findById(competitionId);
     if (
       competition &&
-      currentUser &&
       (competition.status === "scheduled" ||
         (round && parseInt(round) > competition.current_round))
     ) {
       // if the competition or the round is not started yet, show the user only his/her posts
-      query.author = currentUser._id;
+      query.author = currentUser?._id;
     }
 
     if (round) {
