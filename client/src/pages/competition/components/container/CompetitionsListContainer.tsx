@@ -138,11 +138,9 @@ export default function CompetitionsListContainer({}: {}) {
 
         <div
           style={{
-            background: "var(--bg-white)",
             margin: "50px -15px",
             padding: "20px 15px 0",
             borderRadius: "16px 16px 0 0",
-            boxShadow: "0px -10px 17px 0px rgba(141, 141, 113, 0.17)",
           }}
         >
           <StatusTabs
