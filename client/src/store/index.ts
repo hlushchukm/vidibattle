@@ -7,6 +7,7 @@ import {
   ReportState,
   ShareState,
 } from "./interface";
+import { randomizePosts } from "../services/posts";
 
 export const useCurrentUserStore = create((set) => ({
   id: getUserId(),
@@ -47,7 +48,10 @@ export const usePostStore = create<PostState>((set) => ({
   setPosts: (posts: PostState["posts"]) => set({ posts: [...posts] }),
 
   addToFeed: (posts: PostState["posts"]) =>
-    set((state) => ({ posts: [...state.posts, ...posts] })),
+    set((state) => {
+      const randomized = randomizePosts(posts);
+      return { posts: [...state.posts, ...randomized] };
+    }),
 
   togglePostLike: (id: string, liked: boolean) =>
     set((state) => {
