@@ -174,6 +174,8 @@ module.exports.getFollowing = async (req, res, next) => {
     }
 
     const user = await User.findOne({ username });
+    if (!user) return res.status(200).json({ data: [], page, limit });
+
     const blockedUsers = [...user.blocked_users, ...user.blocked_by];
 
     await user.populate({
@@ -189,10 +191,7 @@ module.exports.getFollowing = async (req, res, next) => {
       select: "first_name last_name profile_img username",
     });
 
-    if (
-      !user ||
-      (requestingUserId && user.blocked_users?.includes(requestingUserId))
-    ) {
+    if (requestingUserId && user.blocked_users?.includes(requestingUserId)) {
       return res.status(404).json({ message: "user not found" });
     }
 
