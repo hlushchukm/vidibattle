@@ -7,6 +7,8 @@ export default function TruncatedText({
   text: string;
   maxLength?: number;
 }) {
+  if (!text) return "";
+
   const [isTruncated, setIsTruncated] = useState(true);
 
   const handleToggleTruncate = () => {
@@ -19,7 +21,10 @@ export default function TruncatedText({
     <div>
       <div dangerouslySetInnerHTML={{ __html: truncatedText }} />
       {text.length > maxLength && (
-        <button onClick={handleToggleTruncate} className="btn btn-dark light btn-sm">
+        <button
+          onClick={handleToggleTruncate}
+          className="btn btn-dark light btn-sm"
+        >
           {isTruncated ? "Read More" : "Read Less"}
         </button>
       )}
