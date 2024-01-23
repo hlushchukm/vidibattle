@@ -647,6 +647,29 @@ module.exports.advanceCompetitionRound = async (req, res, next) => {
   }
 };
 
+module.exports.showCompetitionResults = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { result_date } = req.body;
+
+    const competition = await Competition.findOne({
+      _id: id,
+      status: "ended",
+    });
+
+    if (!competition) {
+      return res.status(404).json({ message: "competition not found" });
+    }
+
+    competition.result_date = stringDateToUTC(result_date);
+    await competition.save();
+
+    return res.status(200).json({ message: "competition result date updated" });
+  } catch (e) {
+    next(e);
+  }
+};
+
 module.exports.endCompetition = async (req, res, next) => {
   try {
     const { id } = req.params;

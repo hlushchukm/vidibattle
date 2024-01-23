@@ -16,6 +16,7 @@ const {
   getCompetitionInfoForEdit,
   editCompetition,
   searchCompetition,
+  showCompetitionResults,
 } = require("../controllers/competition.controller");
 const { authGuard, adminAuthGuard } = require("../services/authGuard");
 const { upload } = require("../services/storage");
@@ -44,6 +45,7 @@ router.post("/start/:id", adminAuthGuard, startCompetition);
 router.post("/end/:id", adminAuthGuard, endCompetition);
 router.post("/cancel/:id", adminAuthGuard, cancelCompetition);
 router.post("/advance/:id", adminAuthGuard, advanceCompetitionRound);
+router.post("/show-results/:id", adminAuthGuard, showCompetitionResults);
 router.post("/:competition/join", authGuard, joinCompetition);
 router.post("/:competition/leave", authGuard, leaveCompetition);
 router.post(
