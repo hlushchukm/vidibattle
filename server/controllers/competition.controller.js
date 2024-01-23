@@ -745,12 +745,9 @@ const getCompetitionWinners = async (competition, round) => {
 
       if (post.likes_count < maxLikes || post.likes_count < round.min_likes) {
         competitor.status = "lost";
-
-        if (post.likes_count >= round.min_likes) {
-          last_like !== post.likes_count ? rank++ : null;
-          competitor.rank = rank;
-          last_like = post.likes_count;
-        }
+        last_like !== post.likes_count ? rank++ : null;
+        competitor.rank = rank;
+        last_like = post.likes_count;
       } else {
         winners.push(post.author);
         competitor.status = "won";
@@ -1071,7 +1068,7 @@ module.exports.getTopParticipants = async (req, res, next) => {
     const top3 = await CompetingUser.find({
       competition,
       current_round: round,
-      status: { $nin: ["left", "removed"] },
+      status: { $nin: ["left", "removed", "lost"] },
       rank: { $gte: 1, $lte: 3 },
     })
       .populate("user", "first_name last_name username profile_img")
@@ -1080,8 +1077,8 @@ module.exports.getTopParticipants = async (req, res, next) => {
     const top10 = await CompetingUser.find({
       competition,
       current_round: round,
-      status: { $nin: ["left", "removed"] },
-      rank: { $gte: 4, $lte: 10 },
+      status: { $nin: ["left", "removed", "won"] },
+      rank: { $gte: 1, $lte: 10 },
     })
       .populate("user", "first_name last_name username profile_img")
       .sort("rank")
