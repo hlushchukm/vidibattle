@@ -18,12 +18,14 @@ export default function CompetitionInfoCard({
   leaveLoading,
   joinCompetition,
   leaveCompetition,
+  getRoundName,
 }: {
   competition: any;
   joinLoading?: boolean;
   leaveLoading?: boolean;
   joinCompetition: () => void;
   leaveCompetition: () => void;
+  getRoundName: (round_no: number) => string;
 }) {
   useEffect(() => {
     if (!joinLoading && !leaveLoading) {
@@ -305,7 +307,7 @@ export default function CompetitionInfoCard({
                   <div className="fw-bold text-light">
                     You have lost this competition on&nbsp;
                     <span className="text-info">
-                      Round {competition.competingUser.current_round}
+                      {getRoundName(competition.competingUser.current_round)}
                     </span>
                   </div>
                 )}

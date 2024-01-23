@@ -98,6 +98,11 @@ export default function CompetitionInfo() {
     return today >= result_date;
   };
 
+  const getRoundName = (round_no: number) => {
+    const match = rounds.find((r: any) => r.number === round_no);
+    return match.name ?? "Round " + round_no;
+  };
+
   if (pageLoading) {
     return <PageLoading />;
   }
@@ -115,6 +120,7 @@ export default function CompetitionInfo() {
               leaveCompetition={leaveCompetition}
               joinLoading={joinLoading}
               leaveLoading={leaveLoading}
+              getRoundName={getRoundName}
             />
             <RoundsTable rounds={rounds} competitionInfo={competitionInfo} />
 

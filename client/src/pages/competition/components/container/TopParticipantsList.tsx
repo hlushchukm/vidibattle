@@ -41,24 +41,21 @@ export default function TopParticipantsList({
     return <BlinkingLoadingCircles />;
   }
 
-  if (top3.length === 0) {
-    return (
-      <>
-        <div className="d-flex flex-column justify-content-center align-items-center py-4">
-          <h1 className="text-light" style={{ textDecoration: "underline" }}>
-            Winners
-          </h1>
-          <h3 className="text-primary">No Winners</h3>
-        </div>
-      </>
-    );
-  }
-
   return (
     <>
       <div className="d-flex flex-column justify-content-center align-items-center py-4">
-        <WinnersList winners={top3} />
-        <Top10ParticipantsTable topParticipants={top10} />
+        {top3.length === 0 ? (
+          <div className="d-flex flex-column justify-content-center align-items-center py-4">
+            <h1 className="text-light" style={{ textDecoration: "underline" }}>
+              Winners
+            </h1>
+            <h3 className="text-primary">No Winners</h3>
+          </div>
+        ) : (
+          <WinnersList winners={top3} />
+        )}
+
+        {top10.length > 0 && <Top10ParticipantsTable topParticipants={top10} />}
       </div>
     </>
   );
