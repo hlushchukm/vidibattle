@@ -28,7 +28,7 @@ router.get("/admin/list", adminAuthGuard, getCompetitionsList);
 router.get("/user/list/:id", adminAuthGuard, getCompetitorUsers);
 router.get("/rounds/:id", authGuard, getRounds);
 router.get("/admin/rounds/:id", adminAuthGuard, getRounds);
-router.get("/winners/:competition/:round", authGuard, getTopParticipants);
+router.get("/winners/:competition/:round", getTopParticipants);
 router.get("/edit/:id", adminAuthGuard, getCompetitionInfoForEdit);
 router.get("/search", authGuard, searchCompetition);
 
