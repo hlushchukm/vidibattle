@@ -21,7 +21,7 @@ export default function BasicInfo({
   const navigate = useNavigate();
 
   const getAddress = () => {
-    const address = profile.address;
+    const address = profile?.address;
     let res = "";
 
     if (address?.country) {
@@ -97,7 +97,7 @@ export default function BasicInfo({
 
         <div className="main-profile">
           <div className="left-content">
-            <span>@{profile.username}</span>
+            <span>@{profile?.username}</span>
             <h5 className="mt-1">{getName(profile)}</h5>
             <div className="info pe-sm-5 text-justify">
               <p className="mb-0">{profile?.bio} </p>
@@ -140,7 +140,7 @@ export default function BasicInfo({
                 <li>
                   <a
                     className=""
-                    onClick={() => navigate("/chat/" + profile._id)}
+                    onClick={() => navigate("/chat/" + profile?._id)}
                     style={{ cursor: "pointer" }}
                   >
                     Message
