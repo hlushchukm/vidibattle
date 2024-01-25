@@ -47,7 +47,7 @@ export default function Top10ParticipantsTable({
                   <td className="px-4 py-2 border">
                     <Link
                       className="text-dark"
-                      to={"/user" + participant.user.username}
+                      to={"/profile/" + participant.user.username}
                     >
                       {getName(participant.user)}
                     </Link>
@@ -55,7 +55,7 @@ export default function Top10ParticipantsTable({
                   <td className="px-4 py-2 border">
                     <Link
                       className="text-dark"
-                      to={"/user" + participant.user.username}
+                      to={"/profile/" + participant.user.username}
                     >
                       @{participant.user.username}
                     </Link>
