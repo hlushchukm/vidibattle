@@ -126,7 +126,7 @@ export default function CompetitionInfoCard({
         <img
           src={formatResourceURL(competition?.image_long)}
           className="card-img-top"
-          style={{ height: "180px", objectFit: "cover" }}
+          style={{  aspectRatio: '3/1' }}
           onError={handleCompetitionImageError}
         />
         <div className="card-body">
