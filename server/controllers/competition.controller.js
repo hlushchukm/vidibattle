@@ -152,7 +152,11 @@ module.exports.createCompetition = async (req, res, next) => {
       stickers = [],
     } = data;
 
-    const { file: imageFile = [], stickers: stickerImages = [] } = req.files;
+    const {
+      image = [],
+      image_long = [],
+      stickers: stickerImages = [],
+    } = req.files;
 
     if (!name || !type || rounds.length === 0 || !result_date) {
       return res.status(400).json({
@@ -190,8 +194,12 @@ module.exports.createCompetition = async (req, res, next) => {
       competitionData.amount = amount;
     }
 
-    if (imageFile[0]) {
-      competitionData.image = imageFile[0].filename;
+    if (image[0]) {
+      competitionData.image = image[0].filename;
+    }
+
+    if (image_long[0]) {
+      competitionData.image_long = image_long[0].filename;
     }
 
     const newCompetition = new Competition(competitionData);
@@ -306,7 +314,11 @@ module.exports.editCompetition = async (req, res, next) => {
       stickers = [],
     } = data;
 
-    const { file: imageFile = [], stickers: stickerImages = [] } = req.files;
+    const {
+      image = [],
+      image_long = [],
+      stickers: stickerImages = [],
+    } = req.files;
 
     const oldCompetition = await Competition.findOne({
       _id,
@@ -355,10 +367,16 @@ module.exports.editCompetition = async (req, res, next) => {
     }
 
     // set image and delete the old one
-    if (imageFile.length > 0) {
-      competitionData.image = imageFile[0].filename;
+    if (image.length > 0) {
+      competitionData.image = image[0].filename;
       if (oldCompetition.image) {
         await deleteFile(oldCompetition.image);
+      }
+    }
+    if (image_long.length > 0) {
+      competitionData.image_long = image_long[0].filename;
+      if (oldCompetition.image_long) {
+        await deleteFile(oldCompetition.image_long);
       }
     }
 

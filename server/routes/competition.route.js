@@ -37,7 +37,11 @@ router.get("/search", authGuard, searchCompetition);
 router.post(
   "/create",
   adminAuthGuard,
-  upload.fields([{ name: "file" }, { name: "stickers" }]),
+  upload.fields([
+    { name: "image" },
+    { name: "image_long" },
+    { name: "stickers" },
+  ]),
   createCompetition
 );
 
@@ -58,7 +62,11 @@ router.post(
 router.put(
   "/edit/:id",
   adminAuthGuard,
-  upload.fields([{ name: "file" }, { name: "stickers" }]),
+  upload.fields([
+    { name: "image" },
+    { name: "image_long" },
+    { name: "stickers" },
+  ]),
   editCompetition
 );
 

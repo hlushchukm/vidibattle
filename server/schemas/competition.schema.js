@@ -16,6 +16,7 @@ const competitionSchema = Schema(
     is_paid: { type: Boolean, default: false },
     amount: { type: Number, default: 0 },
     image: { type: String },
+    image_long: { type: String },
     current_round: { type: Number, required: true, default: 1 },
     rounds_count: { type: Number, required: true, default: 0 },
     start_date: { type: Number },
