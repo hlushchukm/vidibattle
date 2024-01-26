@@ -17,13 +17,14 @@ const {
 } = require("./controllers/competition.controller");
 // const https = require("https");
 // const fs = require("fs");
+const { setupAgenda } = require("./services/queueManager");
 
 const connect = mongoose
   .connect(process.env.ATLAS_URI ?? "", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => {
+  .then((m) => {
     console.log("MongoDB Connected...");
 
     const app = express();
@@ -109,6 +110,7 @@ const connect = mongoose
     const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
       runOnServerStart();
+      setupAgenda(m);
     });
 
     websocket(server);
