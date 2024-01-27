@@ -4,17 +4,20 @@ const {
   storeFileFromLocalToGridFS,
 } = require("../controllers/media.controller");
 
-module.exports.processVideo = async (job) => {
+const maxRetryAmount = 3;
+
+module.exports.processVideo = async (job, agenda) => {
+  const { data } = job.attrs;
+  if (!data) {
+    console.log("data for processing video not found");
+    return;
+  }
+
+  const { file, sticker, retry } = data;
+
   try {
     console.log(`Processing video job ${job.attrs._id}`);
 
-    const { data } = job.attrs;
-    if (!data) {
-      console.log("data for processing video not found");
-      return;
-    }
-
-    const { file, sticker } = data;
     // add sticker to video and save to temp folder
     const filePath = await addStickerToVideo(file?.filename, sticker);
 
@@ -27,5 +30,17 @@ module.exports.processVideo = async (job) => {
     console.log(`Video job ${job.attrs._id} completed`);
   } catch (error) {
     console.error(`Error processing video job ${job.attrs._id}:`, error);
+
+    // reschedule agenda
+    if (!retry || retry < maxRetryAmount) {
+      const newRetryAmount = retry ? retry + 1 : 1;
+      agenda.schedule("in 1 minute", "process video", {
+        ...data,
+        retry: newRetryAmount,
+      });
+      console.log(
+        `rescheduling video processing ${job.attrs._id}. retry: ${newRetryAmount}`
+      );
+    }
   }
 };

@@ -2,6 +2,7 @@ const Agenda = require("agenda");
 const { processVideo } = require("./video-sticker");
 
 let agenda;
+
 module.exports.setupAgenda = async (mongoose) => {
   // setup agenda for processing videos in the background
   agenda = new Agenda({ mongo: mongoose.connection });
@@ -21,17 +22,19 @@ const startAgenda = async (agenda) => {
 };
 
 // Add a job to the queue
-module.exports.scheduleVideoTask = (data) => {
+module.exports.scheduleVideoTask = (data, time = "now") => {
   if (!agenda) {
     console.log("Agenda not found");
     return;
   }
-  agenda.now("process video", data);
+
+  if (time === "now") agenda.now("process video", data);
+  else agenda.schedule(time, "process video", data);
 };
 
 const videoStickerJob = (agenda) => {
   agenda.define("process video", { priority: "high", concurrency: 3 }, (job) =>
-    processVideo(job)
+    processVideo(job, agenda)
   );
 };
 
