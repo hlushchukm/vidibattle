@@ -7,7 +7,7 @@ const {
   decrementStickerCount,
 } = require("./sticker.controller");
 const { deleteFile } = require("./media.controller");
-const { scheduleTask } = require("../services/queueManager");
+const { scheduleVideoTask } = require("../services/queueManager");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -232,7 +232,7 @@ module.exports.create = async (req, res, next) => {
         if (stickerObj && type === "video") {
           try {
             // passing the original file object, causes an error
-            scheduleTask({
+            scheduleVideoTask({
               file: JSON.parse(JSON.stringify(mainFile)),
               sticker: stickerObj,
             });
