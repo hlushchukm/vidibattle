@@ -7,6 +7,7 @@ import { usePostStore } from "../../store";
 import { get } from "../../services/crud";
 import BlinkingLoadingCircles from "../../components/BlinkingLoadingCircles";
 import PageLoading from "../../components/PageLoading";
+import ShareModal from "../../components/ShareModal";
 
 export default function CompetitionPosts() {
   const [pageLoading, setPageLoading] = useState(true);
@@ -147,6 +148,8 @@ export default function CompetitionPosts() {
             <PostsContainer feed={posts} showAddBtn={false} />
 
             {postsLoading && <BlinkingLoadingCircles />}
+
+            <ShareModal />
           </div>
         </div>
       </div>
