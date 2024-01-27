@@ -140,9 +140,16 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
   const videoExtension = videoName.split(".")?.[1];
   const stickerExtension = sticker.image.split(".")?.[1];
 
+  // Create the temp directory if it doesn't exist
+  const directoryPath = getPathToTempFolder("");
+  if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath, { recursive: true });
+  }
+
   // save the sticker to a temp file because ffmpeg doesn't support two imput streams
   const stickerPath = getPathToTempFolder("temp_sticker." + stickerExtension);
   const stickerWriteStream = fs.createWriteStream(stickerPath);
+
   await new Promise((resolve, reject) => {
     stickerStream.pipe(stickerWriteStream);
 
