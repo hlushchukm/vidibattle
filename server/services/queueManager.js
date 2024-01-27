@@ -1,5 +1,5 @@
 const Agenda = require("agenda");
-const { addStickerToVideo } = require("./video-sticker");
+const { processVideo } = require("./video-sticker");
 
 let agenda;
 module.exports.setupAgenda = async (mongoose) => {
@@ -24,19 +24,4 @@ module.exports.scheduleTask = (data) => {
     return;
   }
   agenda.now("process video", data);
-};
-
-const processVideo = async (job) => {
-  try {
-    const { postId } = job.attrs.data;
-    // Perform video processing logic
-    console.log(`Processing video job ${postId}`);
-
-    // Simulate asynchronous processing
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    console.log(`Video job ${postId} completed`);
-  } catch (error) {
-    console.error(`Error processing video job ${postId}:`, error);
-  }
 };

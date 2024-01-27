@@ -6,11 +6,8 @@ const {
   getRandomSticker,
   decrementStickerCount,
 } = require("./sticker.controller");
-const {
-  addStickerToVideo,
-  storeFileFromLocalToGridFS,
-  deleteFile,
-} = require("./media.controller");
+const { deleteFile } = require("./media.controller");
+const { scheduleTask } = require("../services/queueManager");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -234,19 +231,11 @@ module.exports.create = async (req, res, next) => {
         // add sticker to video
         if (stickerObj && type === "video") {
           try {
-            // add sticker to video and save to temp folder
-            const filePath = await addStickerToVideo(
-              mainFile.filename,
-              stickerObj
-            );
-            // delete old video file(the uploaded file)
-            await deleteFile(mainFile.filename);
-            // upload the new video with the sticker from temp folder
-            await storeFileFromLocalToGridFS(
-              filePath,
-              mainFile.filename,
-              mainFile.contentType
-            );
+            // passing the original file object, causes an error
+            scheduleTask({
+              file: JSON.parse(JSON.stringify(mainFile)),
+              sticker: stickerObj,
+            });
 
             stickerObj.usage_count = stickerObj.usage_count + 1;
             await stickerObj.save();
