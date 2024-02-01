@@ -309,39 +309,42 @@ export default function Post({
             </video>
           )}
           {/* <img src="/assets/images/post/pic1.png" alt="/" /> */}
-          <div className="post-meta-btn">
-            <ul>
-              <li>
-                <a
-                  onClick={() =>
-                    togglePostLike(post._id, !(post?.likes?.length > 0))
-                  }
-                  className={`action-btn bg-primary ${
-                    post?.likes?.length > 0 ? "active" : ""
-                  }`}
-                  style={{ cursor: "pointer" }}
-                >
-                  <i className="fa-regular fa-heart fill-icon"></i>
-                  <i className="fa-solid fa-heart fill-icon-2"></i>
-                  <h6 className="font-14 mb-0 ms-2" id="value1">
-                    {formatNumber(post.likes_count ?? 0)}
-                  </h6>
-                </a>
-              </li>
-              <li>
-                <a
-                  onClick={() => toggleComment(post._id)}
-                  className="action-btn bg-secondary"
-                  style={{ cursor: "pointer" }}
-                >
-                  <i className="fa-solid fa-comment fill-icon"></i>
-                  <h6 className="font-14 mb-0 ms-2">
-                    {formatNumber(post.comments_count ?? 0)}
-                  </h6>
-                </a>
-              </li>
-            </ul>
-          </div>
+          {(!post.competition ||
+            (post.competition && post.competition.status !== "scheduled")) && (
+            <div className="post-meta-btn">
+              <ul>
+                <li>
+                  <a
+                    onClick={() =>
+                      togglePostLike(post._id, !(post?.likes?.length > 0))
+                    }
+                    className={`action-btn bg-primary ${
+                      post?.likes?.length > 0 ? "active" : ""
+                    }`}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <i className="fa-regular fa-heart fill-icon"></i>
+                    <i className="fa-solid fa-heart fill-icon-2"></i>
+                    <h6 className="font-14 mb-0 ms-2" id="value1">
+                      {formatNumber(post.likes_count ?? 0)}
+                    </h6>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    onClick={() => toggleComment(post._id)}
+                    className="action-btn bg-secondary"
+                    style={{ cursor: "pointer" }}
+                  >
+                    <i className="fa-solid fa-comment fill-icon"></i>
+                    <h6 className="font-14 mb-0 ms-2">
+                      {formatNumber(post.comments_count ?? 0)}
+                    </h6>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     </>
