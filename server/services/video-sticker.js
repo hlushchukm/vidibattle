@@ -37,6 +37,7 @@ module.exports.processVideo = async (job, agenda) => {
       agenda.schedule("in 1 minute", "process video", {
         ...data,
         retry: newRetryAmount,
+        error: error.toString(),
       });
       console.log(
         `rescheduling video processing ${job.attrs._id}. retry: ${newRetryAmount}`
