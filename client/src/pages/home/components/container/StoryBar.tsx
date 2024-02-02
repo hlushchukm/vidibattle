@@ -51,13 +51,17 @@ export default function StoryBar() {
               <Swiper spaceBetween={"0"} slidesPerView={"auto"}>
                 <SwiperSlide>
                   <div className="swiper-slide">
-                    <Link to={"/profile"} className="categore-box style-1">
+                    <Link
+                      to={"/profile"}
+                      className="categore-box style-1"
+                      style={{ width: "68px" }}
+                    >
                       <div className="story-bx">
                         <img
                           src={formatResourceURL(getUser().profile_img)}
                           onError={handleProfileImageError}
                           alt="/"
-                          style={{ width: "100%" }}
+                          style={{ width: "100%", objectFit: "cover" }}
                         />
                       </div>
                       <span className="detail">You</span>
