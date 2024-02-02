@@ -133,9 +133,6 @@ module.exports.deleteFile = async (filename) => {
 
 // add a sticker from a video by retrieving both the video and the sticker from GridFS, saving the sticker locally, processing the video using Ffmpeg and saving the processed video locally
 module.exports.addStickerToVideo = async (videoName, sticker) => {
-  const stickerStream = gridfsBucket.openDownloadStreamByName(sticker.image);
-  const videoStream = gridfsBucket.openDownloadStreamByName(videoName);
-
   // get filetypes
   const videoExtension = videoName.split(".")?.[1];
   const stickerExtension = sticker.image.split(".")?.[1];
@@ -146,38 +143,28 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
     fs.mkdirSync(directoryPath, { recursive: true });
   }
 
-  // save the sticker to a temp file because ffmpeg doesn't support two imput streams
   const stickerPath = getPathToTempFolder("temp_sticker." + stickerExtension);
-  const stickerWriteStream = fs.createWriteStream(stickerPath);
+  await this.downloadFileFromGridFs(sticker.image, stickerPath);
 
-  await new Promise((resolve, reject) => {
-    stickerStream.pipe(stickerWriteStream);
-
-    stickerWriteStream.on("finish", () => {
-      resolve();
-    });
-
-    stickerWriteStream.on("error", (e) => {
-      console.log("Error while downloading sticker", e);
-      reject(createHttpError("Error while downloading sticker"));
-    });
-  });
-  stickerWriteStream.end();
+  const videoPath = getPathToTempFolder("temp_video." + videoExtension);
+  await this.downloadFileFromGridFs(videoName, videoPath);
 
   const outputPath = getPathToTempFolder("output." + videoExtension);
 
   return new Promise((resolve, reject) => {
     // Add sticker to video using ffmpeg
-    Ffmpeg(videoStream)
+    Ffmpeg(videoPath)
       .input(stickerPath)
       .complexFilter(this.getStickerPostitionCommand(sticker.position))
       .output(outputPath)
       .on("end", () => {
         deleteFile(stickerPath); // remove sticker file
+        deleteFile(videoPath); // remove video file
         resolve(outputPath);
       })
       .on("error", (err) => {
         deleteFile(stickerPath); // remove sticker file
+        deleteFile(videoPath); // remove video file
         console.error("Error adding sticker to video:", err);
         reject(createHttpError(500, "Error adding sticker to video"));
       })
@@ -232,4 +219,24 @@ module.exports.storeFileFromLocalToGridFS = (
       reject(createHttpError("Error while uploading file"));
     });
   });
+};
+
+module.exports.downloadFileFromGridFs = async (filename, filePath) => {
+  // save the video to a temp folder
+  const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
+  const writeStream = fs.createWriteStream(filePath);
+
+  await new Promise((resolve, reject) => {
+    downloadStream.pipe(writeStream);
+
+    writeStream.on("finish", () => {
+      resolve();
+    });
+
+    writeStream.on("error", (e) => {
+      console.log("Error while downloading " + filePath, e);
+      reject(createHttpError("Error while downloading " + filePath));
+    });
+  });
+  writeStream.end();
 };
