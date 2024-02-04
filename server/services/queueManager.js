@@ -1,5 +1,5 @@
 const Agenda = require("agenda");
-const { processVideo } = require("./video-sticker");
+const { processVideo } = require("./videoSticker");
 
 let agenda;
 
