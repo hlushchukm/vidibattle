@@ -18,6 +18,7 @@ const {
 // const https = require("https");
 // const fs = require("fs");
 const { setupAgenda } = require("./services/queueManager");
+const { checkAdminAccount } = require("./services/admin");
 
 const connect = mongoose
   .connect(process.env.ATLAS_URI ?? "", {
@@ -109,8 +110,7 @@ const connect = mongoose
 
     const server = app.listen(port, () => {
       console.log(`Server running on port ${port}`);
-      runOnServerStart();
-      setupAgenda(m);
+      runOnServerStart(m);
     });
 
     websocket(server);
@@ -118,7 +118,13 @@ const connect = mongoose
   .catch((err) => console.log("MongoDB Connection Error:", err));
 
 // functions to run on server start
-const runOnServerStart = async () => {
+const runOnServerStart = async (m) => {
+  updateCompetitions();
+  setupAgenda(m);
+  checkAdminAccount();
+};
+
+const updateCompetitions = async () => {
   await updateCompetitionStartsForToday();
   await updateCompetitionEndsForToday();
 };

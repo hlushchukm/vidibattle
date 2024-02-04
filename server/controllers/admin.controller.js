@@ -3,21 +3,26 @@ const { hash } = require("../services/hash");
 const { deleteFile } = require("./media.controller");
 const bcrypt = require("bcryptjs");
 
-module.exports.createAdminAccount = async (req, res, next) => {
+module.exports.createAdminAccount = async ({
+  email,
+  first_name,
+  last_name,
+  password,
+}) => {
   try {
-    const password = await hash("admin123");
+    const password_hash = await hash(password);
     const admin = new Admin({
-      email: "abrahamalemayehuu@gmail.com",
-      first_name: "Admin",
-      last_name: "Admin",
-      password,
+      email,
+      first_name,
+      last_name,
+      password: password_hash,
     });
 
     await admin.save();
     const response = admin.toObject();
-    delete response.password;
+    response.password = password;
 
-    res.json({ data: response });
+    return response;
   } catch (e) {
     next(e);
   }

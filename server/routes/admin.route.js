@@ -1,6 +1,5 @@
 const express = require("express");
 const {
-  createAdminAccount,
   getProfileInfo,
   updateAdminProfile,
   changePassword,
@@ -13,7 +12,6 @@ const router = express.Router();
 router.get("/info", getProfileInfo);
 
 // post
-// router.post("/create", createAdminAccount);
 router.post("/password", changePassword);
 
 // put
