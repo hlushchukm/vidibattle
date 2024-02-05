@@ -222,26 +222,21 @@ module.exports.storeFileFromLocalToGridFS = (
 };
 
 module.exports.downloadFileFromGridFs = async (filename, filePath) => {
-  try {
-    // save the video to a temp folder
-    const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
-    const writeStream = fs.createWriteStream(filePath);
+  // save the video to a temp folder
+  const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
+  const writeStream = fs.createWriteStream(filePath);
 
-    await new Promise((resolve, reject) => {
-      downloadStream.pipe(writeStream);
+  await new Promise((resolve, reject) => {
+    downloadStream.pipe(writeStream);
 
-      writeStream.on("finish", () => {
-        resolve();
-      });
-
-      writeStream.on("error", (e) => {
-        console.log("Error while downloading " + filePath, e);
-        reject(createHttpError("Error while downloading " + filePath));
-      });
+    writeStream.on("finish", () => {
+      resolve();
     });
-    writeStream.end();
-  } catch (e) {
-    console.log("error while trying to download file ", e);
-    throw Error("error while trying to download file ", e);
-  }
+
+    writeStream.on("error", (e) => {
+      console.log("Error while downloading " + filePath, e);
+      reject(createHttpError("Error while downloading " + filePath));
+    });
+  });
+  writeStream.end();
 };
