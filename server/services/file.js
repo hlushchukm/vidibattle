@@ -6,14 +6,16 @@ module.exports.getPathToTempFolder = (filename) => {
 };
 
 module.exports.deleteFile = (filePath) => {
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.log("Error! couldn't delete file " + filePath);
-      console.log(err);
-    } else {
-      console.log(filePath + " file deleted successfully");
-    }
-  });
+  if (fs.existsSync(filePath)) {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.log("Error! couldn't delete file " + filePath);
+        console.log(err);
+      } else {
+        console.log(filePath + " file deleted successfully");
+      }
+    });
+  }
 };
 
 module.exports.deleteMultipleFiles = (filePaths = []) => {
