@@ -222,6 +222,17 @@ module.exports.storeFileFromLocalToGridFS = (
 };
 
 module.exports.downloadFileFromGridFs = async (filename, filePath) => {
+  const file = await gfs.files.findOne({
+    filename,
+  });
+
+  if (!file) {
+    console.log("reschedule file download");
+    throw new Error("file not found");
+  }
+
+  console.log("file " + filename + " exists");
+
   // save the video to a temp folder
   const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
   const writeStream = fs.createWriteStream(filePath);
