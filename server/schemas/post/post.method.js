@@ -160,7 +160,8 @@ module.exports.timeline = async function ({
       populate: {
         path: "thumbnail",
       },
-    });
+    })
+    .populate("competition");
 };
 
 // like post

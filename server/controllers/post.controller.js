@@ -65,24 +65,41 @@ module.exports.getFeed = async (req, res, next) => {
 module.exports.getTimeline = async (req, res, next) => {
   try {
     const { username } = req.params;
-    let { pageSize, lastDate, lastPostId } = req.query;
+    let { pageSize = 15, lastDate, lastPostId } = req.query;
 
     if (!pageSize) pageSize = 10;
 
-    const posts = await Post.timeline({
-      author: username,
-      lastDate,
-      lastPostId,
-      pageSize,
-    });
-
+    const posts = [];
     let updatedLastDate = lastDate;
     let updatedLastPostId = lastPostId;
 
-    if (posts.length > 0) {
-      updatedLastDate = posts[posts.length - 1].createdAt.toISOString();
-      updatedLastPostId = posts[posts.length - 1]._id.toString();
-    }
+    do {
+      let newPosts = await Post.timeline({
+        author: username,
+        lastDate: updatedLastDate,
+        lastPostId: updatedLastPostId,
+        pageSize,
+      });
+
+      if (newPosts.length === 0) {
+        break;
+      }
+
+      // check if there are any posts for future competition/rounds, if so remove them
+      newPosts = newPosts.filter(
+        (post) =>
+          !(
+            post.competition?.status === "scheduled" ||
+            (post.round && post.round >= post.competition?.current_round)
+          )
+      );
+
+      updatedLastDate = newPosts[newPosts.length - 1].createdAt.toISOString();
+      updatedLastPostId = newPosts[newPosts.length - 1]._id.toString();
+
+      posts.push(...newPosts);
+    } while (posts.length < pageSize);
+
 
     res.status(200).json({
       data: posts,
