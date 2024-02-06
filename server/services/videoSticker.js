@@ -4,7 +4,7 @@ const {
   storeFileFromLocalToGridFS,
 } = require("../controllers/media.controller");
 
-const maxRetryAmount = 3;
+const maxRetryAmount = 5;
 
 module.exports.processVideo = async (job, agenda) => {
   const { data } = job.attrs;
