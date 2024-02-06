@@ -144,6 +144,7 @@ export default function CreatePost({
       upload("post", formData, onUploadProgress)
         .then((_) => {
           setUploading(false);
+          toast.success("post uploaded successfully");
           competitionId ? navigate(-1) : navigate("/home");
         })
         .catch((error) => {
