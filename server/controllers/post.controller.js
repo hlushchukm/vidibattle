@@ -100,7 +100,6 @@ module.exports.getTimeline = async (req, res, next) => {
       posts.push(...newPosts);
     } while (posts.length < pageSize);
 
-
     res.status(200).json({
       data: posts,
       pageSize,
@@ -235,7 +234,10 @@ module.exports.create = async (req, res, next) => {
             await decrementStickerCount(existingPost.sticker);
           }
         }
-        await Post.deleteOne({ _id: existingPost._id });
+        const { deletedCount } = await Post.deleteOne({
+          _id: existingPost._id,
+        });
+        if (deletedCount > 0) await User.removePost(author, existingPost._id);
       }
 
       // get a random sticker if the competition has stickers
@@ -378,7 +380,9 @@ module.exports.deletePostsFromCompetition = async (
 
     if (posts.length === 0) return;
 
+    const postIds = [];
     for (const post of posts) {
+      postIds.push(post._id);
       const filename = post.media[0]?.filename;
       filename && (await deleteFile(filename));
       await Media.deleteMany({ filename });
@@ -391,6 +395,8 @@ module.exports.deletePostsFromCompetition = async (
       competition: competitionId,
       round: { $gte: start_round },
     });
+
+    await User.removePosts(userId, postIds);
 
     console.log("posts deleted");
   } catch (e) {

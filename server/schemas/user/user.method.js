@@ -16,6 +16,13 @@ module.exports.removePost = function (userId, postId) {
   });
 };
 
+module.exports.removePosts = function (userId, posts) {
+  return this.findByIdAndUpdate(userId, {
+    $pull: { posts: { $in: posts } },
+    $inc: { posts_count: -posts.length },
+  });
+};
+
 // add follower
 module.exports.addFollower = function (userId, followerId) {
   return this.findById(userId).then((user) => {

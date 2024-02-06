@@ -9,6 +9,7 @@ const {
   removeFollowing,
   addChat,
   removeChat,
+  removePosts,
 } = require("./user.method");
 
 //define schema
@@ -95,6 +96,7 @@ userSchema.pre("findOne", function () {
 // Methods
 userSchema.statics.addPost = addPost;
 userSchema.statics.removePost = removePost;
+userSchema.statics.removePosts = removePosts;
 userSchema.statics.addFollower = addFollower;
 userSchema.statics.removeFollower = removeFollower;
 userSchema.statics.addFollowing = addFollowing;
