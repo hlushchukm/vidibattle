@@ -91,10 +91,11 @@ module.exports.getTimeline = async (req, res, next) => {
       // check if there are any posts for future competition/rounds, if so remove them
       newPosts = newPosts.filter(
         (post) =>
-          !(
-            post.competition?.status === "scheduled" ||
-            (post.round && post.round >= post.competition?.current_round)
-          )
+          post.competition?.status === "cancelled" ||
+          post.competition?.status === "ended" ||
+          (post.competition?.status === "started" &&
+            post.round &&
+            post.round < post.competition?.current_round)
       );
 
       posts.push(...newPosts);
