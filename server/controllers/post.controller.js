@@ -85,6 +85,9 @@ module.exports.getTimeline = async (req, res, next) => {
         break;
       }
 
+      updatedLastDate = newPosts[newPosts.length - 1].createdAt.toISOString();
+      updatedLastPostId = newPosts[newPosts.length - 1]._id.toString();
+
       // check if there are any posts for future competition/rounds, if so remove them
       newPosts = newPosts.filter(
         (post) =>
@@ -94,12 +97,7 @@ module.exports.getTimeline = async (req, res, next) => {
           )
       );
 
-      if (newPosts.length > 0) {
-        updatedLastDate = newPosts[newPosts.length - 1].createdAt.toISOString();
-        updatedLastPostId = newPosts[newPosts.length - 1]._id.toString();
-
-        posts.push(...newPosts);
-      }
+      posts.push(...newPosts);
     } while (posts.length < pageSize);
 
     res.status(200).json({
