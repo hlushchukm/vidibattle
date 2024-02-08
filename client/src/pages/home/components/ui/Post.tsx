@@ -301,11 +301,12 @@ export default function Post({
               }}
               controls
               ref={videoRef}
+              src={formatResourceURL(post.media?.[0]?.filename)}
             >
-              <source
+              {/* <source
                 src={formatResourceURL(post.media?.[0]?.filename)}
                 type={post.media?.[0]?.contentType}
-              />
+              /> */}
             </video>
           )}
           {/* <img src="/assets/images/post/pic1.png" alt="/" /> */}
