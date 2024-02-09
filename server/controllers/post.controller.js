@@ -252,13 +252,10 @@ module.exports.create = async (req, res, next) => {
         if (stickerObj && type === "video") {
           try {
             // passing the original file object, causes an error
-            scheduleVideoTask(
-              {
-                file: JSON.parse(JSON.stringify(mainFile)),
-                sticker: stickerObj,
-              },
-              "in 1 minute"
-            );
+            scheduleVideoTask({
+              file: JSON.parse(JSON.stringify(mainFile)),
+              sticker: stickerObj,
+            });
 
             stickerObj.usage_count = stickerObj.usage_count + 1;
             await stickerObj.save();
