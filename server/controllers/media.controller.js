@@ -37,8 +37,33 @@ module.exports.getMedia = async (req, res, next) => {
     if (range && typeof range === "string") {
       // Create response headers
       const videoSize = file.length;
-      const start = Number(range.replace(/\D/g, ""));
-      const end = videoSize - 1;
+
+      // const start = Number(range.replace(/\D/g, ""));
+      // const end = videoSize - 1;
+
+      // get start and end of the request from the range
+      let [start, end] = range.replace(/bytes=/, "").split("-");
+      start = parseInt(start, 10);
+      end = end ? parseInt(end, 10) : videoSize - 1;
+
+      // if 'end' doesnot have a value, set it to the end of the file
+      if (!isNaN(start) && isNaN(end)) {
+        start = start;
+        end = videoSize - 1;
+      }
+
+      // if 'start' doesn't have a value, move 'end' to the end of the file and set 'start' to 'videosize - end'
+      if (isNaN(start) && !isNaN(end)) {
+        start = videoSize - end;
+        end = videoSize - 1;
+      }
+
+      // handle request out of range
+      if (start >= videoSize || end >= videoSize) {
+        res.writeHead(416, { "Content-Range": `bytes */${videoSize}` });
+        return res.end();
+      }
+
       const contentLength = end - start + 1;
 
       const headers = {
