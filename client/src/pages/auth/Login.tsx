@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import styles from "./styles.module.css";
 import { env } from "../../env";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const [forgotPassword, setForgotPassword] = useState(false);
+  // const navigate = useNavigate();
+  // const [forgotPassword, setForgotPassword] = useState(false);
   const [isCreate] = useState(false);
 
   // TODO: handle forgotPassword
 
   useEffect(() => {
-    const queryParameters = new URLSearchParams(window.location.search);
-    setForgotPassword(queryParameters.get("forgotPassword") === "true");
+    // const queryParameters = new URLSearchParams(window.location.search);
+    // setForgotPassword(queryParameters.get("forgotPassword") === "true");
     // setIsCreate(queryParameters.get("create") === "true");
 
     // remove a css class from the parent element that causes style problem
@@ -24,17 +24,17 @@ export default function Login() {
     window.open(`${env.VITE_API_URL}/auth/google`, "_self");
   };
 
-  const facebookAuth = () => {
-    window.open(`${env.VITE_API_URL}/auth/facebook`, "_self");
-  };
+  // const facebookAuth = () => {
+  //   window.open(`${env.VITE_API_URL}/auth/facebook`, "_self");
+  // };
 
-  const instagramAuth = () => {
-    window.open(`${env.VITE_API_URL}/auth/instagram`, "_self");
-  };
+  // const instagramAuth = () => {
+  //   window.open(`${env.VITE_API_URL}/auth/instagram`, "_self");
+  // };
 
-  const gotoWhatsappLogin = () => {
-    navigate("whatsapp");
-  };
+  // const gotoWhatsappLogin = () => {
+  //   navigate("whatsapp");
+  // };
 
   return (
     <>
@@ -75,7 +75,7 @@ export default function Login() {
                           alt="google"
                         />
                       </div>
-                      <div
+                      {/* <div
                         onClick={facebookAuth}
                         className={styles["social-media-icons"]}
                       >
@@ -103,7 +103,7 @@ export default function Login() {
                             alt="whatsapp"
                           />
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                   <div className="d-flex align-items-center justify-content-center">
