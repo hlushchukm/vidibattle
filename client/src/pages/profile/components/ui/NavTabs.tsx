@@ -21,7 +21,7 @@ export default function NavTabs({
           onClick={() => changeSlide(0)}
         >
           <a>
-            <h4 style={{ fontSize: "16px" }}>
+            <h4 style={{ fontSize: "16px", visibility: "hidden" }}>
               {formatNumber(parseInt(posts))}
             </h4>
             <span>Post</span>
