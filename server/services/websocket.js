@@ -16,7 +16,6 @@ const websocket = (server) => {
     console.log(`Socket ${socket.id} connected`);
 
     socket.on("SEND_MESSAGE", async (message) => {
-      console.log("New Message received", message);
       const { chatId, sender, receiver, content } = message;
 
       if (!sender || !receiver || !content) {

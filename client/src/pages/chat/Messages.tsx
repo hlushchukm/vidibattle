@@ -101,6 +101,9 @@ export default function Messages() {
         block: "center",
       });
     }
+
+    // scroll 100 pixels down just to be sure there is no message hidden under the send message input
+    window.scrollBy(0, 100);
   }, [messages]);
 
   useEffect(() => {
