@@ -140,7 +140,7 @@ export default function BasicInfo({
                 <li>
                   <a
                     className=""
-                    onClick={() => navigate("/chat/" + profile?._id)}
+                    onClick={() => navigate("/chat/" + profile?.username)}
                     style={{ cursor: "pointer" }}
                   >
                     Message
