@@ -46,26 +46,23 @@ export default function Messages() {
       getMessages(params.username);
     }
 
-    // check if we already have a listener, if so skip
-    if (socket.listeners("INCOMING_MESSAGE").length === 0) {
-      // Listen for incoming messages from the server
-      socket.on("INCOMING_MESSAGE", function (res) {
-        if (
-          res.chat_id === chatIdRef.current ||
-          (res.sender === currentUserId &&
-            res.receiver === receiverRef.current?._id) ||
-          (res.sender === receiverRef.current?._id &&
-            res.receiver === currentUserId)
-        ) {
-          console.log("incoming message ", res.message);
-          const oldMessages = [...messagesRef.current];
-          oldMessages.push(res.message);
-          setMessages([...oldMessages]);
-          setTempMessages((s: any[]) => s.splice(1));
-          chatIdRef.current = res.chat_id;
-        }
-      });
-    }
+    // Listen for incoming messages from the server
+    socket.on("INCOMING_MESSAGE", function (res) {
+      if (
+        res.chat_id === chatIdRef.current ||
+        (res.sender === currentUserId &&
+          res.receiver === receiverRef.current?._id) ||
+        (res.sender === receiverRef.current?._id &&
+          res.receiver === currentUserId)
+      ) {
+        console.log("incoming message ", res.message);
+        const oldMessages = [...messagesRef.current];
+        oldMessages.push(res.message);
+        setMessages([...oldMessages]);
+        setTempMessages((s: any[]) => s.splice(1));
+        chatIdRef.current = res.chat_id;
+      }
+    });
 
     // check if it came from a share screen, and set the input element with the text
     if (
