@@ -214,6 +214,12 @@ module.exports.createCompetition = async (req, res, next) => {
           .json({ message: "found a round without start or end date" });
       }
 
+      if (!round.percentage_to_advance && i < rounds.length - 1) {
+        return res.status(400).json({
+          message: "found a round without a percentage value to advance users",
+        });
+      }
+
       let start_date = null;
       let end_date = null;
       try {
@@ -246,6 +252,7 @@ module.exports.createCompetition = async (req, res, next) => {
         start_date,
         end_date,
         min_likes: round.min_likes,
+        percentage_to_advance: round.percentage_to_advance,
         is_first_round: i === 0,
         is_last_round: i + 1 >= rounds.length,
         competition: newCompetition._id,
@@ -404,6 +411,12 @@ module.exports.editCompetition = async (req, res, next) => {
           .json({ message: "found a round without start or end date" });
       }
 
+      if (!round.percentage_to_advance && i < rounds.length - 1) {
+        return res.status(400).json({
+          message: "found a round without a percentage value to advance users",
+        });
+      }
+
       let start_date = null;
       let end_date = null;
 
@@ -435,6 +448,7 @@ module.exports.editCompetition = async (req, res, next) => {
         start_date,
         end_date,
         min_likes: round.min_likes,
+        percentage_to_advance: round.percentage_to_advance,
         is_first_round: i === 0,
         is_last_round: i + 1 >= rounds.length,
       };
