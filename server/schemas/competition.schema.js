@@ -34,6 +34,7 @@ const roundSchema = Schema(
     start_date: { type: Number, required: true },
     end_date: { type: Number, required: true },
     min_likes: { type: Number, required: true, default: 0 },
+    percentage_to_advance: { type: Number },
     is_first_round: { type: Boolean, default: false },
     is_last_round: { type: Boolean, default: false },
     competition: { type: Schema.Types.ObjectId, ref: "Competition" },
