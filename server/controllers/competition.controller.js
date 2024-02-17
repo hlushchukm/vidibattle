@@ -227,7 +227,6 @@ module.exports.createCompetition = async (req, res, next) => {
         end_date = stringDateToUTC(round.end_date);
 
         if (!start_date || !end_date) {
-          console.log(round.start_date, round.end_date);
           return res
             .status(400)
             .json({ message: "Invalid date format found in rounds." });
@@ -824,6 +823,9 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
     current_round: prevRound.number,
   });
 
+  const lostCompetitorsAndPosts = [];
+  const advancedCompetitors = [];
+
   for (const competitor of competingUsers) {
     const post = await Post.findOne({
       author: competitor.user?._id,
@@ -844,16 +846,104 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
 
     if (post.likes_count >= prevRound.min_likes) {
       competitor.current_round = competition.current_round;
+      advancedCompetitors.push(competitor);
     } else {
+      lostCompetitorsAndPosts.push({ competitor, post });
       competitor.status = "lost";
+    }
+    await competitor.save();
+  }
+
+  if (advancedCompetitors.length === 0 && lostCompetitorsAndPosts.length > 0) {
+    // if no user got the sufficient number of likes to advance, then advance those users who got the most likes based on the percentage specified on the round
+    this.advanceUsersBasedOnPercentage(
+      lostCompetitorsAndPosts,
+      competition,
+      prevRound
+    );
+  }
+};
+
+module.exports.advanceUsersBasedOnPercentage = async (
+  // competitors,
+  // posts,
+  competitors_posts, // {post: {}, competitor: {}}
+  competition,
+  round
+) => {
+  competitors_posts = competitors_posts.sort(
+    (a, b) => b.post.likes_count - a.post.likes_count
+  );
+
+  const percentage = round?.percentage_to_advance;
+  if (!percentage) {
+    // if no percentage is given, every competitor will fail
+    for (const { competitor } of competitors_posts) {
       deletePostsFromCompetition(
         competition._id,
         competitor.user?._id,
         competition.current_round
       );
+      competitor.status = "lost";
+      await competitor.save();
     }
-    await competitor.save();
+    return;
   }
+
+  const noOfUsersToAdvance = this.getNumberOfUsersToAdvance(
+    percentage,
+    competition.rounds_count
+  );
+
+  let advancedUsers = 0;
+  let i = 0;
+  while (advancedUsers < noOfUsersToAdvance) {
+    /** if the number of people with the same likes count exceeds the number of allowed users to advance,
+     * we still need to advance all of them in order to not discriminate */
+    let competitor = competitors_posts[i]?.competitor;
+    let post = competitors_posts[i]?.post;
+    const postLikesCount = post?.likes_count;
+    do {
+      if (!post) {
+        competitor.status = "lost";
+        await competitor.save();
+        deletePostsFromCompetition(
+          competition._id,
+          competitor.user?._id,
+          competition.current_round
+        );
+        continue;
+      }
+
+      competitor.status = "playing";
+      competitor.current_round = competition.current_round;
+      await competitor.save();
+      advancedUsers++;
+      i++;
+
+      competitor = competitors_posts[i]?.competitor;
+      post = competitors_posts[i]?.post;
+    } while (
+      post?.likes_count === postLikesCount &&
+      i < competitors_posts.length
+    );
+  }
+
+  // delete the posts of the users who didn't advance
+  while (i < competitors_posts.length) {
+    deletePostsFromCompetition(
+      competition._id,
+      competitors_posts[i]?.competitor?.user?._id,
+      competition.current_round
+    );
+    i++;
+  }
+};
+
+module.exports.getNumberOfUsersToAdvance = (percentage, rounds_count) => {
+  percentage = percentage / 100;
+  const noOfUsers = Math.ceil(rounds_count * percentage);
+  return noOfUsers;
 };
 
 module.exports.getCompetitionsList = async (req, res, next) => {
