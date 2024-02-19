@@ -2,6 +2,7 @@ const {
   addStickerToVideo,
   deleteFile,
   storeFileFromLocalToGridFS,
+  renameFile,
 } = require("../controllers/media.controller");
 
 const maxRetryAmount = 5;
@@ -21,11 +22,16 @@ module.exports.processVideo = async (job, agenda) => {
     // add sticker to video and save to temp folder
     const filePath = await addStickerToVideo(file?.filename, sticker);
 
+    const tempFileName = "temp_" + file?.filename;
+
+    // upload the new video with the sticker from temp folder
+    await storeFileFromLocalToGridFS(filePath, tempFileName, file.contentType);
+
     // delete old video file(the uploaded file)
     await deleteFile(file?.filename);
 
-    // upload the new video with the sticker from temp folder
-    await storeFileFromLocalToGridFS(filePath, file.filename, file.contentType);
+    // rename the newly uploaded file to take the name of the deleted file
+    await renameFile(tempFileName, file?.filename);
 
     console.log(`Video job ${job.attrs._id} completed`);
   } catch (error) {

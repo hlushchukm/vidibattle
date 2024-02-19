@@ -248,6 +248,7 @@ module.exports.storeFileFromLocalToGridFS = (
     writestream.on("finish", (file) => {
       deleteFile(sourcePath);
       resolve(file);
+      console.log("finished uploading ", sourcePath);
     });
 
     writestream.on("error", (uploadError) => {
@@ -258,9 +259,7 @@ module.exports.storeFileFromLocalToGridFS = (
 };
 
 module.exports.downloadFileFromGridFs = async (filename, filePath) => {
-  const file = await gfs.files.findOne({
-    filename,
-  });
+  const file = await gfs.files.findOne({ filename });
 
   if (!file) {
     console.log("file not found. reschedule file download");
@@ -284,4 +283,16 @@ module.exports.downloadFileFromGridFs = async (filename, filePath) => {
     });
   });
   writeStream.end();
+};
+
+module.exports.renameFile = async (originalName, newName) => {
+  const file = await gfs.files.findOne({ filename: originalName });
+
+  if (!file) {
+    throw new Error(
+      `file ${originalName} was not found. Couldn't rename file. Operation Aborted`
+    );
+  }
+
+  await gridfsBucket.rename(file._id, newName);
 };
