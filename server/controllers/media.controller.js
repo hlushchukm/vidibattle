@@ -174,6 +174,17 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
   const videoPath = getPathToTempFolder("temp_video." + videoExtension);
   await this.downloadFileFromGridFs(videoName, videoPath);
 
+  // Check if files exist before proceeding to ffmpeg
+  if (!fs.existsSync(stickerPath)) {
+    console.log("Sticker file was not downloaded. Aborting operation");
+    throw new Error("Sticker file was not downloaded. Aborting operation");
+  }
+
+  if (!fs.existsSync(videoPath)) {
+    console.log("Video file was not downloaded. Aborting operation");
+    throw new Error("Video file was not downloaded. Aborting operation");
+  }
+
   const outputPath = getPathToTempFolder("output." + videoExtension);
 
   return new Promise((resolve, reject) => {
