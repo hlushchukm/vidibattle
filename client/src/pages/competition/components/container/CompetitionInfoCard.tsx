@@ -3,7 +3,7 @@ import {
   formatResourceURL,
   handleCompetitionImageError,
 } from "../../../../services/asset-paths";
-import { getDate } from "../../../../services/timeAndDate";
+import { getDateWithTime } from "../../../../services/timeAndDate";
 import ConfirmationModal from "../../../../components/ConfirmationModal";
 import { get } from "../../../../services/crud";
 import { getUserId } from "../../../../services/auth";
@@ -126,7 +126,7 @@ export default function CompetitionInfoCard({
         <img
           src={formatResourceURL(competition?.image_long)}
           className="card-img-top"
-          style={{  aspectRatio: '3/1' }}
+          style={{ aspectRatio: "3/1" }}
           onError={handleCompetitionImageError}
         />
         <div className="card-body">
@@ -170,7 +170,7 @@ export default function CompetitionInfoCard({
             <small className="">
               Result Date:&nbsp;
               <span className="fw-bolder">
-                {getDate(competition?.result_date)}
+                {getDateWithTime(competition?.result_date)}
               </span>
             </small>
           </p>

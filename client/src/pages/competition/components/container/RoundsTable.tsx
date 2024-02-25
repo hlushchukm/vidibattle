@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDate } from "../../../../services/timeAndDate";
+import { getDateWithTime } from "../../../../services/timeAndDate";
 import { Link } from "react-router-dom";
 
 export default function RoundsTable({
@@ -88,10 +88,10 @@ export default function RoundsTable({
                   <th className="px-4 py-2 border">{round.name}</th>
                   <th className="px-4 py-2 border">{round.min_likes}</th>
                   <th className="px-4 py-2 border">
-                    {getDate(round.start_date)}
+                    {getDateWithTime(round.start_date)}
                   </th>
                   <th className="px-4 py-2 border">
-                    {getDate(round.end_date)}
+                    {getDateWithTime(round.end_date)}
                   </th>
                   <th
                     className="px-4 py-2 border text-center"

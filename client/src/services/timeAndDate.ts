@@ -20,6 +20,23 @@ export function getDate(dateStr: string): string {
   return formattedDate;
 }
 
+export function getDateWithTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  if (!date) return "";
+
+  // generate a string in the following format DD/MM/YYYY, HH:MM (AM/PM)
+  const formattedDate = date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+
+  return formattedDate;
+}
+
 export function getTime(dateStr: string) {
   const date = new Date(dateStr);
   let formattedTime = date.toLocaleTimeString().replace(/:\d{2}\s/, " ");
