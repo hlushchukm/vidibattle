@@ -18,24 +18,24 @@ const { refundCompetitionPayment } = require("./wallet.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
-  const startOfDay = new Date(
+  const startOfHour = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
     currentDate.getDate()
   );
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(
+  startOfHour.setHours(currentDate.getHours(), 0, 0, 0);
+  const endOfHour = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
-    currentDate.getDate() + 1
+    currentDate.getDate()
   );
-  endOfDay.setHours(0, 0, 0, 0);
+  endOfHour.setHours(currentDate.getHours() + 1, 0, 0, 0);
 
   try {
     let changes = 0;
 
     const rounds = await Round.find({
-      start_date: { $gte: startOfDay.getTime(), $lt: endOfDay.getTime() },
+      start_date: { $gte: startOfHour.getTime(), $lt: endOfHour.getTime() },
     }).populate("competition");
 
     for (const round of rounds) {
@@ -70,9 +70,9 @@ module.exports.updateCompetitionStartsForToday = async () => {
     }
 
     if (changes > 0) {
-      console.log(changes + " competition rounds started for today.");
+      console.log(changes + " competition rounds started in this hour.");
     } else {
-      console.log("No competition rounds start today.");
+      console.log("No competition rounds start this hour.");
     }
   } catch (error) {
     console.error("Error starting competition rounds:", error);
@@ -81,21 +81,16 @@ module.exports.updateCompetitionStartsForToday = async () => {
 
 module.exports.updateCompetitionEndsForToday = async () => {
   const currentDate = new Date();
-  const startOfDay = new Date(
+  const startOfHour = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth(),
     currentDate.getDate()
   );
-  const endOfDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate() + 1
-  );
-  endOfDay.setHours(0, 0, 0, 0);
+  startOfHour.setHours(currentDate.getHours(), 0, 0, 0);
 
   try {
     const rounds = await Round.find({
-      end_date: { $lt: startOfDay.getTime() },
+      end_date: { $lte: startOfHour.getTime() },
     }).populate("competition");
 
     let changes = 0;
@@ -127,9 +122,9 @@ module.exports.updateCompetitionEndsForToday = async () => {
     }
 
     if (changes > 0) {
-      console.log(changes + " competition rounds ended today.");
+      console.log(changes + " competition rounds ended this hour.");
     } else {
-      console.log("No competition rounds end today.");
+      console.log("No competition rounds end this hour.");
     }
   } catch (error) {
     console.error("Error ending competition rounds:", error);
@@ -474,7 +469,7 @@ module.exports.editCompetition = async (req, res, next) => {
         oldCompetition.end_date = editedRound.end_date;
       }
 
-      let today = dateToUTC(today);
+      let today = dateToUTC(new Date());
       if (start_date <= today) {
         oldCompetition.status = "started";
         oldCompetition.current_round = i + 1;
