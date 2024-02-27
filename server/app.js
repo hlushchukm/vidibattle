@@ -78,7 +78,11 @@ const connect = mongoose
     // error handler middleware
     app.use((err, req, res, next) => {
       const statusCode = err.statusCode || 500;
-      console.error(err.statusCode, err.message, err.stack);
+      console.error(
+        err.statusCode,
+        err.message,
+        statusCode === 404 ? "" : err.stack
+      );
       res.status(statusCode).json({ success: false, message: err.message });
 
       return;
