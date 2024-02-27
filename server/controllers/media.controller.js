@@ -204,6 +204,16 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
         console.error("Error adding sticker to video:", err);
         reject(createHttpError(500, "Error adding sticker to video"));
       })
+      .on("codecData", (data) => {
+        console.log(
+          "Ffmpeg input is " +
+            data.audio +
+            " audio " +
+            "with " +
+            data.video +
+            " video"
+        );
+      })
       .run();
   });
 };
@@ -295,4 +305,146 @@ module.exports.renameFile = async (originalName, newName) => {
   }
 
   await gridfsBucket.rename(file._id, newName);
+};
+
+module.exports.getVideoDimensions = async (videoBuffer) => {
+  const probeData = await probe(videoBuffer);
+  return probeData.streams[0].width && probeData.streams[0].height
+    ? {
+        width: probeData.streams[0].width,
+        height: probeData.streams[0].height,
+        codecName: probeData.streams[0].codec_name,
+      }
+    : {};
+};
+
+module.exports.resizeStickerForVideo = async (videoBuffer, imageBuffer) => {
+  // to get buffer
+  // fs.readFileSync(filePath);
+
+  // Get video dimensions and codec
+  const videoInfo = await this.getVideoDimensions(videoBuffer);
+  const {
+    width: videoWidth,
+    height: videoHeight,
+    codecName: videoCodec,
+  } = videoInfo;
+
+  // Process the image using Jimp
+  // do npm i jimp
+  const image = await Jimp.read(imageBuffer);
+
+  // Get image dimensions
+  let { width: imageWidth, height: imageHeight } = image.bitmap;
+
+  const margin = 10; // margin for sticker
+
+  // Calculate minimum and maximum image dimensions based on video dimensions and constraints
+  const minWidth = Math.floor(videoWidth * 0.05); // Minimum width: 5% of video width
+  const minHeight = Math.floor(videoHeight * 0.05); // Minimum height: 5% of video height
+  const maxWidth = Math.floor(videoWidth * 0.9); // Maximum width: 90% of video width
+  const maxHeight = Math.floor(videoHeight * 0.1); // Maximum height: 10% of video height
+
+  let scaleFactor = 0;
+
+  // scale the width if it is not within the maxWidth and minWidth constraint
+  if (imageWidth > maxWidth) {
+    scaleFactor = maxWidth / imageWidth;
+  } else if (imageWidth < minWidth) {
+    scaleFactor = minWidth / imageWidth;
+  }
+
+  if (scaleFactor !== 0) {
+    image.resize(imageWidth * scaleFactor, imageHeight * scaleFactor);
+    imageWidth = image.bitmap.width;
+    imageHeight = image.bitmap.height;
+  }
+
+  scaleFactor = 0;
+  // scale the height if it is not within the maxHeight and minHeight constraint
+  if (imageHeight > maxHeight) {
+    scaleFactor = maxHeight / imageHeight;
+  } else if (imageHeight < minHeight) {
+    scaleFactor = minHeight / imageHeight;
+  }
+
+  if (scaleFactor !== 0) {
+    image.resize(imageWidth * scaleFactor, imageHeight * scaleFactor);
+    imageWidth = image.bitmap.width;
+    imageHeight = image.bitmap.height;
+  }
+};
+
+module.exports.isVideoProcessable = (videoPath) => {
+  return new Promise((resolve, reject) => {
+    const ffprobeProcess = spawn("ffprobe", [
+      "-v",
+      "error",
+      "-show_format",
+      videoPath,
+    ]);
+
+    let errorData = "";
+    ffprobeProcess.stderr.on("data", (data) => {
+      errorData += data.toString();
+    });
+
+    ffprobeProcess.on("close", (code) => {
+      if (code !== 0) {
+        // Check for ffprobe errors in the output
+        if (errorData.includes("Unknown format")) {
+          reject(new Error("Unsupported video format"));
+        } else {
+          reject(new Error("Error analyzing video"));
+        }
+      } else {
+        console.log("video is likely processable");
+        resolve(true); // Video is likely processable (based on ffprobe success)
+      }
+    });
+  });
+};
+
+module.exports.getStickerPostitionCoordinates = (
+  position,
+  { videoWidth, videoHeight },
+  { imageWidth, imageHeight }
+) => {
+  const margin = 10; // margin for the sticker on the video
+  let x, y;
+  switch (position) {
+    case "top":
+      x = Math.floor((videoWidth - imageWidth) / 2);
+      y = margin;
+      break;
+    case "top-left":
+      x = margin;
+      y = margin;
+      break;
+    case "top-right":
+      x = videoWidth - imageWidth - margin;
+      y = margin;
+      break;
+    case "bottom":
+      x = Math.floor((videoWidth - imageWidth) / 2);
+      y = videoHeight - imageHeight - margin;
+      break;
+    case "bottom-left":
+      x = margin;
+      y = videoHeight - imageHeight - margin;
+      break;
+    case "bottom-right":
+      x = videoWidth - imageWidth - margin;
+      y = videoHeight - imageHeight - margin;
+      break;
+    default:
+      // Handle the case if user enters an invalid position
+      console.error(
+        "Invalid sticker position specified. Defaulting to top-left"
+      );
+      x = margin;
+      y = margin;
+  }
+
+  return { x, y };
 };
