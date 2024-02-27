@@ -897,6 +897,13 @@ module.exports.advanceUsersBasedOnPercentage = async (
     let post = competitors_posts[i]?.post;
     const postLikesCount = post?.likes_count;
     do {
+      if (!competitor) {
+        i++;
+        competitor = competitors_posts[i]?.competitor;
+        post = competitors_posts[i]?.post;
+        continue;
+      }
+
       if (!post) {
         competitor.status = "lost";
         await competitor.save();
@@ -905,6 +912,9 @@ module.exports.advanceUsersBasedOnPercentage = async (
           competitor.user?._id,
           competition.current_round
         );
+        i++;
+        competitor = competitors_posts[i]?.competitor;
+        post = competitors_posts[i]?.post;
         continue;
       }
 
