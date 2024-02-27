@@ -6,8 +6,9 @@ const {
   getRandomSticker,
   decrementStickerCount,
 } = require("./sticker.controller");
-const { deleteFile } = require("./media.controller");
+const { deleteFile, isProcessableVideo } = require("./media.controller");
 const { scheduleVideoTask } = require("../services/queueManager");
+const { Sticker } = require("../models/sticker.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -192,6 +193,11 @@ module.exports.create = async (req, res, next) => {
         current_round: { $lte: round ?? 1 },
       });
 
+      let isVideoProcessable = false;
+      if (competitionItem.has_sticker && type === "video") {
+        isVideoProcessable = await isProcessableVideo(mainFile.filename);
+      }
+
       if (!competitionItem) {
         return res.status(400).json({ message: "competition not found" });
       } else if (
@@ -252,6 +258,15 @@ module.exports.create = async (req, res, next) => {
         // add sticker to video
         if (stickerObj && type === "video") {
           try {
+            // if the video codec is unsupported, return an error
+            if (!isVideoProcessable) {
+              deleteFile(mainFile.filename);
+              return res.status(400).json({
+                message:
+                  "Unsupported video codec detected. You can't post this video for a competition",
+              });
+            }
+
             // passing the original file object, causes an error
             scheduleVideoTask({
               file: JSON.parse(JSON.stringify(mainFile)),

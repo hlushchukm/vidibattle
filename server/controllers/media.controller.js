@@ -7,7 +7,9 @@ const fs = require("fs");
 const createHttpError = require("http-errors");
 const { getPathToTempFolder, deleteFile } = require("../services/file");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffprobePath = require("@ffprobe-installer/ffprobe").path;
 Ffmpeg.setFfmpegPath(ffmpegPath);
+Ffmpeg.setFfprobePath(ffprobePath);
 
 // Init stream
 const conn = mongoose.connection;
@@ -211,7 +213,8 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
             " audio " +
             "with " +
             data.video +
-            " video"
+            " video. File extension is " +
+            videoExtension
         );
       })
       .run();
@@ -269,15 +272,7 @@ module.exports.storeFileFromLocalToGridFS = (
 };
 
 module.exports.downloadFileFromGridFs = async (filename, filePath) => {
-  const file = await gfs.files.findOne({ filename });
-
-  if (!file) {
-    console.log("file not found. reschedule file download");
-    throw new Error("file not found");
-  }
-
-  // save the video to a temp folder
-  const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
+  const downloadStream = await this.getReadStreamFromGridFS(filename);
   const writeStream = fs.createWriteStream(filePath);
 
   await new Promise((resolve, reject) => {
@@ -295,6 +290,19 @@ module.exports.downloadFileFromGridFs = async (filename, filePath) => {
   writeStream.end();
 };
 
+module.exports.getReadStreamFromGridFS = async (filename) => {
+  const file = await gfs.files.findOne({ filename });
+
+  if (!file) {
+    console.log("file not found. reschedule file download");
+    throw new Error("file not found");
+  }
+
+  // save the video to a temp folder
+  const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
+  return downloadStream;
+};
+
 module.exports.renameFile = async (originalName, newName) => {
   const file = await gfs.files.findOne({ filename: originalName });
 
@@ -305,6 +313,40 @@ module.exports.renameFile = async (originalName, newName) => {
   }
 
   await gridfsBucket.rename(file._id, newName);
+};
+
+module.exports.isProcessableVideo = async (filename) => {
+  try {
+    const downloadStream = await this.getReadStreamFromGridFS(filename);
+    const metadata = await new Promise((resolve, reject) => {
+      Ffmpeg.ffprobe(downloadStream, (err, metadata) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(metadata);
+        }
+      });
+    });
+
+    const videoStream = metadata.streams[0];
+    const codec = videoStream.codec_name;
+
+    console.log("the codec of the file " + filename + " is: " + codec);
+
+    const supportedCodecs = ["h264", "mpeg2"];
+
+    // Check if the codec is supported
+    if (supportedCodecs.includes(codec)) {
+      console.log("supported video codec: " + codec);
+      return true;
+    } else {
+      console.log("Unsupported video codec detected: " + codec);
+      return false;
+    }
+  } catch (error) {
+    console.error("Error while to get the codec info of a video:", error);
+    return false;
+  }
 };
 
 module.exports.getVideoDimensions = async (videoBuffer) => {
