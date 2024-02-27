@@ -890,7 +890,7 @@ module.exports.advanceUsersBasedOnPercentage = async (
 
   let advancedUsers = 0;
   let i = 0;
-  while (advancedUsers < noOfUsersToAdvance) {
+  while (advancedUsers < noOfUsersToAdvance && competitors_posts.length > 0) {
     /** if the number of people with the same likes count exceeds the number of allowed users to advance,
      * we still need to advance all of them in order to not discriminate */
     let competitor = competitors_posts[i]?.competitor;
