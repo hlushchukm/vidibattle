@@ -245,7 +245,9 @@ export default function Post({
             </span>
           </p>
         )} */}
-        <p className="text-black">{post.caption}</p>
+        <p className="text-black" style={{ overflowWrap: "break-word" }}>
+          {post.caption}
+        </p>
         <div className="dz-media">
           {post.media?.[0]?.type === "image" && (
             <div style={{ position: "relative", width: "fit-content" }}>
