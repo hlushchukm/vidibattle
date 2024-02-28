@@ -8,7 +8,6 @@ const {
 } = require("./sticker.controller");
 const { deleteFile, isProcessableVideo } = require("./media.controller");
 const { scheduleVideoTask } = require("../services/queueManager");
-const { Sticker } = require("../models/sticker.model");
 
 module.exports.getFeed = async (req, res, next) => {
   try {

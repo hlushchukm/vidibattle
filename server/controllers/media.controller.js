@@ -333,7 +333,7 @@ module.exports.isProcessableVideo = async (filename) => {
 
     console.log("the codec of the file " + filename + " is: " + codec);
 
-    const supportedCodecs = ["h264", "mpeg2"];
+    const supportedCodecs = ["h264", "mpeg2", "aac"];
 
     // Check if the codec is supported
     if (supportedCodecs.includes(codec)) {
@@ -415,36 +415,6 @@ module.exports.resizeStickerForVideo = async (videoBuffer, imageBuffer) => {
     imageWidth = image.bitmap.width;
     imageHeight = image.bitmap.height;
   }
-};
-
-module.exports.isVideoProcessable = (videoPath) => {
-  return new Promise((resolve, reject) => {
-    const ffprobeProcess = spawn("ffprobe", [
-      "-v",
-      "error",
-      "-show_format",
-      videoPath,
-    ]);
-
-    let errorData = "";
-    ffprobeProcess.stderr.on("data", (data) => {
-      errorData += data.toString();
-    });
-
-    ffprobeProcess.on("close", (code) => {
-      if (code !== 0) {
-        // Check for ffprobe errors in the output
-        if (errorData.includes("Unknown format")) {
-          reject(new Error("Unsupported video format"));
-        } else {
-          reject(new Error("Error analyzing video"));
-        }
-      } else {
-        console.log("video is likely processable");
-        resolve(true); // Video is likely processable (based on ffprobe success)
-      }
-    });
-  });
 };
 
 module.exports.getStickerPostitionCoordinates = (
