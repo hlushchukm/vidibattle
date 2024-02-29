@@ -854,12 +854,19 @@ const advanceUsersToNextRound = async (competition, prevRound) => {
       competition,
       prevRound
     );
+  } else {
+    for (const { competitor } of lostCompetitorsAndPosts) {
+      deletePostsFromCompetition(
+        competition._id,
+        competitor.user?._id,
+        competition.current_round
+      );
+      await competitor.save();
+    }
   }
 };
 
 module.exports.advanceUsersBasedOnPercentage = async (
-  // competitors,
-  // posts,
   competitors_posts, // {post: {}, competitor: {}}
   competition,
   round
