@@ -317,7 +317,7 @@ module.exports.renameFile = async (originalName, newName) => {
 };
 
 module.exports.isProcessableVideo = async (filename) => {
-  const videoPath = getPathToTempFolder(filename);
+  const videoPath = getPathToTempFolder("codec_check_" + filename);
   try {
     // need to download the file because giving a readStream for ffprobe was generating EOF error for some video files
     await this.downloadFileFromGridFs(filename, videoPath);
