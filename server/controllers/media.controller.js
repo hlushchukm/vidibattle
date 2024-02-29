@@ -316,10 +316,12 @@ module.exports.renameFile = async (originalName, newName) => {
 };
 
 module.exports.isProcessableVideo = async (filename) => {
+  const videoPath = getPathToTempFolder(filename);
   try {
-    const downloadStream = await this.getReadStreamFromGridFS(filename);
+    // need to download the file because giving a readStream for ffprobe was generating EOF error for some video files
+    await this.downloadFileFromGridFs(filename, videoPath);
     const metadata = await new Promise((resolve, reject) => {
-      Ffmpeg.ffprobe(downloadStream, (err, metadata) => {
+      Ffmpeg.ffprobe(videoPath, (err, metadata) => {
         if (err) {
           reject(err);
         } else {
@@ -335,6 +337,8 @@ module.exports.isProcessableVideo = async (filename) => {
 
     const supportedCodecs = ["h264", "mpeg2", "aac"];
 
+    deleteFile(videoPath);
+
     // Check if the codec is supported
     if (supportedCodecs.includes(codec)) {
       console.log("supported video codec: " + codec);
@@ -344,7 +348,8 @@ module.exports.isProcessableVideo = async (filename) => {
       return false;
     }
   } catch (error) {
-    console.error("Error while to get the codec info of a video:", error);
+    console.error("Error while getting the codec info of a video:", error);
+    deleteFile(videoPath);
     return false;
   }
 };
