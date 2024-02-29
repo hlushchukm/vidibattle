@@ -187,7 +187,7 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
   }
 
   const outputPath = getPathToTempFolder(
-    videoName + "_" + sticker.image + videoExtension
+    videoName + "_" + sticker.image + "." + videoExtension
   );
 
   return new Promise((resolve, reject) => {
