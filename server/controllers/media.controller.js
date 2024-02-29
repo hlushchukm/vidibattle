@@ -162,7 +162,6 @@ module.exports.deleteFile = async (filename) => {
 module.exports.addStickerToVideo = async (videoName, sticker) => {
   // get filetypes
   const videoExtension = videoName.split(".")?.[1];
-  const stickerExtension = sticker.image.split(".")?.[1];
 
   // Create the temp directory if it doesn't exist
   const directoryPath = getPathToTempFolder("");
@@ -170,10 +169,10 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
     fs.mkdirSync(directoryPath, { recursive: true });
   }
 
-  const stickerPath = getPathToTempFolder("temp_sticker." + stickerExtension);
+  const stickerPath = getPathToTempFolder(sticker.image);
   await this.downloadFileFromGridFs(sticker.image, stickerPath);
 
-  const videoPath = getPathToTempFolder("temp_video." + videoExtension);
+  const videoPath = getPathToTempFolder(videoName);
   await this.downloadFileFromGridFs(videoName, videoPath);
 
   // Check if files exist before proceeding to ffmpeg
@@ -187,7 +186,9 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
     throw new Error("Video file was not downloaded. Aborting operation");
   }
 
-  const outputPath = getPathToTempFolder("output." + videoExtension);
+  const outputPath = getPathToTempFolder(
+    videoName + "_" + sticker.image + videoExtension
+  );
 
   return new Promise((resolve, reject) => {
     // Add sticker to video using ffmpeg
