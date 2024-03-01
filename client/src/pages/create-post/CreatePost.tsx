@@ -44,7 +44,7 @@ export default function CreatePost({
   const navigate = useNavigate();
 
   useEffect(() => {
-    getConfigurationData();
+    if (competitionId) getConfigurationData();
   }, []);
 
   useEffect(() => {
