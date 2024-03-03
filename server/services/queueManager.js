@@ -33,7 +33,7 @@ module.exports.scheduleVideoTask = (data, time = "now") => {
 };
 
 const videoStickerJob = (agenda) => {
-  agenda.define("process video", { priority: "high", concurrency: 3 }, (job) =>
+  agenda.define("process video", { priority: "high", concurrency: 2 }, (job) =>
     processVideo(job, agenda)
   );
 };
