@@ -223,20 +223,22 @@ module.exports.addStickerToVideo = async (videoName, sticker) => {
 };
 
 module.exports.getStickerPostitionCommand = (position) => {
+  // [0:v] is the first input which is the video
+  // [1:v] is the second input which is the sticker
   switch (position) {
     case "top-right":
-      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=W-w-10:10";
+      return "[1:v]scale=100:-1 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=W-w-10:10";
     case "bottom-left":
-      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=10:H-h-10";
+      return "[1:v]scale=100:-1 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=10:H-h-10";
     case "bottom-right":
-      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=W-w-10:H-h-10";
+      return "[1:v]scale=100:-1 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=W-w-10:H-h-10";
     case "top":
-      return "[1:v]scale=-1:100 [sticker]; [0:v][sticker]overlay=(W-w)/2:0";
+      return "[1:v]scale=-1:100 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=(W-w)/2:0";
     case "bottom":
-      return "[1:v]scale=-1:100 [sticker]; [0:v][sticker]overlay=(W-w)/2:H-h-0";
+      return "[1:v]scale=-1:100 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=(W-w)/2:H-h-0";
     case "top-left":
     default:
-      return "[1:v]scale=100:-1 [sticker]; [0:v][sticker]overlay=10:10";
+      return "[1:v]scale=100:-1 [sticker]; [0:v]scale=-2:720 [base]; [base][sticker]overlay=10:10";
   }
 };
 
