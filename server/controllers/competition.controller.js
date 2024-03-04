@@ -14,7 +14,7 @@ const {
   createMultipleStickers,
   updateMultipleStickers,
 } = require("./sticker.controller");
-const { refundCompetitionPayment } = require("./wallet.controller");
+const { refundCompetitionPayment, pay } = require("./wallet.controller");
 
 module.exports.updateCompetitionStartsForToday = async () => {
   const currentDate = new Date();
@@ -1107,16 +1107,7 @@ module.exports.joinCompetition = async (req, res, next) => {
         paymentAmount = paymentAmount - competitor.paid_amount;
       }
 
-      const wallet = await Wallet.findOne({ user: user._id });
-
-      if (!wallet) {
-        return res.status(404).json({ message: "wallet not found" });
-      } else if (wallet.balance < paymentAmount) {
-        return res.status(400).json({ message: "insufficient wallet balance" });
-      }
-
-      wallet.balance = wallet.balance - paymentAmount;
-      await wallet.save();
+      await pay(user._id, paymentAmount);
 
       competitor.paid_amount = selectedCompetition.amount;
       await competitor.save();

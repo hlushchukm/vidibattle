@@ -46,6 +46,30 @@ module.exports.updateBalance = async (userId, balance) => {
   return wallet;
 };
 
+module.exports.pay = async (userId, amount) => {
+  const wallet = await Wallet.findOne({ user: userId });
+
+  if (!wallet) {
+    throw createHttpError(404, "wallet not found");
+  } else if (wallet.balance < amount) {
+    throw createHttpError(400, "insufficient wallet balance");
+  }
+
+  let owner = await Wallet.findOne({ isOwner: true });
+  if (!owner) {
+    owner = new Wallet({ isOwner: true, balance: 0 });
+    await owner.save();
+  }
+
+  wallet.balance = wallet.balance - amount;
+  owner.balance = owner.balance + amount;
+
+  await wallet.save();
+  await owner.save();
+
+  return true;
+};
+
 module.exports.refundCompetitionPayment = async (amount, userId) => {
   const wallet = await Wallet.findOne({ user: userId });
 
@@ -53,9 +77,17 @@ module.exports.refundCompetitionPayment = async (amount, userId) => {
     throw createHttpError(404, "wallet not found");
   }
 
+  let owner = await Wallet.findOne({ isOwner: true });
+  if (!owner) {
+    owner = new Wallet({ isOwner: true, balance: 0 });
+    await owner.save();
+  }
+
   wallet.balance = wallet.balance + amount;
+  owner.balance = owner.balance - amount;
 
   await wallet.save();
+  await owner.save();
 
   return wallet;
 };
