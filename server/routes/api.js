@@ -14,6 +14,7 @@ const walletRouter = require("./wallet.route");
 const adminRouter = require("./admin.route");
 const stickerRouter = require("./sticker.route");
 const configurationRouter = require("./configuration.route");
+const dashboardRouter = require("./dashboard.route");
 
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
@@ -28,5 +29,6 @@ router.use("/wallet", authGuard, walletRouter);
 router.use("/admin", adminAuthGuard, adminRouter);
 router.use("/sticker", adminAuthGuard, stickerRouter);
 router.use("/configuration", configurationRouter);
+router.use("/dashboard", adminAuthGuard, dashboardRouter);
 
 module.exports = router;
