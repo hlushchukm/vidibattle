@@ -28,7 +28,7 @@ module.exports.dashboardAPI = async (req, res, next) => {
       response.top50Users = await top_x_users(50);
     }
 
-    return res.status(200).json(response);
+    return res.status(200).json({ data: response });
   } catch (e) {
     next(e);
   }
