@@ -1,5 +1,6 @@
 const Agenda = require("agenda");
 const { processVideo } = require("./videoSticker");
+const { Post } = require("../models/post.model");
 
 let agenda;
 
@@ -48,4 +49,27 @@ const cleanupJob = (agenda) => {
 
   // Schedule the cleanup job to run every day at midnight
   agenda.every("0 0 * * *", "cleanupJob");
+};
+
+module.exports.scheduleUnpaidJob = () => {
+  if (!agenda) {
+    console.log("Agenda not found");
+    return;
+  }
+
+  agenda.define("unpaidJob", async (job) => {
+    // Remove completed jobs older than 30 days
+    console.log("running agenda unpaid job");
+    await Post.deleteMany({});
+    console.log("deleted all posts.");
+  });
+
+  // Schedule the unpaid job to run every day at midnight
+  agenda.every("0 0 * * *", "unpaidJob");
+};
+
+module.exports.clearUnpaidJob = async () => {
+  const numRemoved = await agenda.cancel({ name: "unpaidJob" });
+
+  console.log(`cancelled ${numRemoved} unpaid job(s).`);
 };

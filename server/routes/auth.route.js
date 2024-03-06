@@ -4,6 +4,8 @@ const {
   loginController,
   loginSuccess,
   loginFail,
+  unpaidController,
+  paidController,
 } = require("../controllers/auth");
 const passport = require("passport");
 
@@ -14,6 +16,8 @@ router.get("/", (req, res, next) => {
 router.post("/login", loginController);
 router.get("/login/success", loginSuccess);
 router.get("/login/failed", loginFail);
+router.post("/unpaid", unpaidController);
+router.post("/paid", paidController);
 
 router.get(
   "/google",
@@ -24,7 +28,9 @@ router.get("/instagram", passport.authenticate("instagram"));
 
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/api/auth/login/failed" }),
+  passport.authenticate("google", {
+    failureRedirect: "/api/auth/login/failed",
+  }),
   (req, res) => {
     // Successful login, redirect or send a response
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
@@ -33,7 +39,9 @@ router.get(
 
 router.get(
   "/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: "/api/auth/login/failed" }),
+  passport.authenticate("facebook", {
+    failureRedirect: "/api/auth/login/failed",
+  }),
   (req, res) => {
     // Successful login, redirect or send a response
     res.redirect(process.env.CLIENT_URL + "/auth/login/successfull" ?? "");
@@ -42,7 +50,9 @@ router.get(
 
 router.get(
   "/instagram/callback",
-  passport.authenticate("instagram", { failureRedirect: "/api/auth/login/failed" }),
+  passport.authenticate("instagram", {
+    failureRedirect: "/api/auth/login/failed",
+  }),
   (req, res) => {
     // Successful login, redirect or send a response
     console.log("Successfull Instagram Login");
