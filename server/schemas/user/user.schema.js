@@ -54,6 +54,10 @@ const userSchema = Schema(
       enum: ["active", "suspended", "under review", "deleted"],
       default: "active",
     },
+
+    is_active: { type: Boolean, required: false, default: false },
+    socket_id: { type: String, required: false, default: null },
+
     provider: {
       type: String,
       enum: ["google", "instagram", "facebook"],

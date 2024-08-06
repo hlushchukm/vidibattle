@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const { Chat } = require("../models/chat.model");
 const { Message } = require("../models/message.model");
 const { User } = require("../models/user.model");
+const { Media } = require("../models/media.model");
 
 // Old code to get a list of chats
 // module.exports.getChatList = async (req, res, next) => {
@@ -67,7 +68,7 @@ module.exports.getChatList = async (req, res, next) => {
     const chats = await Chat.find({ participants: { $in: [userId] } }).populate(
       {
         path: "participants",
-        select: "first_name last_name profile_img username",
+        select: "first_name last_name profile_img username is_active",
       }
     );
 
@@ -183,8 +184,14 @@ module.exports.getChatList = async (req, res, next) => {
         const lastMessage = await Message.findOne({
           chat_id: contact.chatId,
         }).sort({ createdAt: -1 });
+
+        // get the messages in the chat
+        let queryUnseenMsg = Message.find({ chat_id: contact.chatId, seen:false }).sort({ createdAt: -1 });
+        const unSeenMsg = await queryUnseenMsg;        
+
         if (lastMessage) {
           contact.lastMessage = lastMessage;
+          contact.unSeenMsg = unSeenMsg.length;
         }
       }
     }
@@ -307,17 +314,43 @@ module.exports.getMessages = async (req, res, next) => {
   }
 };
 
+module.exports.chatMessageSeenStatusUpdate = async (req, res, next) => {
+  try {
+    const { messageId } = req.body;
+    const message = await Message.findByIdAndUpdate(messageId, { seen: true }, { new: true });        
+    if (message) {
+        req.io.emit("MESSAGE_SEEN", { messageId, chatId: message.chatId, seen: true });
+        res.status(200).send({ success: true, message });
+    } else {
+        res.status(404).send({ success: false, message: 'Message not found' });
+    }
+} catch (error) {
+    res.status(500).send({ success: false, error: error.message });
+}
+};
+
+module.exports.uploadChatImage = async (req, res, next) => {
+  const mainFile = req.files["chat_files"][0];
+  try {
+    return res.status(201).json(
+      mainFile
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports.sendMessage = async (req, res, next) => {
   try {
-    const { sender, receiver, content, chatId } = req.body;
-    if (!sender || !receiver || !content) {
+    const { chatId, sender, receiver, content, attachment } = req.body;
+      if (!sender || !receiver || !content && !attachment) {
       return res.status(400).json({
         status: false,
         message: "missing data! sender, receiver and content is needed",
       });
     }
 
-    const newMsg = await msgCreator({ sender, receiver, content, chatId });
+    const newMsg = await msgCreator({ chatId, sender, receiver, content, attachment });
     return res.status(201).json({
       message: "Message Sent",
       data: newMsg.message,
@@ -333,16 +366,18 @@ module.exports.createMessage = async ({
   sender,
   receiver,
   content,
+  attachment,
 }) => {
   return await msgCreator({
     chatId,
     sender,
     receiver,
     content,
+    attachment
   });
 };
 
-async function msgCreator({ chatId, sender, receiver, content }) {
+async function msgCreator({ chatId, sender, receiver, content, attachment }) {
   let chat;
   if (!chatId) {
     // if chat doesn't exist, create one
@@ -356,6 +391,7 @@ async function msgCreator({ chatId, sender, receiver, content }) {
     receiver,
     content,
     chat_id: chat._id,
+    attachment
   });
 
   await message.save();
@@ -386,3 +422,98 @@ async function createChat(participants) {
     throw new Error(e);
   }
 }
+
+const Grid = require("gridfs-stream");
+const Ffmpeg = require("fluent-ffmpeg");
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+const ffprobePath = require("@ffprobe-installer/ffprobe").path;
+Ffmpeg.setFfmpegPath(ffmpegPath);
+Ffmpeg.setFfprobePath(ffprobePath);
+
+// Init stream
+const conn = mongoose.connection;
+
+let gfs, gridfsBucket;
+conn.once("open", () => {
+  gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+    bucketName: "chat_files",
+  });
+
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection("chat_files");
+});
+
+module.exports.getMedia = async (req, res, next) => {
+  const { filename } = req.params;
+  try {
+    const file = await gfs.files.findOne({
+      filename,
+    });
+    if (!file) {
+      return res.status(404).json({ message: "file not found" });
+    }
+
+    const range = req.headers.range;
+    if (range && typeof range === "string") {
+      // Create response headers
+      const videoSize = file.length;
+
+      // const start = Number(range.replace(/\D/g, ""));
+      // const end = videoSize - 1;
+
+      // get start and end of the request from the range
+      let [start, end] = range.replace(/bytes=/, "").split("-");
+      start = parseInt(start, 10);
+      end = end ? parseInt(end, 10) : videoSize - 1;
+
+      // if 'end' doesnot have a value, set it to the end of the file
+      if (!isNaN(start) && isNaN(end)) {
+        start = start;
+        end = videoSize - 1;
+      }
+
+      // if 'start' doesn't have a value, move 'end' to the end of the file and set 'start' to 'videosize - end'
+      if (isNaN(start) && !isNaN(end)) {
+        start = videoSize - end;
+        end = videoSize - 1;
+      }
+
+      // handle request out of range
+      if (start >= videoSize || end >= videoSize) {
+        res.writeHead(416, { "Content-Range": `bytes */${videoSize}` });
+        return res.end();
+      }
+
+      const contentLength = end - start + 1;
+
+      const headers = {
+        "Content-Range": `bytes ${start}-${end}/${videoSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": contentLength,
+        "Content-Type": file.contentType,
+      };
+
+      // HTTP Status 206 for Partial Content
+      res.writeHead(206, headers);
+
+      const readStream = gridfsBucket.openDownloadStreamByName(filename, {
+        start,
+        end: end + 1,
+      });
+
+      readStream.on("error", (err) => {
+        console.log("error while streaming", err);
+        res.end();
+      });
+
+      readStream.pipe(res);
+    } else {
+      const readStream = gridfsBucket.openDownloadStreamByName(filename);
+      res.setHeader("Content-Length", file.length);
+      res.setHeader("Content-Type", file.contentType);
+      readStream.pipe(res);
+    }
+  } catch (e) {
+    next(e);
+  }
+};

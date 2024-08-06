@@ -16,6 +16,7 @@
     "jquery": "^3.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-linkify": "^1.0.0-alpha",
     "react-share": "^4.4.1",
     "react-toastify": "^9.1.3",
     "socket.io-client": "^4.7.2",

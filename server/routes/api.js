@@ -15,11 +15,13 @@ const adminRouter = require("./admin.route");
 const stickerRouter = require("./sticker.route");
 const configurationRouter = require("./configuration.route");
 const dashboardRouter = require("./dashboard.route");
+const notificationRouter = require("./notification.route");
 
 router.use("/auth", authRouter);
 router.use("/post", postRouter);
 router.use("/media", mediaRouter);
 router.use("/chat", authGuard, chatRouter);
+router.use("/notification", authGuard, notificationRouter) ;
 router.use("/user", userRouter);
 router.use("/comment", commentRouter);
 router.use("/report", reportRouter);

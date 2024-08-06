@@ -19,6 +19,7 @@ const {
 // const fs = require("fs");
 const { setupAgenda } = require("./services/queueManager");
 const { checkAdminAccount } = require("./services/admin");
+const socketio = require("socket.io");
 
 const connect = mongoose
   .connect(process.env.ATLAS_URI ?? "", {
@@ -29,6 +30,21 @@ const connect = mongoose
     console.log("MongoDB Connected...");
 
     const app = express();
+    const server = require('http').createServer(app);
+    const io = socketio(server, {
+      cors: {
+        origin: process.env.CLIENT_URL,
+        methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
+      },
+    });
+
+    // Middleware to attach io to req
+    app.use((req, res, next) => {
+        req.io = io;
+        next();
+    });
 
     // logging middleware
     app.use(logger);
@@ -110,12 +126,12 @@ const connect = mongoose
     //     console.log(`Server running on port ${port}`);
     //   });
 
-    const server = app.listen(port, () => {
+    server.listen(port, () => {
       console.log(`Server running on port ${port}`);
       runOnServerStart(m);
     });
 
-    websocket(server);
+    websocket(io);
   })
   .catch((err) => console.log("MongoDB Connection Error:", err));
 

@@ -8,6 +8,7 @@ const {
 } = require("./sticker.controller");
 const { deleteFile, isProcessableVideo } = require("./media.controller");
 const { scheduleVideoTask } = require("../services/queueManager");
+const { createNotification } = require("../controllers/notification.controller");
 
 module.exports.getFeed = async (req, res, next) => {
   try {
@@ -166,11 +167,72 @@ module.exports.getPost = async (req, res, next) => {
   }
 };
 
+module.exports.getPostsByHashtags = async (req, res, next) => {
+  try {
+    const { hashtag } = req.params;
+    let requestingUserId;
+    if (req.user) {
+      requestingUserId = req.user._id;
+    }
+    if (!hashtag) {
+      return res.status(400).json({ message: "hashtag query parameter is required" });
+    }
+
+    const posts = await Post.find({ hastag: { $in: [`#${hashtag.trim()}`] }, is_deleted: false });
+
+    if (!posts.length) {
+      return res.status(404).json({ message: "No posts found!" });
+    }
+
+    let responsePosts = [];
+
+    for (const post of posts) {
+      let is_liked = false;
+
+      if (requestingUserId && !req.user.is_admin) {
+        const requestingUser = await User.findById(requestingUserId);
+        const author_is_blocked =
+          requestingUser?.blocked_users?.includes(requestingUserId);
+        const requesting_user_is_blocked = requestingUser?.blocked_by?.includes(
+          post.author
+        );
+
+        if (author_is_blocked || requesting_user_is_blocked) {
+          continue; // Skip this post
+        }
+
+        is_liked = post.likes?.includes(requestingUserId);
+      }
+
+      await post.populate([
+        {
+          path: "author",
+          select: "first_name last_name profile_img username",
+        },
+        {
+          path: "media",
+          populate: {
+            path: "thumbnail",
+          },
+        },
+        { path: "competition" },
+      ]);
+
+      const responsePost = { ...post.toObject(), is_liked };
+      responsePosts.push(responsePost);
+    }
+    res.status(200).json({ data: responsePosts });
+  } catch (e) {
+    next(e);
+  }
+};
+
+
 module.exports.create = async (req, res, next) => {
-  const { caption, author, type, competition, round } = req.body;
+  const { caption, hastag, author, type, competition, round } = req.body;
+  const hastagArr = hastag ? JSON.parse(hastag) : [];
   const mainFile = req.files["file"][0];
   const thumbnailFile = req.files["thumbnail"]?.[0];
-
   const { _id } = req.user;
 
   // match author with the person making the request
@@ -307,6 +369,7 @@ module.exports.create = async (req, res, next) => {
 
     const postData = {
       caption,
+      hastag: hastagArr,
       media: [media._id],
       author,
     };
@@ -341,8 +404,19 @@ module.exports.likePost = async (req, res, next) => {
         .json({ message: "both userId and postId are required" });
     }
 
-    await Post.like(_id, postId);
-    res.status(200).json({ message: "post liked successfully" });
+    const post = await Post.like(_id, postId);
+    if (post && _id != post?.author ) {
+      await createNotification({
+        req,
+        to: post?.author,
+        title: `Post Like ${postId}`,
+        description: `${req.user.first_name} ${req.user.last_name} like your post.`,
+        creator: _id
+      });
+      res.status(200).json({ message: "post liked successfully" });
+    } else {
+      res.status(200).json({ message: "post liked successfully" });
+    }
   } catch (e) {
     next(e);
   }

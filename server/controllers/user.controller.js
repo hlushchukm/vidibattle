@@ -1,5 +1,6 @@
 const { User } = require("../models/user.model");
 const { deleteFile } = require("./media.controller");
+const { createNotification } = require("./notification.controller");
 
 module.exports.getBasicUserInfo = async (req, res, next) => {
   try {
@@ -355,6 +356,14 @@ module.exports.follow = async (req, res, next) => {
 
     await User.addFollower(followedId, followerId);
     await User.addFollowing(followerId, followedId);
+
+    await createNotification({
+      req,
+      to: followedId,
+      title: `Following You ${followedId}`,      
+      description: `${req.user.first_name} ${req.user.last_name} started following you.`,
+      creator: followerId
+    });
 
     res.status(200).json({ message: "user data updated successfully" });
   } catch (e) {

@@ -11,6 +11,7 @@ const postSchema = new Schema(
       required: true,
     },
     caption: { type: String },
+    hastag: [{ type: String }],
     media: [{ type: Schema.Types.ObjectId, ref: "Media" }],
     likes_count: { type: Number, default: 0 },
     likes: [{ type: Schema.Types.ObjectId, ref: "User" }],

@@ -15343,8 +15343,9 @@ ul.list-check {
         border: 1px solid #BBB6D0;
         float: right; }
         .message-list li .left-content .seen-btn.active {
-          background-color: var(--secondary);
-          border-color: var(--secondary); }
+          background-color: var(--bs-danger);
+          border-color: var(--secondary);
+          color: var(--bg-white); }
           .message-list li .left-content .seen-btn.active svg path {
             fill: #fff; }
       .message-list li .left-content .time {
@@ -16137,7 +16138,30 @@ ul.list-check {
         min-height: 65px; }
       .main-screen .brand-logo .logo .brand-title {
         margin-top: 10px; }
-
+      .video-container {
+        position: relative;
+        border-radius: 15px;
+        background-color: black;
+      }
+      .video-player {
+        width: 280px;
+        height: 180px;
+      }
+      .button-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -70%);
+      }
+      .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
 @keyframes move1 {
   0% {
     transform: translateY(10px); }
